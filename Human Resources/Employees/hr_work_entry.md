@@ -1,0 +1,569 @@
+# Odoo Module: hr_work_entry
+
+Category: Human Resources/Employees
+
+This file contains the source code of the Odoo module.
+
+## File: __init__.py
+
+```python
+from . import models
+
+```
+
+## File: __manifest__.py
+
+```python
+#-*- coding:utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+{
+    'name': 'Work Entries',
+    'category': 'Human Resources/Employees',
+    'sequence': 39,
+    'summary': 'Manage work entries',
+    'description': "",
+    'installable': True,
+    'depends': [
+        'hr',
+    ],
+    'data': [
+        'security/hr_work_entry_security.xml',
+        'security/ir.model.access.csv',
+        'data/hr_work_entry_data.xml',
+        'views/hr_work_entry_views.xml',
+    ],
+    'qweb': [
+        "static/src/xml/work_entry_templates.xml",
+    ],
+    'license': 'LGPL-3',
+}
+
+```
+
+## File: data\hr_work_entry_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Work Entry Type -->
+        <record id="work_entry_type_attendance" model="hr.work.entry.type">
+            <field name="name">Attendance</field>
+            <field name="color">0</field>
+            <field name="code">WORK100</field>
+        </record>
+
+    </data>
+</odoo>
+
+```
+
+## File: models\hr_work_entry.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from contextlib import contextmanager
+from dateutil.relativedelta import relativedelta
+import itertools
+from psycopg2 import OperationalError
+
+from odoo import api, fields, models, tools
+
+
+class HrWorkEntry(models.Model):
+    _name = 'hr.work.entry'
+    _description = 'HR Work Entry'
+    _order = 'conflict desc,state,date_start'
+
+    name = fields.Char(required=True)
+    active = fields.Boolean(default=True)
+    employee_id = fields.Many2one('hr.employee', required=True, domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]", index=True)
+    date_start = fields.Datetime(required=True, string='From')
+    date_stop = fields.Datetime(string='To')
+    duration = fields.Float(compute='_compute_duration', inverse='_inverse_duration', store=True, string="Period")
+    work_entry_type_id = fields.Many2one('hr.work.entry.type')
+    color = fields.Integer(related='work_entry_type_id.color', readonly=True)
+    state = fields.Selection([
+        ('draft', 'Draft'),
+        ('validated', 'Validated'),
+        ('conflict', 'Conflict'),
+        ('cancelled', 'Cancelled')
+    ], default='draft')
+    company_id = fields.Many2one('res.company', string='Company', readonly=True, required=True,
+        default=lambda self: self.env.company)
+    conflict = fields.Boolean('Conflicts', compute='_compute_conflict', store=True)  # Used to show conflicting work entries first
+
+    _sql_constraints = [
+        ('_work_entry_has_end', 'check (date_stop IS NOT NULL)', 'Work entry must end. Please define an end date or a duration.'),
+        ('_work_entry_start_before_end', 'check (date_stop > date_start)', 'Starting time should be before end time.')
+    ]
+
+    def init(self):
+        tools.create_index(self._cr, "hr_work_entry_date_start_date_stop_index", self._table, ["date_start", "date_stop"])
+
+    @api.depends('state')
+    def _compute_conflict(self):
+        for rec in self:
+            rec.conflict = rec.state == 'conflict'
+
+    @api.onchange('duration')
+    def _onchange_duration(self):
+        self._inverse_duration()
+
+    @api.depends('date_stop', 'date_start')
+    def _compute_duration(self):
+        for work_entry in self:
+            work_entry.duration = work_entry._get_duration(work_entry.date_start, work_entry.date_stop)
+
+    def _inverse_duration(self):
+        for work_entry in self:
+            if work_entry.date_start and work_entry.duration:
+                work_entry.date_stop = work_entry.date_start + relativedelta(hours=work_entry.duration)
+
+    def _get_duration(self, date_start, date_stop):
+        if not date_start or not date_stop:
+            return 0
+        dt = date_stop - date_start
+        return dt.days * 24 + dt.seconds / 3600  # Number of hours
+
+    def action_validate(self):
+        """
+        Try to validate work entries.
+        If some errors are found, set `state` to conflict for conflicting work entries
+        and validation fails.
+        :return: True if validation succeded
+        """
+        work_entries = self.filtered(lambda work_entry: work_entry.state != 'validated')
+        if not work_entries._check_if_error():
+            work_entries.write({'state': 'validated'})
+            return True
+        return False
+
+    def _check_if_error(self):
+        if not self:
+            return False
+        undefined_type = self.filtered(lambda b: not b.work_entry_type_id)
+        undefined_type.write({'state': 'conflict'})
+        conflict = self._mark_conflicting_work_entries(min(self.mapped('date_start')), max(self.mapped('date_stop')))
+        return undefined_type or conflict
+
+    def _mark_conflicting_work_entries(self, start, stop):
+        """
+        Set `state` to `conflict` for overlapping work entries
+        between two dates.
+        If `self.ids` is truthy then check conflicts with the corresponding work entries.
+        Return True if overlapping work entries were detected.
+        """
+        # Use the postgresql range type `tsrange` which is a range of timestamp
+        # It supports the intersection operator (&&) useful to detect overlap.
+        # use '()' to exlude the lower and upper bounds of the range.
+        # Filter on date_start and date_stop (both indexed) in the EXISTS clause to
+        # limit the resulting set size and fasten the query.
+        self.flush(['date_start', 'date_stop', 'employee_id', 'active'])
+        query = """
+            SELECT b1.id,
+                   b2.id
+              FROM hr_work_entry b1
+              JOIN hr_work_entry b2
+                ON b1.employee_id = b2.employee_id
+               AND b1.id <> b2.id
+             WHERE b1.date_start <= %(stop)s
+               AND b1.date_stop >= %(start)s
+               AND b1.active = TRUE
+               AND b2.active = TRUE
+               AND tsrange(b1.date_start, b1.date_stop, '()') && tsrange(b2.date_start, b2.date_stop, '()')
+               AND {}
+        """.format("b2.id IN %(ids)s" if self.ids else "b2.date_start <= %(stop)s AND b2.date_stop >= %(start)s")
+        self.env.cr.execute(query, {"stop": stop, "start": start, "ids": tuple(self.ids)})
+        conflicts = set(itertools.chain.from_iterable(self.env.cr.fetchall()))
+        self.browse(conflicts).write({
+            'state': 'conflict',
+        })
+        return bool(conflicts)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        work_entries = super().create(vals_list)
+        work_entries._check_if_error()
+        return work_entries
+
+    def write(self, vals):
+        skip_check = not bool({'date_start', 'date_stop', 'employee_id', 'work_entry_type_id', 'active'} & vals.keys())
+        if 'state' in vals:
+            if vals['state'] == 'draft':
+                vals['active'] = True
+            elif vals['state'] == 'cancelled':
+                vals['active'] = False
+                skip_check &= all(self.mapped(lambda w: w.state != 'conflict'))
+
+        if 'active' in vals:
+            vals['state'] = 'draft' if vals['active'] else 'cancelled'
+
+        with self._error_checking(skip=skip_check):
+            return super(HrWorkEntry, self).write(vals)
+
+    def unlink(self):
+        with self._error_checking():
+            return super().unlink()
+
+    def _reset_conflicting_state(self):
+        self.filtered(lambda w: w.state == 'conflict').write({'state': 'draft'})
+
+    @contextmanager
+    def _error_checking(self, start=None, stop=None, skip=False):
+        """
+        Context manager used for conflicts checking.
+        When exiting the context manager, conflicts are checked
+        for all work entries within a date range. By default, the start and end dates are
+        computed according to `self` (min and max respectively) but it can be overwritten by providing
+        other values as parameter.
+        :param start: datetime to overwrite the default behaviour
+        :param stop: datetime to overwrite the default behaviour
+        :param skip: If True, no error checking is done
+        """
+        try:
+            skip = skip or self.env.context.get('hr_work_entry_no_check', False)
+            start = start or min(self.mapped('date_start'), default=False)
+            stop = stop or max(self.mapped('date_stop'), default=False)
+            if not skip and start and stop:
+                work_entries = self.sudo().with_context(hr_work_entry_no_check=True).search([
+                    ('date_start', '<', stop),
+                    ('date_stop', '>', start),
+                    ('state', 'not in', ('validated', 'cancelled')),
+                ])
+                work_entries._reset_conflicting_state()
+            yield
+        except OperationalError:
+            # the cursor is dead, do not attempt to use it or we will shadow the root exception
+            # with a "psycopg2.InternalError: current transaction is aborted, ..."
+            skip = True
+            raise
+        finally:
+            if not skip and start and stop:
+                # New work entries are handled in the create method,
+                # no need to reload work entries.
+                work_entries.exists()._check_if_error()
+
+
+class HrWorkEntryType(models.Model):
+    _name = 'hr.work.entry.type'
+    _description = 'HR Work Entry Type'
+
+    name = fields.Char(required=True)
+    code = fields.Char(required=True)
+    color = fields.Integer(default=0)
+    sequence = fields.Integer(default=25)
+    active = fields.Boolean(
+        'Active', default=True,
+        help="If the active field is set to false, it will allow you to hide the work entry type without removing it.")
+
+    _sql_constraints = [
+        ('unique_work_entry_code', 'UNIQUE(code)', 'The same code cannot be associated to multiple work entry types.'),
+    ]
+
+
+class Contacts(models.Model):
+    """ Personnal calendar filter """
+
+    _name = 'hr.user.work.entry.employee'
+    _description = 'Work Entries Employees'
+
+    user_id = fields.Many2one('res.users', 'Me', required=True, default=lambda self: self.env.user)
+    employee_id = fields.Many2one('hr.employee', 'Employee', required=True)
+    active = fields.Boolean('Active', default=True)
+
+    _sql_constraints = [
+        ('user_id_employee_id_unique', 'UNIQUE(user_id,employee_id)', 'You cannot have the same employee twice.')
+    ]
+
+```
+
+## File: models\resource.py
+
+```python
+# -*- coding:utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import models, fields
+
+
+class ResourceCalendarAttendance(models.Model):
+    _inherit = 'resource.calendar.attendance'
+
+    def _default_work_entry_type_id(self):
+        return self.env.ref('hr_work_entry.work_entry_type_attendance', raise_if_not_found=False)
+
+    work_entry_type_id = fields.Many2one('hr.work.entry.type', 'Work Entry Type', default=_default_work_entry_type_id)
+
+
+class ResourceCalendarLeave(models.Model):
+    _inherit = 'resource.calendar.leaves'
+
+    work_entry_type_id = fields.Many2one('hr.work.entry.type', 'Work Entry Type')
+
+```
+
+## File: models\__init__.py
+
+```python
+# -*- coding:utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from . import hr_work_entry
+from . import resource
+
+```
+
+## File: security\hr_work_entry_security.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="hr_user_work_entry_employee" model="ir.rule">
+            <field name="name">Work entries/Employee calendar filter: only self</field>
+            <field name="model_id" ref="model_hr_user_work_entry_employee"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+            <field name="perm_read" eval="0"/>
+        </record>
+
+    </data>
+</odoo>
+
+```
+
+## File: security\ir.model.access.csv
+
+```csv
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_work_entry_officer,access_hr_work_entry_officer,model_hr_work_entry,hr.group_hr_user,1,1,1,1
+access_hr_work_entry_type_officer,access_hr_work_entry_type_officer,model_hr_work_entry_type,hr.group_hr_user,1,0,0,0
+access_hr_work_entry_type_manager,access_hr_work_entry_type_manager,model_hr_work_entry_type,hr.group_hr_manager,1,1,1,1
+access_hr_work_entry_employee,access_hr_work_entry_employee,model_hr_user_work_entry_employee,hr.group_hr_user,1,1,1,1
+```
+
+## File: static\src\xml\work_entry_templates.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="hr_work_entry.work_entry_button">
+        <button t-if="disabled" disabled="" title="Solve conflicts first" t-attf-class="btn btn-primary btn-work-entry {{ event_class }}" type="button" t-esc="button_text"/>
+        <button t-else="" t-attf-class="btn btn-primary btn-work-entry {{ event_class }}" type="button" t-esc="button_text"/>
+    </t>
+</templates>
+
+```
+
+## File: views\hr_work_entry_views.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- HR WORK ENTRY -->
+
+    <record id="hr_work_entry_action_conflict" model="ir.actions.act_window">
+        <field name="name">Work Entry</field>
+        <field name="res_model">hr.work.entry</field>
+        <field name="context">{'search_default_work_entries_error': 1}</field>
+        <field name="view_mode">tree,calendar,form,pivot</field>
+    </record>
+
+    <record id="hr_work_entry_action" model="ir.actions.act_window">
+        <field name="name">Work Entry</field>
+        <field name="res_model">hr.work.entry</field>
+        <field name="view_mode">calendar,tree,form,pivot</field>
+    </record>
+
+    <record id="hr_work_entry_view_calendar" model="ir.ui.view">
+        <field name="name">hr.work.entry.calendar</field>
+        <field name="model">hr.work.entry</field>
+        <field name="arch" type="xml">
+            <calendar string="Work Entry"
+                date_start="date_start"
+                date_stop="date_stop"
+                mode="month"
+                quick_add="False"
+                color="color"
+                event_limit="5">
+                <!-- Sidebar favorites filters -->
+                <field name="employee_id" write_model="hr.user.work.entry.employee" write_field="employee_id" avatar_field="image_128"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="hr_work_entry_view_form" model="ir.ui.view">
+        <field name="name">hr.work.entry.form</field>
+        <field name="model">hr.work.entry</field>
+        <field name="arch" type="xml">
+            <form string="Work Entry" >
+                <header>
+                    <field name="state" widget="statusbar" options="{'clickable': '1'}" statusbar_visible="draft,validated,conflict"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Work Entry Name" attrs="{'readonly': [('state', '=', 'validated')]}"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="employee_id" attrs="{'readonly': [('state', '!=', 'draft')]}" />
+                            <field name="work_entry_type_id" attrs="{'readonly': [('state', '=', 'validated')]}" options="{'no_create': True, 'no_open': True}"/>
+                        </group>
+                        <group>
+                            <field name="date_start" attrs="{'readonly': [('state', '!=', 'draft')]}" />
+                            <field name="date_stop" attrs="{'readonly': [('state', '!=', 'draft')]}" />
+                            <label for="duration" string="Period"/>
+                            <div class="o_row">
+                                <field name="duration" nolabel="1" attrs="{'readonly': [('state', '!=', 'draft')]}" /><span class="ml8">Hours</span>
+                            </div>
+                            <field name="company_id" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_work_entry_view_tree" model="ir.ui.view">
+        <field name="name">hr.work.entry.tree</field>
+        <field name="model">hr.work.entry</field>
+        <field name="arch" type="xml">
+            <tree multi_edit="1">
+                <field name="name"/>
+                <field name="work_entry_type_id"/>
+                <field name="duration" readonly="1"/>
+                <field name="state"/>
+                <field name="date_start" string="Beginning"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="hr_work_entry_view_search" model="ir.ui.view">
+        <field name="name">hr.work.entry.filter</field>
+        <field name="model">hr.work.entry</field>
+        <field name="arch" type="xml">
+            <search string="Search Work Entry">
+                <field name="employee_id"/>
+                <field name="name"/>
+                <filter name="my_work_entries" string="My Entries" domain="[('employee_id.user_id', '=', uid)]"/>
+                <filter name="work_entries_error" string="Conflicting" domain="[('state', '=', 'conflict')]"/>
+                <separator/>
+                <filter name="date_filter" string="Date" date="date_start"/>
+                <filter name="current_month" string="Current Month" domain="[
+                    ('date_stop', '&gt;=', (context_today()).strftime('%Y-%m-01')),
+                    ('date_start', '&lt;', (context_today() + relativedelta(months=1)).strftime('%Y-%m-01'))]"/>
+                <separator/>
+                <filter name="group_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                <filter name="group_work_entry_type" string="Type" context="{'group_by': 'work_entry_type_id'}"/>
+                <filter name="group_start_date" string="Start Date" context="{'group_by': 'date_start'}"/>
+                <separator/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- HR WORK ENTRY TYPE -->
+
+    <record id="hr_work_entry_type_view_search" model="ir.ui.view">
+        <field name="name">hr.work.entry.type.view.search</field>
+        <field name="model">hr.work.entry.type</field>
+        <field name="arch" type="xml">
+            <search string="Search Work Entry Type">
+                <field name="name"/>
+                <separator/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="hr_work_entry_type_action" model="ir.actions.act_window">
+        <field name="name">Work Entry Types</field>
+        <field name="res_model">hr.work.entry.type</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="search_view_id" ref="hr_work_entry_type_view_search"/>
+    </record>
+
+    <record id="hr_work_entry_type_view_tree" model="ir.ui.view">
+        <field name="name">hr.work.entry.type.tree</field>
+        <field name="model">hr.work.entry.type</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="code"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="hr_work_entry_type_view_form" model="ir.ui.view">
+        <field name="name">hr.work.entry.type.form</field>
+        <field name="model">hr.work.entry.type</field>
+        <field name="arch" type="xml">
+            <form string="Work Entry Type" >
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Work Entry Type Name"/>
+                        </h1>
+                    </div>
+                    <group name="main_group">
+                        <group name="identification">
+                            <field name="code"/>
+                            <field name="active" invisible="1"/>
+                            <field name="sequence"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_work_entry_type_view_kanban" model="ir.ui.view">
+        <field name="name">hr.work.entry.type.kanban.view</field>
+        <field name="model">hr.work.entry.type</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="color"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="#{!selection_mode ? kanban_color(record.color.raw_value) : ''} oe_kanban_global_click">
+                            <div class="o_dropdown_kanban dropdown" t-if="!selection_mode">
+                                <a class="dropdown-toggle o-no-caret btn" role="button" data-toggle="dropdown" href="#" aria-label="Dropdown menu" title="Dropdown menu">
+                                    <span class="fa fa-bars fa-lg"/>
+                                </a>
+                                <div class="dropdown-menu" role="menu">
+                                    <ul class="oe_kanban_colorpicker" data-field="color"/>
+                                </div>
+                            </div>
+                            <div class="oe_kanban_content">
+                                <div>
+                                    <strong class="o_kanban_record_title"><span><field name="name"/></span></strong>
+                                </div>
+                                <div>
+                                    <span class="text-muted o_kanban_record_subtitle"><field name="code"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+</odoo>
+
+```
+

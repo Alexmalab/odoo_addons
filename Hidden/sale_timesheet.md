@@ -1,0 +1,3822 @@
+# Odoo Module: sale_timesheet
+
+Category: Hidden
+
+This file contains the source code of the Odoo module.
+
+## File: __init__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import api, SUPERUSER_ID
+
+from . import controllers
+from . import models
+from . import wizard
+from . import report
+
+def uninstall_hook(cr, registry):
+    env = api.Environment(cr, SUPERUSER_ID, {})
+    env['product.template'].search([
+        ('service_type', '=', 'timesheet')
+    ]).write({'service_type': 'manual'})
+    env['product.product'].search([
+        ('service_type', '=', 'timesheet')
+    ]).write({'service_type': 'manual'})
+
+```
+
+## File: __manifest__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+{
+    'name': 'Sales Timesheet',
+    'category': 'Hidden',
+    'summary': 'Sell based on timesheets',
+    'description': """
+Allows to sell timesheets in your sales order
+=============================================
+
+This module set the right product on all timesheet lines
+according to the order/contract you work on. This allows to
+have real delivered quantities in sales orders.
+""",
+    'depends': ['sale_management', 'hr_timesheet'],
+    'data': [
+        'security/ir.model.access.csv',
+        'security/sale_timesheet_security.xml',
+        'views/account_invoice_views.xml',
+        'views/sale_order_views.xml',
+        'views/product_views.xml',
+        'views/project_task_views.xml',
+        'views/hr_timesheet_views.xml',
+        'views/res_config_settings_views.xml',
+        'views/hr_timesheet_templates.xml',
+        'views/sale_timesheet_portal_templates.xml',
+        'report/project_profitability_report_analysis_views.xml',
+        'data/sale_timesheet_filters.xml',
+        'wizard/project_create_sale_order_views.xml',
+        'wizard/project_create_invoice_views.xml',
+    ],
+    'demo': [
+        'data/sale_service_demo.xml',
+    ],
+    'auto_install': True,
+    'uninstall_hook': 'uninstall_hook',
+    'license': 'LGPL-3',
+}
+
+```
+
+## File: controllers\portal.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo.http import request
+from odoo.osv import expression
+
+from odoo.addons.account.controllers.portal import PortalAccount
+
+
+class PortalAccount(PortalAccount):
+
+    def _invoice_get_page_view_values(self, invoice, access_token, **kwargs):
+        values = super(PortalAccount, self)._invoice_get_page_view_values(invoice, access_token, **kwargs)
+        domain = request.env['account.analytic.line']._timesheet_get_portal_domain()
+        domain = expression.AND([domain, [('timesheet_invoice_id', '=', invoice.id)]])
+        values['timesheets'] = request.env['account.analytic.line'].sudo().search(domain)
+        return values
+
+```
+
+## File: controllers\__init__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from . import portal
+
+```
+
+## File: data\sale_service_demo.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="sale_line_services" model="sale.order.line">
+            <field name="order_id" ref="sale.sale_order_3"/>
+            <field name="name" model="sale.order.line" eval="obj().env.ref('sale.advance_product_0').get_product_multiline_description_sale()"/>
+            <field name="product_id" ref="sale.advance_product_0"/>
+            <field name="product_uom" ref="uom.product_uom_unit"/>
+            <field name="price_unit">150.0</field>
+            <field name="product_uom_qty">5.0</field>
+        </record>
+
+        <!-- Projects, Analytic Account and Stages -->
+        <record id="project_stage_fixed" model="project.task.type">
+            <field name="sequence">30</field>
+            <field name="name">Fixed</field>
+            <field name="legend_blocked">Need functional or technical help</field>
+            <field name="legend_done">Done</field>
+        </record>
+
+        <record id="account_analytic_account_project_support" model="account.analytic.account">
+            <field name="name">After-Sales Services</field>
+            <field name="code">INT</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record id="project_support" model="project.project">
+            <field name="date_start" eval="time.strftime('%Y-%m-01 10:00:00')"/>
+            <field name="name">After-Sales Services</field>
+            <field name="analytic_account_id" ref="account_analytic_account_project_support"/>
+            <field name="type_ids" eval="[(4, ref('project.project_stage_data_0')), (4, ref('project.project_stage_1')), (4, ref('project_stage_fixed'))]"/>
+        </record>
+
+        <!-- Project Task -->
+        <record id="project_task_internal" model="project.task">
+            <field name="name">Internal training</field>
+            <field name="user_id" ref="base.user_admin"/>
+            <field name="project_id" ref="project.project_project_1"/>
+        </record>
+
+        <!-- Products -->
+        <record id="product.product_product_2" model="product.product">
+            <field name="service_type">timesheet</field>
+            <field name="service_tracking">project_only</field>
+        </record>
+
+        <record id="product.product_product_1" model="product.product">
+            <field name="service_type">timesheet</field>
+            <field name="service_tracking">task_global_project</field>
+        </record>
+
+        <record id="product_service_order_timesheet" model="product.product">
+            <field name="name">Customer Care (Prepaid Hours)</field>
+            <field name="default_code">SERV_585189</field>
+            <field name="categ_id" ref="product.product_category_3"/>
+            <field name="type">service</field>
+            <field name="list_price">250.00</field>
+            <field name="standard_price">190.00</field>
+            <field name="uom_id" ref="uom.product_uom_hour"/>
+            <field name="uom_po_id" ref="uom.product_uom_hour"/>
+            <field name="service_policy">ordered_timesheet</field>
+            <field name="service_tracking">task_global_project</field>
+            <field name="project_id" ref="project_support"/>
+        </record>
+
+        <record id="product_service_deliver_timesheet_1" model="product.product">
+            <field name="name">Senior Architect (Invoice on Timesheets)</field>
+            <field name="default_code">SERV_89744</field>
+            <field name="categ_id" ref="product.product_category_3"/>
+            <field name="list_price">200.00</field>
+            <field name="standard_price">150.00</field>
+            <field name="type">service</field>
+            <field name="uom_id" ref="uom.product_uom_hour"/>
+            <field name="uom_po_id" ref="uom.product_uom_hour"/>
+            <field name="service_policy">delivered_timesheet</field>
+            <field name="service_tracking">task_in_project</field>
+        </record>
+
+        <record id="product_service_deliver_timesheet_2" model="product.product">
+            <field name="name">Junior Architect (Invoice on Timesheets)</field>
+            <field name="default_code">SERV_89665</field>
+            <field name="categ_id" ref="product.product_category_3"/>
+            <field name="list_price">100.00</field>
+            <field name="standard_price">85.00</field>
+            <field name="type">service</field>
+            <field name="uom_id" ref="uom.product_uom_hour"/>
+            <field name="uom_po_id" ref="uom.product_uom_hour"/>
+            <field name="service_policy">delivered_timesheet</field>
+            <field name="service_tracking">task_in_project</field>
+        </record>
+
+        <record id="product_service_deliver_manual" model="product.product">
+            <field name="name">Kitchen Assembly (Milestones)</field>
+            <field name="default_code">SERV_32289</field>
+            <field name="categ_id" ref="product.product_category_3"/>
+            <field name="list_price">500</field>
+            <field name="standard_price">420.00</field>
+            <field name="type">service</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="service_policy">delivered_manual</field>
+            <field name="service_tracking">no</field>
+        </record>
+
+        <!-- Sales orders -->
+        <record id="sale_order_1" model="sale.order">
+            <field name="partner_id" ref="base.res_partner_2"/>
+            <field name="client_order_ref">AGR</field>
+            <field name="user_id" ref="base.user_admin"/>
+        </record>
+
+        <record id="sale_line_11" model="sale.order.line">
+            <field name="order_id" ref="sale_order_1"/>
+            <field name="sequence" eval="1"/>
+            <field name="product_id" ref="product_service_order_timesheet"/>
+            <field name="product_uom_qty">20</field>
+        </record>
+        <record id="sale_line_12" model="sale.order.line">
+            <field name="order_id" ref="sale_order_1"/>
+            <field name="sequence" eval="3"/>
+            <field name="product_id" ref="product_service_deliver_manual"/>
+            <field name="product_uom_qty">4</field>
+        </record>
+        <record id="sale_line_13" model="sale.order.line">
+            <field name="order_id" ref="sale_timesheet.sale_order_1"/>
+            <field name="product_id" ref="product_service_deliver_timesheet_1"/>
+            <field name="sequence" eval="2"/>
+            <field name="discount">10</field>
+            <field name="product_uom_qty">50</field>
+        </record>
+
+        <!-- Sale Order 'sale_order_2' (Delta PC) -->
+        <record id="sale_order_2" model="sale.order">
+            <field name="partner_id" ref="base.res_partner_4"/>
+            <field name="client_order_ref">DPC</field>
+            <field name="user_id" ref="base.user_admin"/>
+        </record>
+
+        <record id="sale_line_21" model="sale.order.line">
+            <field name="order_id" ref="sale_order_2"/>
+            <field name="sequence" eval="1"/>
+            <field name="product_id" ref="product_service_order_timesheet"/>
+            <field name="product_uom_qty">150</field>
+        </record>
+        <record id="sale_line_22" model="sale.order.line">
+            <field name="order_id" ref="sale_timesheet.sale_order_2"/>
+            <field name="sequence" eval="2"/>
+            <field name="product_id" ref="product_service_deliver_timesheet_2"/>
+            <field name="product_uom_qty">10</field>
+        </record>
+
+        <!-- Confirm Sale Orders -->
+        <function model="sale.order" name="action_confirm" eval="[[ref('sale_order_1')]]"/>
+        <function model="sale.order" name="action_confirm" eval="[[ref('sale_order_2')]]"/>
+
+        <!-- Timesheets on sale_order_1 -->
+        <record id="timesheet_1" model="account.analytic.line">
+            <field name="name">Design</field>
+            <field name="employee_id" ref="hr.employee_admin"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=3,weeks=-2)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">5.00</field>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_13'))]"/>
+            <field name="project_id" search="[('sale_line_id', '=', ref('sale_line_13'))]"/>
+        </record>
+        <record id="timesheet_2" model="account.analytic.line">
+            <field name="name">Fine tuning</field>
+            <field name="employee_id" ref="hr.employee_admin"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=2,weeks=-2)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">5.00</field>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_13'))]"/>
+            <field name="project_id" search="[('sale_line_id', '=', ref('sale_line_13'))]"/>
+        </record>
+        <record id="timesheet_3" model="account.analytic.line">
+            <field name="name">Assembling</field>
+            <field name="employee_id" ref="hr.employee_admin"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(days=0)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">5.00</field>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_13'))]"/>
+            <field name="project_id" search="[('sale_line_id', '=', ref('sale_line_13'))]"/>
+        </record>
+        <record id="timesheet_4" model="account.analytic.line">
+            <field name="name">Delivery</field>
+            <field name="employee_id" ref="hr.employee_admin"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=1,weeks=-2)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">5.00</field>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_13'))]"/>
+            <field name="project_id" search="[('sale_line_id', '=', ref('sale_line_13'))]"/>
+        </record>
+
+        <record id="timesheet_5" model="account.analytic.line">
+            <field name="name">Requirements analysis</field>
+            <field name="employee_id" ref="hr.employee_admin"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=0,weeks=-2)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">1.00</field>
+            <field name="project_id" ref="project_support"/>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_11'))]"/>
+        </record>
+        <record id="timesheet_6" model="account.analytic.line">
+            <field name="name">Client meeting</field>
+            <field name="employee_id" ref="hr.employee_admin"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=1,weeks=-2)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">1.00</field>
+            <field name="project_id" ref="project_support"/>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_11'))]"/>
+        </record>
+        <record id="timesheet_7" model="account.analytic.line">
+            <field name="name">Requirements check</field>
+            <field name="employee_id" ref="hr.employee_qdp"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=2,weeks=-2)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">1.00</field>
+            <field name="project_id" ref="project_support"/>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_11'))]"/>
+        </record>
+        <record id="timesheet_8" model="account.analytic.line">
+            <field name="name">Requirements analysis</field>
+            <field name="employee_id" ref="hr.employee_qdp"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=3,weeks=-2)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">1.00</field>
+            <field name="project_id" ref="project_support"/>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_11'))]"/>
+        </record>
+        <record id="timesheet_9" model="account.analytic.line">
+            <field name="name">Building</field>
+            <field name="employee_id" ref="hr.employee_admin"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=4,weeks=-2)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">1.00</field>
+            <field name="project_id" ref="project_support"/>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_11'))]"/>
+        </record>
+        <record id="timesheet_10" model="account.analytic.line">
+            <field name="name">Research</field>
+            <field name="employee_id" ref="hr.employee_admin"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=0,weeks=-3)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">1.00</field>
+            <field name="project_id" ref="project_support"/>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_11'))]"/>
+        </record>
+        <record id="timesheet_11" model="account.analytic.line">
+            <field name="name">Assembling</field>
+            <field name="employee_id" ref="hr.employee_admin"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=1,weeks=-3)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">1.00</field>
+            <field name="project_id" ref="project_support"/>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_11'))]"/>
+        </record>
+        <record id="timesheet_12" model="account.analytic.line">
+            <field name="name">Quality  check</field>
+            <field name="employee_id" ref="hr.employee_qdp"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=2,weeks=-3)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">1.00</field>
+            <field name="project_id" ref="project_support"/>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_11'))]"/>
+        </record>
+        <record id="timesheet_13" model="account.analytic.line">
+            <field name="name">Assembling</field>
+            <field name="employee_id" ref="hr.employee_qdp"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=3,weeks=-3)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">1.00</field>
+            <field name="project_id" ref="project_support"/>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_11'))]"/>
+        </record>
+        <record id="timesheet_14" model="account.analytic.line">
+            <field name="name">Wood chopping</field>
+            <field name="employee_id" ref="hr.employee_admin"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=4,weeks=-3)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">1.00</field>
+            <field name="project_id" ref="project_support"/>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_11'))]"/>
+        </record>
+
+        <!-- Timesheets on sale_order_2 -->
+        <record id="timesheet_15" model="account.analytic.line">
+            <field name="name">Research and Development</field>
+            <field name="employee_id" ref="hr.employee_qdp"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=1,weeks=-2)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">8.00</field>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_22'))]"/>
+            <field name="project_id" search="[('sale_line_id', '=', ref('sale_line_22'))]"/>
+        </record>
+        <record id="timesheet_16" model="account.analytic.line">
+            <field name="name">Quality analysis</field>
+            <field name="employee_id" ref="hr.employee_qdp"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=2,weeks=-2)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">8.00</field>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_22'))]"/>
+            <field name="project_id" search="[('sale_line_id', '=', ref('sale_line_22'))]"/>
+        </record>
+        <record id="timesheet_17" model="account.analytic.line">
+            <field name="name">Repair</field>
+            <field name="employee_id" ref="hr.employee_qdp"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(days=0)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">8.00</field>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_22'))]"/>
+            <field name="project_id" search="[('sale_line_id', '=', ref('sale_line_22'))]"/>
+        </record>
+        <record id="timesheet_18" model="account.analytic.line">
+            <field name="name">Initial design improvement</field>
+            <field name="employee_id" ref="hr.employee_qdp"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=4,weeks=-2)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">8.00</field>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_22'))]"/>
+            <field name="project_id" search="[('sale_line_id', '=', ref('sale_line_22'))]"/>
+        </record>
+
+        <record id="timesheet_19" model="account.analytic.line">
+            <field name="name">Knowledge transfer</field>
+            <field name="employee_id" ref="hr.employee_qdp"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=0,weeks=-5)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">4.00</field>
+            <field name="project_id" ref="project_support"/>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_21'))]"/>
+        </record>
+        <record id="timesheet_20" model="account.analytic.line">
+            <field name="name">Document analysis</field>
+            <field name="employee_id" ref="hr.employee_admin"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=0,weeks=-4)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">4.00</field>
+            <field name="project_id" ref="project_support"/>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_21'))]"/>
+        </record>
+        <record id="timesheet_21" model="account.analytic.line">
+            <field name="name">Design analysis</field>
+            <field name="employee_id" ref="hr.employee_admin"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=0,weeks=-3)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">4.00</field>
+            <field name="project_id" ref="project_support"/>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_21'))]"/>
+        </record>
+        <record id="timesheet_22" model="account.analytic.line">
+            <field name="name">Requirements meeting</field>
+            <field name="employee_id" ref="hr.employee_qdp"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(weekday=0,weeks=-2)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">4.00</field>
+            <field name="project_id" ref="project_support"/>
+            <field name="task_id" search="[('sale_line_id', '=', ref('sale_line_21'))]"/>
+        </record>
+
+        <!-- Non billable Timesheets in project_support -->
+        <record id="timesheet_23" model="account.analytic.line">
+            <field name="name">Technical training</field>
+            <field name="employee_id" ref="hr.employee_admin"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(months=-4, days=-10)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">8.00</field>
+            <field name="project_id" ref="project.project_project_1"/>
+            <field name="task_id" ref="project_task_internal"/>
+        </record>
+        <record id="timesheet_24" model="account.analytic.line">
+            <field name="name">Internal training</field>
+            <field name="employee_id" ref="hr.employee_admin"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(months=-4, days=-12)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">8.00</field>
+            <field name="project_id" ref="project.project_project_1"/>
+            <field name="task_id" ref="project_task_internal"/>
+        </record>
+        <record id="timesheet_25" model="account.analytic.line">
+            <field name="name">Internal discussion</field>
+            <field name="employee_id" ref="hr.employee_admin"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(months=-4, days=-13)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">8.00</field>
+            <field name="project_id" ref="project.project_project_1"/>
+            <field name="task_id" ref="project_task_internal"/>
+        </record>
+        <record id="timesheet_26" model="account.analytic.line">
+            <field name="name">Details improvement</field>
+            <field name="employee_id" ref="hr.employee_qdp"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(months=-4, days=-11)).strftime('%Y-%m-%d')"/>
+            <field name="unit_amount">8.00</field>
+            <field name="project_id" ref="project.project_project_1"/>
+            <field name="task_id" ref="project_task_internal"/>
+        </record>
+
+        <!-- Vendor bill for sale_order_1 -->
+        <record id="account_analytic_line_inv_1" model="account.analytic.line">
+            <field name="name" model="account.analytic.line" eval="obj().env.ref('product.product_product_3').get_product_multiline_description_sale()"/>
+            <field name="account_id" search="[('partner_id', '=', ref('base.res_partner_2'))]"/>
+            <field name="partner_id" ref="base.partner_root"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(days=0)).strftime('%Y-%m-%d')"/>
+            <field name="amount">-300.00</field>
+            <field name="product_id" ref="product.product_product_3"/>
+            <field name="product_uom_id" ref="uom.product_uom_unit"/>
+            <field name="unit_amount">10.00</field>
+        </record>
+
+        <!-- Expense bill for sale_order_1 -->
+        <record id="account_analytic_line_exp_1" model="account.analytic.line">
+            <field name="name" model="account.analytic.line" eval="obj().env.ref('product.expense_product').get_product_multiline_description_sale()"/>
+            <field name="account_id" search="[('partner_id', '=', ref('base.res_partner_2'))]"/>
+            <field name="partner_id" ref="base.partner_root"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(days=0)).strftime('%Y-%m-%d')"/>
+            <field name="amount">-100.00</field>
+            <field name="product_id" ref="product.expense_product"/>
+            <field name="product_uom_id" ref="uom.product_uom_unit"/>
+            <field name="unit_amount">1.00</field>
+        </record>
+
+        <!-- Vendor bill for sale_order_2 -->
+        <record id="account_analytic_line_inv_2" model="account.analytic.line">
+            <field name="name" model="account.analytic.line" eval="obj().env.ref('product.product_product_3').get_product_multiline_description_sale()"/>
+            <field name="account_id" search="[('partner_id', '=', ref('base.res_partner_4'))]"/>
+            <field name="partner_id" ref="base.partner_root"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(days=0)).strftime('%Y-%m-%d')"/>
+            <field name="amount">-400.00</field>
+            <field name="product_id" ref="product.product_product_3"/>
+            <field name="product_uom_id" ref="uom.product_uom_unit"/>
+            <field name="unit_amount">15.00</field>
+        </record>
+
+        <!-- Expense bill for sale_order_2 -->
+        <record id="account_analytic_line_exp_2" model="account.analytic.line">
+            <field name="name" model="account.analytic.line" eval="obj().env.ref('product.expense_hotel').get_product_multiline_description_sale()"/>
+            <field name="account_id" search="[('partner_id', '=', ref('base.res_partner_4'))]"/>
+            <field name="partner_id" ref="base.partner_demo"/>
+            <field name="date" eval="(DateTime.now() + relativedelta(days=0)).strftime('%Y-%m-%d')"/>
+            <field name="amount">-75.00</field>
+            <field name="product_id" ref="product.expense_hotel"/>
+            <field name="product_uom_id" ref="uom.product_uom_day"/>
+            <field name="unit_amount">1.00</field>
+        </record>
+
+        <!-- task on project generated by sale order 1 -->
+        <record id="project_from_sale_order_1_to_do" model="project.task.type">
+            <field name="sequence">10</field>
+            <field name="name">To Do</field>
+            <field name="legend_blocked">Not ready</field>
+            <field name="legend_done">Ready to be started</field>
+            <field name="project_ids" search="[('sale_order_id', '=', ref('sale_timesheet.sale_order_1'))]" />
+        </record>
+
+        <record id="project_from_sale_order_1_in_progress" model="project.task.type">
+            <field name="sequence">20</field>
+            <field name="name">In Progress</field>
+            <field name="legend_blocked">Need help</field>
+            <field name="legend_done">Work done</field>
+            <field name="project_ids" search="[('sale_order_id', '=', ref('sale_timesheet.sale_order_1'))]" />
+        </record>
+
+        <record id="project_from_sale_order_1_done" model="project.task.type">
+            <field name="sequence">30</field>
+            <field name="name">Done</field>
+            <field name="legend_blocked">Not done yet</field>
+            <field name="legend_done">Done</field>
+            <field name="project_ids" search="[('sale_order_id', '=', ref('sale_timesheet.sale_order_1'))]" />
+        </record>
+
+        <function model="project.task" name="write">
+            <value model="project.task" eval="obj().search([('sale_line_id','=',ref('sale_timesheet.sale_line_13')), ('stage_id', '=', False)]).id"/>
+            <value eval="{
+                'stage_id': ref('sale_timesheet.project_from_sale_order_1_to_do')
+            }"/>
+        </function>
+
+        <record id="project_task_1" model="project.task">
+            <field name="name">Decoration</field>
+            <field name="sale_line_id" ref="sale_timesheet.sale_line_13"/>
+            <field name="sale_order_id" ref="sale_timesheet.sale_order_1"/>
+            <field name="project_id" search="[('sale_order_id', '=', ref('sale_timesheet.sale_order_1'))]" />
+            <field name="stage_id" ref="project_from_sale_order_1_in_progress"/>
+            <field name="sale_line_id" ref="sale_timesheet.sale_line_13" />
+            <field name="sale_order_id" ref="sale_timesheet.sale_order_1" />
+            <field name="partner_id" ref="base.res_partner_2" />
+        </record>
+
+        <record id="project_task_2" model="project.task">
+            <field name="name">Planning</field>
+            <field name="sale_line_id" ref="sale_timesheet.sale_line_13"/>
+            <field name="sale_order_id" ref="sale_timesheet.sale_order_1"/>
+            <field name="project_id" search="[('sale_order_id', '=', ref('sale_timesheet.sale_order_1'))]" />
+            <field name="stage_id" ref="project_from_sale_order_1_done"/>
+            <field name="sale_line_id" ref="sale_timesheet.sale_line_13" />
+            <field name="sale_order_id" ref="sale_timesheet.sale_order_1" />
+            <field name="partner_id" ref="base.res_partner_2" />
+        </record>
+
+        <record id="project_task_3" model="project.task">
+            <field name="name">Furniture</field>
+            <field name="sale_line_id" ref="sale_timesheet.sale_line_13"/>
+            <field name="sale_order_id" ref="sale_timesheet.sale_order_1"/>
+            <field name="project_id" search="[('sale_order_id', '=', ref('sale_timesheet.sale_order_1'))]" />
+            <field name="stage_id" ref="project_from_sale_order_1_in_progress"/> 
+            <field name="sale_line_id" ref="sale_timesheet.sale_line_13" />
+            <field name="sale_order_id" ref="sale_timesheet.sale_order_1" />
+            <field name="partner_id" ref="base.res_partner_2" />    
+        </record>
+
+        <record id="project_task_4" model="project.task">
+            <field name="name">Furniture Delivery</field>
+            <field name="project_id" search="[('sale_order_id', '=', ref('sale_timesheet.sale_order_1'))]" />
+            <field name="stage_id" ref="project_from_sale_order_1_to_do" />
+            <field name="sale_line_id" ref="sale_timesheet.sale_line_13" />
+            <field name="sale_order_id" ref="sale_timesheet.sale_order_1" />
+            <field name="partner_id" ref="base.res_partner_2" />
+        </record>
+
+    </data>
+</odoo>
+
+```
+
+## File: data\sale_timesheet_filters.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<record id="ir_filter_project_profitability_report_costs_and_revenues" model="ir.filters">
+        <field name="name">Costs and Revenues</field>
+        <field name="model_id">project.profitability.report</field>
+        <field name="user_id" eval="False"/>
+        <field name="is_default" eval="True"/>
+        <field name="context">{
+        	'group_by': ['project_id', 'sale_line_id'],
+        	'pivot_measures': ['amount_untaxed_to_invoice', 'amount_untaxed_invoiced', 'timesheet_cost', 'timesheet_unit_amount'],
+        	'pivot_column_groupby': [], 'pivot_row_groupby': []
+        }</field>
+    </record>
+
+    <record id="ir_filter_project_profitability_report_manager_and_product" model="ir.filters">
+        <field name="name">Product by Customer</field>
+        <field name="model_id">project.profitability.report</field>
+        <field name="user_id" eval="False"/>
+        <field name="context">{
+        	'group_by': ['partner_id', 'product_id'],
+        	'graph_measure': 'amount_untaxed_to_invoice',
+        	'graph_mode': 'bar',
+        	'graph_groupbys': ['partner_id', 'product_id']
+        }</field>
+    </record>
+
+</odoo>
+
+```
+
+## File: models\account.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo.exceptions import UserError, ValidationError
+
+from odoo import api, fields, models, _
+from odoo.osv import expression
+
+
+class AccountAnalyticLine(models.Model):
+    _inherit = 'account.analytic.line'
+
+    def _default_sale_line_domain(self):
+        domain = super(AccountAnalyticLine, self)._default_sale_line_domain()
+        return expression.OR([domain, [('qty_delivered_method', '=', 'timesheet')]])
+
+    timesheet_invoice_type = fields.Selection([
+        ('billable_time', 'Billed on Timesheets'),
+        ('billable_fixed', 'Billed at a Fixed price'),
+        ('non_billable', 'Non Billable Tasks'),
+        ('non_billable_project', 'No task found')], string="Billable Type", compute='_compute_timesheet_invoice_type', compute_sudo=True, store=True, readonly=True)
+    timesheet_invoice_id = fields.Many2one('account.move', string="Invoice", readonly=True, copy=False, help="Invoice created from the timesheet")
+
+    @api.depends('so_line.product_id', 'project_id', 'task_id')
+    def _compute_timesheet_invoice_type(self):
+        for timesheet in self:
+            if timesheet.project_id:  # AAL will be set to False
+                invoice_type = 'non_billable_project' if not timesheet.task_id else 'non_billable'
+                if timesheet.task_id and timesheet.so_line.product_id.type == 'service':
+                    if timesheet.so_line.product_id.invoice_policy == 'delivery':
+                        if timesheet.so_line.product_id.service_type == 'timesheet':
+                            invoice_type = 'billable_time'
+                        else:
+                            invoice_type = 'billable_fixed'
+                    elif timesheet.so_line.product_id.invoice_policy == 'order':
+                        invoice_type = 'billable_fixed'
+                timesheet.timesheet_invoice_type = invoice_type
+            else:
+                timesheet.timesheet_invoice_type = False
+
+    @api.onchange('employee_id')
+    def _onchange_task_id_employee_id(self):
+        if self.project_id:  # timesheet only
+            if self.task_id.billable_type == 'task_rate':
+                self.so_line = self.task_id.sale_line_id
+            elif self.task_id.billable_type == 'employee_rate':
+                self.so_line = self._timesheet_determine_sale_line(self.task_id, self.employee_id)
+            else:
+                self.so_line = False
+
+    @api.constrains('so_line', 'project_id')
+    def _check_sale_line_in_project_map(self):
+        for timesheet in self:
+            if timesheet.project_id and timesheet.so_line:  # billed timesheet
+                if timesheet.so_line not in timesheet.project_id.mapped('sale_line_employee_ids.sale_line_id') | timesheet.task_id.sale_line_id | timesheet.project_id.sale_line_id:
+                    raise ValidationError(_("This timesheet line cannot be billed: there is no Sale Order Item defined on the task, nor on the project. Please define one to save your timesheet line."))
+
+    def write(self, values):
+        # prevent to update invoiced timesheets if one line is of type delivery
+        self._check_can_write(values)
+        result = super(AccountAnalyticLine, self).write(values)
+        return result
+
+    def _check_can_write(self, values):
+        if self.sudo().filtered(lambda aal: aal.so_line.product_id.invoice_policy == "delivery") and self.filtered(lambda timesheet: timesheet.timesheet_invoice_id):
+            if any([field_name in values for field_name in ['unit_amount', 'employee_id', 'project_id', 'task_id', 'so_line', 'amount', 'date']]):
+                raise UserError(_('You can not modify already invoiced timesheets (linked to a Sales order items invoiced on Time and material).'))
+
+    @api.model
+    def _timesheet_preprocess(self, values):
+        values = super(AccountAnalyticLine, self)._timesheet_preprocess(values)
+        # task implies so line (at create)
+        if 'task_id' in values and not values.get('so_line') and (values.get('employee_id') or self.mapped('employee_id')):
+            if not values.get('employee_id') and len(self.mapped('employee_id')) > 1:
+                raise UserError(_('You can not modify timesheets from different employees'))
+            task = self.env['project.task'].sudo().browse(values['task_id'])
+            employee = self.env['hr.employee'].sudo().browse(values['employee_id']) if values.get('employee_id') else self.mapped('employee_id')
+            values['so_line'] = self._timesheet_determine_sale_line(task, employee).id
+        return values
+
+    def _timesheet_postprocess_values(self, values):
+        result = super(AccountAnalyticLine, self)._timesheet_postprocess_values(values)
+        # (re)compute the sale line
+        if any([field_name in values for field_name in ['task_id', 'employee_id']]):
+            for timesheet in self:
+                result[timesheet.id].update({
+                    'so_line': timesheet._timesheet_determine_sale_line(timesheet.task_id, timesheet.employee_id).id,
+                })
+        return result
+
+    @api.model
+    def _timesheet_determine_sale_line(self, task, employee):
+        """ Deduce the SO line associated to the timesheet line:
+            1/ timesheet on task rate: the so line will be the one from the task
+            2/ timesheet on employee rate task: find the SO line in the map of the project (even for subtask), or fallback on the SO line of the task, or fallback
+                on the one on the project
+            NOTE: this have to be consistent with `_compute_billable_type` on project.task.
+        """
+        if task.billable_type != 'no':
+            if task.billable_type == 'employee_rate':
+                map_entry = self.env['project.sale.line.employee.map'].search([('project_id', '=', task.project_id.id), ('employee_id', '=', employee.id)])
+                if map_entry:
+                    return map_entry.sale_line_id
+                if task.sale_line_id:
+                    return task.sale_line_id
+                return task.project_id.sale_line_id
+            elif task.billable_type == 'task_rate':
+                return task.sale_line_id
+        return self.env['sale.order.line']
+
+    def _timesheet_get_portal_domain(self):
+        """ Only the timesheets with a product invoiced on delivered quantity are concerned.
+            since in ordered quantity, the timesheet quantity is not invoiced,
+            thus there is no meaning of showing invoice with ordered quantity.
+        """
+        domain = super(AccountAnalyticLine, self)._timesheet_get_portal_domain()
+        return expression.AND([domain, [('timesheet_invoice_type', 'in', ['billable_time', 'non_billable'])]])
+
+```
+
+## File: models\account_move.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import api, fields, models, _
+from odoo.tools.float_utils import float_round, float_is_zero
+
+
+class AccountMove(models.Model):
+    _inherit = "account.move"
+
+    timesheet_ids = fields.One2many('account.analytic.line', 'timesheet_invoice_id', string='Timesheets', readonly=True, copy=False)
+    timesheet_count = fields.Integer("Number of timesheets", compute='_compute_timesheet_count')
+
+    @api.depends('timesheet_ids')
+    def _compute_timesheet_count(self):
+        timesheet_data = self.env['account.analytic.line'].read_group([('timesheet_invoice_id', 'in', self.ids)], ['timesheet_invoice_id'], ['timesheet_invoice_id'])
+        mapped_data = dict([(t['timesheet_invoice_id'][0], t['timesheet_invoice_id_count']) for t in timesheet_data])
+        for invoice in self:
+            invoice.timesheet_count = mapped_data.get(invoice.id, 0)
+
+    def action_view_timesheet(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Timesheets'),
+            'domain': [('project_id', '!=', False)],
+            'res_model': 'account.analytic.line',
+            'view_id': False,
+            'view_mode': 'tree,form',
+            'help': _("""
+                <p class="o_view_nocontent_smiling_face">
+                    Record timesheets
+                </p><p>
+                    You can register and track your workings hours by project every
+                    day. Every time spent on a project will become a cost and can be re-invoiced to
+                    customers if required.
+                </p>
+            """),
+            'limit': 80,
+            'context': {
+                'default_project_id': self.id,
+                'search_default_project_id': [self.id]
+            }
+        }
+
+
+class AccountMoveLine(models.Model):
+    _inherit = 'account.move.line'
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        # OVERRIDE
+        # Link the timesheet from the SO lines to the corresponding draft invoice.
+        # NOTE: Only the timesheets linked to an Sale Line with a product invoiced on delivered quantity
+        # are concerned, since in ordered quantity, the timesheet quantity is not invoiced, but is simply
+        # to compute the delivered one (for reporting).
+        lines = super(AccountMoveLine, self).create(vals_list)
+        lines_to_process = lines.filtered(lambda line: line.move_id.type == 'out_invoice'
+                                                       and line.move_id.state == 'draft')
+        for line in lines_to_process:
+            sale_line_delivery = line.sale_line_ids.filtered(lambda sol: sol.product_id.invoice_policy == 'delivery' and sol.product_id.service_type == 'timesheet')
+            if sale_line_delivery:
+                domain = self._timesheet_domain_get_invoiced_lines(sale_line_delivery)
+                timesheets = self.env['account.analytic.line'].search(domain).sudo()
+                timesheets.write({
+                    'timesheet_invoice_id': line.move_id.id,
+                })
+        return lines
+
+    @api.model
+    def _timesheet_domain_get_invoiced_lines(self, sale_line_delivery):
+        """ Get the domain for the timesheet to link to the created invoice
+            :param sale_line_delivery: recordset of sale.order.line to invoice
+            :return a normalized domain
+        """
+        return [
+            '&',
+            ('so_line', 'in', sale_line_delivery.ids),
+            '&',
+            ('timesheet_invoice_id', '=', False),
+            ('project_id', '!=', False)
+        ]
+
+```
+
+## File: models\product.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
+
+
+class ProductTemplate(models.Model):
+    _inherit = 'product.template'
+
+    service_policy = fields.Selection([
+        ('ordered_timesheet', 'Ordered quantities'),
+        ('delivered_timesheet', 'Timesheets on tasks'),
+        ('delivered_manual', 'Milestones (manually set quantities on order)')
+    ], string="Service Invoicing Policy", compute='_compute_service_policy', inverse='_inverse_service_policy')
+    service_type = fields.Selection(selection_add=[
+        ('timesheet', 'Timesheets on project (one fare per SO/Project)'),
+    ])
+    service_tracking = fields.Selection([
+        ('no', 'Don\'t create task'),
+        ('task_global_project', 'Create a task in an existing project'),
+        ('task_in_project', 'Create a task in sales order\'s project'),
+        ('project_only', 'Create a new project but no task'),
+        ], string="Service Tracking", default="no",
+        help="On Sales order confirmation, this product can generate a project and/or task. \
+        From those, you can track the service you are selling.\n \
+        'In sale order\'s project': Will use the sale order\'s configured project if defined or fallback to \
+        creating a new project based on the selected template.")
+    project_id = fields.Many2one(
+        'project.project', 'Project', company_dependent=True, domain=[('billable_type', '=', 'no')],
+        help='Select a non billable project on which tasks can be created. This setting must be set for each company.')
+    project_template_id = fields.Many2one(
+        'project.project', 'Project Template', company_dependent=True, domain=[('billable_type', '=', 'no')], copy=True,
+        help='Select a non billable project to be the skeleton of the new created project when selling the current product. Its stages and tasks will be duplicated.')
+
+    def _default_visible_expense_policy(self):
+        visibility = self.user_has_groups('project.group_project_user')
+        return visibility or super(ProductTemplate, self)._default_visible_expense_policy()
+
+
+    def _compute_visible_expense_policy(self):
+        super(ProductTemplate, self)._compute_visible_expense_policy()
+
+        visibility = self.user_has_groups('project.group_project_user')
+        for product_template in self:
+            if not product_template.visible_expense_policy:
+                product_template.visible_expense_policy = visibility
+
+    @api.depends('invoice_policy', 'service_type')
+    def _compute_service_policy(self):
+        for product in self:
+            policy = None
+            if product.invoice_policy == 'delivery':
+                policy = 'delivered_manual' if product.service_type == 'manual' else 'delivered_timesheet'
+            elif product.invoice_policy == 'order' and (product.service_type == 'timesheet' or product.type == 'service'):
+                policy = 'ordered_timesheet'
+            product.service_policy = policy
+
+    def _inverse_service_policy(self):
+        for product in self:
+            policy = product.service_policy
+            if not policy and not product.invoice_policy =='delivery':
+                product.invoice_policy = 'order'
+                product.service_type = 'manual'
+            elif policy == 'ordered_timesheet':
+                product.invoice_policy = 'order'
+                product.service_type = 'timesheet'
+            else:
+                product.invoice_policy = 'delivery'
+                product.service_type = 'manual' if policy == 'delivered_manual' else 'timesheet'
+
+    @api.constrains('project_id', 'project_template_id')
+    def _check_project_and_template(self):
+        """ NOTE 'service_tracking' should be in decorator parameters but since ORM check constraints twice (one after setting
+            stored fields, one after setting non stored field), the error is raised when company-dependent fields are not set.
+            So, this constraints does cover all cases and inconsistent can still be recorded until the ORM change its behavior.
+        """
+        for product in self:
+            if product.service_tracking == 'no' and (product.project_id or product.project_template_id):
+                raise ValidationError(_('The product %s should not have a project nor a project template since it will not generate project.') % (product.name,))
+            elif product.service_tracking == 'task_global_project' and product.project_template_id:
+                raise ValidationError(_('The product %s should not have a project template since it will generate a task in a global project.') % (product.name,))
+            elif product.service_tracking in ['task_in_project', 'project_only'] and product.project_id:
+                raise ValidationError(_('The product %s should not have a global project since it will generate a project.') % (product.name,))
+
+    @api.onchange('service_tracking')
+    def _onchange_service_tracking(self):
+        if self.service_tracking == 'no':
+            self.project_id = False
+            self.project_template_id = False
+        elif self.service_tracking == 'task_global_project':
+            self.project_template_id = False
+        elif self.service_tracking in ['task_in_project', 'project_only']:
+            self.project_id = False
+
+    @api.onchange('type')
+    def _onchange_type(self):
+        res = super(ProductTemplate, self)._onchange_type()
+        if self.type == 'service' and not self.invoice_policy:
+            self.invoice_policy = 'order'
+            self.service_type = 'timesheet'
+        elif self.type == 'service' and self.invoice_policy == 'order':
+            self.service_policy = 'ordered_timesheet'
+        elif self.type == 'consu' and not self.invoice_policy and self.service_policy == 'ordered_timesheet':
+            self.invoice_policy = 'order'
+
+        if self.type != 'service':
+            self.service_tracking = 'no'
+        return res
+
+    def write(self, values):
+        if 'type' in values and values['type'] != 'service':
+            values.update({
+                'service_tracking': 'no',
+                'project_id': False
+            })
+        return super(ProductTemplate, self).write(values)
+
+class ProductProduct(models.Model):
+    _inherit = 'product.product'
+
+    @api.onchange('service_tracking')
+    def _onchange_service_tracking(self):
+        if self.service_tracking == 'no':
+            self.project_id = False
+            self.project_template_id = False
+        elif self.service_tracking == 'task_global_project':
+            self.project_template_id = False
+        elif self.service_tracking in ['task_in_project', 'project_only']:
+            self.project_id = False
+
+    @api.onchange('type')
+    def _onchange_type(self):
+        res = super(ProductProduct, self)._onchange_type()
+        if self.type != 'service':
+            self.service_tracking = 'no'
+        return res
+
+    def write(self, values):
+        if 'type' in values and values['type'] != 'service':
+            values.update({
+                'service_tracking': 'no',
+                'project_id': False
+            })
+        return super(ProductProduct, self).write(values)
+
+```
+
+## File: models\project.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
+
+
+class Project(models.Model):
+    _inherit = 'project.project'
+
+    sale_line_id = fields.Many2one('sale.order.line', 'Sales Order Item', domain="[('is_expense', '=', False), ('order_id', '=', sale_order_id), ('state', 'in', ['sale', 'done']), '|', ('company_id', '=', False), ('company_id', '=', company_id)]", copy=False,
+        help="Sales order item to which the project is linked. If an employee timesheets on a task that does not have a "
+        "sale order item defines, and if this employee is not in the 'Employee/Sales Order Item Mapping' of the project, "
+        "the timesheet entry will be linked to the sales order item defined on the project.")
+    sale_order_id = fields.Many2one('sale.order', 'Sales Order', domain="[('partner_id', '=', partner_id)]", readonly=True, copy=False, help="Sales order to which the project is linked.")
+    billable_type = fields.Selection([
+        ('task_rate', 'At Task Rate'),
+        ('employee_rate', 'At Employee Rate'),
+        ('no', 'No Billable')
+    ], string="Billable Type", compute='_compute_billable_type', compute_sudo=True, store=True,
+        help='At which rate timesheets will be billed:\n'
+        ' - At task rate: each time spend on a task is billed at task rate.\n'
+        ' - At employee rate: each employee log time billed at his rate.\n'
+        ' - No Billable: track time without invoicing it')
+    sale_line_employee_ids = fields.One2many('project.sale.line.employee.map', 'project_id', "Sale line/Employee map", copy=False,
+        help="Employee/Sale Order Item Mapping:\n Defines to which sales order item an employee's timesheet entry will be linked."
+        "By extension, it defines the rate at which an employee's time on the project is billed.")
+
+    _sql_constraints = [
+        ('sale_order_required_if_sale_line', "CHECK((sale_line_id IS NOT NULL AND sale_order_id IS NOT NULL) OR (sale_line_id IS NULL))", 'The Project should be linked to a Sale Order to select an Sale Order Items.'),
+    ]
+
+    @api.depends('sale_order_id', 'sale_line_id', 'sale_line_employee_ids')
+    def _compute_billable_type(self):
+        for project in self:
+            billable_type = 'no'
+            if project.sale_order_id:
+                if project.sale_line_employee_ids:
+                    billable_type = 'employee_rate'
+                else:
+                    billable_type = 'task_rate'
+            project.billable_type = billable_type
+
+    @api.onchange('sale_line_employee_ids', 'billable_type')
+    def _onchange_sale_line_employee_ids(self):
+        if self.billable_type == 'task_rate':
+            if self.sale_line_employee_ids:
+                self.billable_type = 'employee_rate'
+        else:
+            if self.billable_type == 'no':
+                self.sale_line_employee_ids = False
+
+    @api.constrains('sale_line_id', 'billable_type')
+    def _check_sale_line_type(self):
+        for project in self:
+            if project.billable_type == 'task_rate':
+                if project.sale_line_id and not project.sale_line_id.is_service:
+                    raise ValidationError(_("A billable project should be linked to a Sales Order Item having a Service product."))
+                if project.sale_line_id and project.sale_line_id.is_expense:
+                    raise ValidationError(_("A billable project should be linked to a Sales Order Item that does not come from an expense or a vendor bill."))
+
+    def action_view_timesheet(self):
+        self.ensure_one()
+        if self.allow_timesheets:
+            return self.action_view_timesheet_plan()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Timesheets of %s') % self.name,
+            'domain': [('project_id', '!=', False)],
+            'res_model': 'account.analytic.line',
+            'view_id': False,
+            'view_mode': 'tree,form',
+            'help': _("""
+                <p class="o_view_nocontent_smiling_face">
+                    Record timesheets
+                </p><p>
+                    You can register and track your workings hours by project every
+                    day. Every time spent on a project will become a cost and can be re-invoiced to
+                    customers if required.
+                </p>
+            """),
+            'limit': 80,
+            'context': {
+                'default_project_id': self.id,
+                'search_default_project_id': [self.id]
+            }
+        }
+
+    def action_view_timesheet_plan(self):
+        action = self.env.ref('sale_timesheet.project_timesheet_action_client_timesheet_plan').read()[0]
+        action['params'] = {
+            'project_ids': self.ids,
+        }
+        action['context'] = {
+            'active_id': self.id,
+            'active_ids': self.ids,
+            'search_default_name': self.name,
+        }
+        return action
+
+    def action_make_billable(self):
+        return {
+            "name": _("Create Sales Order"),
+            "type": 'ir.actions.act_window',
+            "res_model": 'project.create.sale.order',
+            "views": [[False, "form"]],
+            "target": 'new',
+            "context": {
+                'active_id': self.id,
+                'active_model': 'project.project',
+            },
+        }
+
+    @api.model
+    def _map_tasks_default_valeus(self, task, project):
+        defaults = super(Project, self)._map_tasks_default_valeus(task, project)
+        defaults['sale_line_id'] = False
+        return defaults
+
+
+class ProjectTask(models.Model):
+    _inherit = "project.task"
+
+    @api.model
+    def _get_default_partner(self):
+        partner = False
+        if 'default_project_id' in self.env.context:  # partner from SO line is prior on one from project
+            project_sudo = self.env['project.project'].browse(self.env.context['default_project_id']).sudo()
+            partner = project_sudo.sale_line_id.order_partner_id
+        if not partner:
+            partner = super(ProjectTask, self)._get_default_partner()
+        return partner
+
+    @api.model
+    def _default_sale_line_id(self):
+        sale_line_id = False
+        if self._context.get('default_parent_id'):
+            parent_task = self.env['project.task'].browse(self._context['default_parent_id'])
+            sale_line_id = parent_task.sale_line_id.id
+        if not sale_line_id and self._context.get('default_project_id'):
+            project = self.env['project.project'].browse(self.env.context['default_project_id'])
+            if project.billable_type != 'no':
+                sale_line_id = project.sale_line_id.id
+        return sale_line_id
+
+    sale_line_id = fields.Many2one('sale.order.line', 'Sales Order Item', default=_default_sale_line_id, domain="[('is_service', '=', True), ('order_partner_id', '=', partner_id), ('is_expense', '=', False), ('state', 'in', ['sale', 'done'])]",
+        help="Sales order item to which the task is linked. If an employee timesheets on a this task, "
+        "and if this employee is not in the 'Employee/Sales Order Item Mapping' of the project, the "
+        "timesheet entry will be linked to this sales order item.", copy=False)
+    sale_order_id = fields.Many2one('sale.order', 'Sales Order', compute='_compute_sale_order_id', store=True, readonly=False, help="Sales order to which the task is linked.")
+    billable_type = fields.Selection([
+        ('task_rate', 'At Task Rate'),
+        ('employee_rate', 'At Employee Rate'),
+        ('no', 'No Billable')
+    ], string="Billable Type", compute='_compute_billable_type', compute_sudo=True, store=True)
+    is_project_map_empty = fields.Boolean("Is Project map empty", compute='_compute_is_project_map_empty')
+
+    @api.depends('sale_line_id', 'project_id', 'billable_type')
+    def _compute_sale_order_id(self):
+        for task in self:
+            if task.billable_type == 'task_rate':
+                task.sale_order_id = task.sale_line_id.sudo().order_id or task.project_id.sale_order_id
+            elif task.billable_type == 'employee_rate':
+                task.sale_order_id = task.project_id.sale_order_id
+            elif task.billable_type == 'no':
+                task.sale_order_id = False
+
+    @api.depends('project_id.billable_type', 'sale_line_id')
+    def _compute_billable_type(self):
+        for task in self:
+            billable_type = 'no'
+            if task.project_id.billable_type == 'employee_rate':
+                billable_type = task.project_id.billable_type
+            elif (task.project_id.billable_type in ['task_rate', 'no'] and task.sale_line_id):  # create a task in global project (non billable)
+                billable_type = 'task_rate'
+            task.billable_type = billable_type
+
+    @api.depends('project_id.sale_line_employee_ids')
+    def _compute_is_project_map_empty(self):
+        for task in self:
+            task.is_project_map_empty = not bool(task.sudo().project_id.sale_line_employee_ids)
+
+    @api.onchange('project_id')
+    def _onchange_project(self):
+        result = super(ProjectTask, self)._onchange_project()
+        if self.project_id:
+            if self.project_id.billable_type == 'employee_rate':
+                if not self.partner_id:
+                    self.partner_id = self.project_id.sale_order_id.partner_id
+            elif self.project_id.billable_type == 'task_rate':
+                if not self.sale_line_id:
+                    self.sale_line_id = self.project_id.sale_line_id
+                if not self.partner_id:
+                    self.partner_id = self.sale_line_id.order_partner_id
+        # set domain on SO: on non billable project, all SOL of customer, otherwise the one from the SO
+        result = result or {}
+        domain = [('is_service', '=', True), ('is_expense', '=', False), ('order_partner_id', 'child_of', self.partner_id.commercial_partner_id.id), ('state', 'in', ['sale', 'done'])]
+        if self.project_id.sale_order_id:
+            domain += [('order_id', '=', self.project_id.sale_order_id.id)]
+        result.setdefault('domain', {})['sale_line_id'] = domain
+        return result
+
+    @api.onchange('partner_id')
+    def _onchange_partner_id(self):
+        result = super(ProjectTask, self)._onchange_partner_id()
+        result = result or {}
+        if self.sale_line_id.order_partner_id.commercial_partner_id != self.partner_id.commercial_partner_id:
+            self.sale_line_id = False
+        if self.partner_id:
+            result.setdefault('domain', {})['sale_line_id'] = [('is_service', '=', True), ('is_expense', '=', False), ('order_partner_id', 'child_of', self.partner_id.commercial_partner_id.id), ('state', 'in', ['sale', 'done'])]
+        return result
+
+    @api.onchange('parent_id')
+    def _onchange_parent_id(self):
+        super(ProjectTask, self)._onchange_parent_id()
+        # check sale_line_id and customer are coherent
+        if self.sale_line_id and self.partner_id != self.sale_line_id.order_partner_id:
+            self.sale_line_id = False
+
+    @api.constrains('sale_line_id')
+    def _check_sale_line_type(self):
+        for task in self.sudo():
+            if task.sale_line_id:
+                if not task.sale_line_id.is_service or task.sale_line_id.is_expense:
+                    raise ValidationError(_('You cannot link the order item %s - %s to this task because it is a re-invoiced expense.' % (task.sale_line_id.order_id.id, task.sale_line_id.product_id.name)))
+
+    def write(self, values):
+        if values.get('project_id'):
+            project_dest = self.env['project.project'].browse(values['project_id'])
+            if project_dest.billable_type == 'employee_rate':
+                values['sale_line_id'] = False
+        return super(ProjectTask, self).write(values)
+
+    def unlink(self):
+        if any(task.sale_line_id for task in self):
+            raise ValidationError(_('You have to unlink the task from the sale order item in order to delete it.'))
+        return super(ProjectTask, self).unlink()
+
+    # ---------------------------------------------------
+    # Subtasks
+    # ---------------------------------------------------
+
+    @api.model
+    def _subtask_default_fields(self):
+        result = super(ProjectTask, self)._subtask_default_fields()
+        return result + ['sale_line_id']
+
+    # ---------------------------------------------------
+    # Actions
+    # ---------------------------------------------------
+
+    def action_view_so(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": "sale.order",
+            "views": [[False, "form"]],
+            "res_id": self.sale_order_id.id,
+            "context": {"create": False, "show_sale": True},
+        }
+
+    def rating_get_partner_id(self):
+        partner = self.partner_id or self.sale_line_id.order_id.partner_id
+        if partner:
+            return partner
+        return super(ProjectTask, self).rating_get_partner_id()
+
+```
+
+## File: models\project_overview.py
+
+```python
+# -*- coding: utf-8 -*-
+import babel.dates
+from dateutil.relativedelta import relativedelta
+import itertools
+import json
+
+from odoo import fields, _, models
+from odoo.tools import float_round
+from odoo.tools.misc import get_lang
+
+from odoo.addons.web.controllers.main import clean_action
+from datetime import date
+
+DEFAULT_MONTH_RANGE = 3
+
+
+class Project(models.Model):
+    _inherit = 'project.project'
+
+
+    def _qweb_prepare_qcontext(self, view_id, domain):
+        values = super()._qweb_prepare_qcontext(view_id, domain)
+
+        projects = self.search(domain)
+        values.update(projects._plan_prepare_values())
+        values['actions'] = projects._plan_prepare_actions(values)
+
+        return values
+
+    def _plan_prepare_values(self):
+        currency = self.env.company.currency_id
+        uom_hour = self.env.ref('uom.product_uom_hour')
+        hour_rounding = uom_hour.rounding
+        billable_types = ['non_billable', 'non_billable_project', 'billable_time', 'billable_fixed']
+
+        values = {
+            'projects': self,
+            'currency': currency,
+            'timesheet_domain': [('project_id', 'in', self.ids)],
+            'profitability_domain': [('project_id', 'in', self.ids)],
+            'stat_buttons': self._plan_get_stat_button(),
+        }
+
+        #
+        # Hours, Rates and Profitability
+        #
+        dashboard_values = {
+            'hours': dict.fromkeys(billable_types + ['total'], 0.0),
+            'rates': dict.fromkeys(billable_types + ['total'], 0.0),
+            'profit': {
+                'invoiced': 0.0,
+                'to_invoice': 0.0,
+                'cost': 0.0,
+                'total': 0.0,
+            }
+        }
+
+        # hours from non-invoiced timesheets that are linked to canceled so
+        canceled_hours_domain = [('project_id', 'in', self.ids), ('timesheet_invoice_type', '!=', False), ('so_line.state', '=', 'cancel')]
+        total_canceled_hours = sum(self.env['account.analytic.line'].search(canceled_hours_domain).mapped('unit_amount'))
+        dashboard_values['hours']['canceled'] = float_round(total_canceled_hours, precision_rounding=hour_rounding)
+        dashboard_values['hours']['total'] += float_round(total_canceled_hours, precision_rounding=hour_rounding)
+
+        # hours (from timesheet) and rates (by billable type)
+        dashboard_domain = [('project_id', 'in', self.ids), ('timesheet_invoice_type', '!=', False), '|', ('so_line', '=', False), ('so_line.state', '!=', 'cancel')]  # force billable type
+        dashboard_data = self.env['account.analytic.line'].read_group(dashboard_domain, ['unit_amount', 'timesheet_invoice_type'], ['timesheet_invoice_type'])
+        dashboard_total_hours = sum([data['unit_amount'] for data in dashboard_data]) + total_canceled_hours
+        for data in dashboard_data:
+            billable_type = data['timesheet_invoice_type']
+            dashboard_values['hours'][billable_type] = float_round(data.get('unit_amount'), precision_rounding=hour_rounding)
+            dashboard_values['hours']['total'] += float_round(data.get('unit_amount'), precision_rounding=hour_rounding)
+            # rates
+            rate = round(data.get('unit_amount') / dashboard_total_hours * 100, 2) if dashboard_total_hours else 0.0
+            dashboard_values['rates'][billable_type] = rate
+            dashboard_values['rates']['total'] += rate
+
+        # rates from non-invoiced timesheets that are linked to canceled so
+        dashboard_values['rates']['canceled'] = float_round(100 * total_canceled_hours / (dashboard_total_hours or 1), precision_rounding=hour_rounding)
+
+        # profitability, using profitability SQL report
+        field_map = {
+            'amount_untaxed_invoiced': 'invoiced',
+            'amount_untaxed_to_invoice': 'to_invoice',
+            'timesheet_cost': 'cost',
+            'expense_cost': 'expense_cost',
+            'expense_amount_untaxed_invoiced':  'expense_amount_untaxed_invoiced',
+            'expense_amount_untaxed_to_invoice': 'expense_amount_untaxed_to_invoice',
+        }
+        profit = dict.fromkeys(list(field_map.values()) + ['total'], 0.0)
+        profitability_raw_data = self.env['project.profitability.report'].read_group([('project_id', 'in', self.ids)], ['project_id'] + list(field_map), ['project_id'])   
+        for data in profitability_raw_data:
+            company_id = self.env['project.project'].browse(data.get('project_id')[0]).company_id
+            from_currency = company_id.currency_id
+            for field in field_map:
+                value = data.get(field, 0.0)
+                if from_currency != currency:
+                    value = from_currency._convert(value, currency, company_id, date.today())
+                profit[field_map[field]] += value                
+        profit['total'] = sum([profit[item] for item in profit.keys()])
+        dashboard_values['profit'] = profit
+
+        values['dashboard'] = dashboard_values
+
+        #
+        # Time Repartition (per employee per billable types)
+        #
+        user_ids = self.env['project.task'].sudo().read_group([('project_id', 'in', self.ids), ('user_id', '!=', False)], ['user_id'], ['user_id'])
+        user_ids = [user_id['user_id'][0] for user_id in user_ids]
+        employee_ids = self.env['res.users'].sudo().search_read([('id', 'in', user_ids)], ['employee_ids'])
+        # flatten the list of list
+        employee_ids = list(itertools.chain.from_iterable([employee_id['employee_ids'] for employee_id in employee_ids]))
+
+        aal_employee_ids = self.env['account.analytic.line'].read_group([('project_id', 'in', self.ids), ('employee_id', '!=', False)], ['employee_id'], ['employee_id'])
+        employee_ids.extend(list(map(lambda x: x['employee_id'][0], aal_employee_ids)))
+
+        employees = self.env['hr.employee'].sudo().browse(employee_ids)
+        repartition_domain = [('project_id', 'in', self.ids), ('employee_id', '!=', False), ('timesheet_invoice_type', '!=', False)]  # force billable type
+        # repartition data, without timesheet on cancelled so
+        repartition_data = self.env['account.analytic.line'].read_group(repartition_domain + ['|', ('so_line', '=', False), ('so_line.state', '!=', 'cancel')], ['employee_id', 'timesheet_invoice_type', 'unit_amount'], ['employee_id', 'timesheet_invoice_type'], lazy=False)
+        # read timesheet on cancelled so
+        cancelled_so_timesheet = self.env['account.analytic.line'].read_group(repartition_domain + [('so_line.state', '=', 'cancel')], ['employee_id', 'unit_amount'], ['employee_id'], lazy=False)
+        repartition_data += [{**canceled, 'timesheet_invoice_type': 'canceled'} for canceled in cancelled_so_timesheet]
+
+        # set repartition per type per employee
+        repartition_employee = {}
+        for employee in employees:
+            repartition_employee[employee.id] = dict(
+                employee_id=employee.id,
+                employee_name=employee.name,
+                non_billable_project=0.0,
+                non_billable=0.0,
+                billable_time=0.0,
+                billable_fixed=0.0,
+                canceled=0.0,
+                total=0.0,
+            )
+        for data in repartition_data:
+            employee_id = data['employee_id'][0]
+            repartition_employee.setdefault(employee_id, dict(
+                employee_id=data['employee_id'][0],
+                employee_name=data['employee_id'][1],
+                non_billable_project=0.0,
+                non_billable=0.0,
+                billable_time=0.0,
+                billable_fixed=0.0,
+                canceled=0.0,
+                total=0.0,
+            ))[data['timesheet_invoice_type']] = float_round(data.get('unit_amount', 0.0), precision_rounding=hour_rounding)
+            repartition_employee[employee_id]['__domain_' + data['timesheet_invoice_type']] = data['__domain']
+        # compute total
+        for employee_id, vals in repartition_employee.items():
+            repartition_employee[employee_id]['total'] = sum([vals[inv_type] for inv_type in [*billable_types, 'canceled']])
+        hours_per_employee = [repartition_employee[employee_id]['total'] for employee_id in repartition_employee]
+        values['repartition_employee_max'] = (max(hours_per_employee) if hours_per_employee else 1) or 1
+        values['repartition_employee'] = repartition_employee
+
+        #
+        # Table grouped by SO / SOL / Employees
+        #
+        timesheet_forecast_table_rows = self._table_get_line_values()
+        if timesheet_forecast_table_rows:
+            values['timesheet_forecast_table'] = timesheet_forecast_table_rows
+        return values
+
+    def _table_get_line_values(self):
+        """ return the header and the rows informations of the table """
+        if not self:
+            return False
+
+        uom_hour = self.env.ref('uom.product_uom_hour')
+
+        # build SQL query and fetch raw data
+        query, query_params = self._table_rows_sql_query()
+        self.env.cr.execute(query, query_params)
+        raw_data = self.env.cr.dictfetchall()
+        rows_employee = self._table_rows_get_employee_lines(raw_data)
+        default_row_vals = self._table_row_default()
+
+        empty_line_ids, empty_order_ids = self._table_get_empty_so_lines()
+
+        # extract row labels
+        sale_line_ids = set()
+        sale_order_ids = set()
+        for key_tuple, row in rows_employee.items():
+            if row[0]['sale_line_id']:
+                sale_line_ids.add(row[0]['sale_line_id'])
+            if row[0]['sale_order_id']:
+                sale_order_ids.add(row[0]['sale_order_id'])
+
+        sale_orders = self.env['sale.order'].sudo().browse(sale_order_ids | empty_order_ids)
+        sale_order_lines = self.env['sale.order.line'].sudo().browse(sale_line_ids | empty_line_ids)
+        map_so_names = {so.id: so.name for so in sale_orders}
+        map_so_cancel = {so.id: so.state == 'cancel' for so in sale_orders}
+        map_sol = {sol.id: sol for sol in sale_order_lines}
+        map_sol_names = {sol.id: sol.name.split('\n')[0] if sol.name else _('No Sales Order Line') for sol in sale_order_lines}
+        map_sol_so = {sol.id: sol.order_id.id for sol in sale_order_lines}
+
+        rows_sale_line = {}  # (so, sol) -> [INFO, before, M1, M2, M3, Done, M3, M4, M5, After, Forecasted]
+        for sale_line_id in empty_line_ids:  # add service SO line having no timesheet
+            sale_line_row_key = (map_sol_so.get(sale_line_id), sale_line_id)
+            sale_line = map_sol.get(sale_line_id)
+            is_milestone = sale_line.product_id.invoice_policy == 'delivery' and sale_line.product_id.service_type == 'manual' if sale_line else False
+            rows_sale_line[sale_line_row_key] = [{'label': map_sol_names.get(sale_line_id, _('No Sales Order Line')), 'res_id': sale_line_id, 'res_model': 'sale.order.line', 'type': 'sale_order_line', 'is_milestone': is_milestone}] + default_row_vals[:]
+            if not is_milestone:
+                rows_sale_line[sale_line_row_key][-2] = sale_line.product_uom._compute_quantity(sale_line.product_uom_qty, uom_hour, raise_if_failure=False) if sale_line else 0.0
+
+        for row_key, row_employee in rows_employee.items():
+            sale_line_id = row_key[1]
+            sale_order_id = row_key[0]
+            # sale line row
+            sale_line_row_key = (sale_order_id, sale_line_id)
+            if sale_line_row_key not in rows_sale_line:
+                sale_line = map_sol.get(sale_line_id, self.env['sale.order.line'])
+                is_milestone = sale_line.product_id.invoice_policy == 'delivery' and sale_line.product_id.service_type == 'manual' if sale_line else False
+                rows_sale_line[sale_line_row_key] = [{'label': map_sol_names.get(sale_line.id) if sale_line else _('No Sales Order Line'), 'res_id': sale_line_id, 'res_model': 'sale.order.line', 'type': 'sale_order_line', 'is_milestone': is_milestone}] + default_row_vals[:]  # INFO, before, M1, M2, M3, Done, M3, M4, M5, After, Forecasted
+                if not is_milestone:
+                    rows_sale_line[sale_line_row_key][-2] = sale_line.product_uom._compute_quantity(sale_line.product_uom_qty, uom_hour, raise_if_failure=False) if sale_line else 0.0
+
+            for index in range(len(rows_employee[row_key])):
+                if index != 0:
+                    rows_sale_line[sale_line_row_key][index] += rows_employee[row_key][index]
+                    if not rows_sale_line[sale_line_row_key][0].get('is_milestone'):
+                        rows_sale_line[sale_line_row_key][-1] = rows_sale_line[sale_line_row_key][-2] - rows_sale_line[sale_line_row_key][5]
+                    else:
+                        rows_sale_line[sale_line_row_key][-1] = 0
+
+        rows_sale_order = {}  # so -> [INFO, before, M1, M2, M3, Done, M3, M4, M5, After, Forecasted]
+        rows_sale_order_done_sold = {key : dict(sold=0.0, done=0.0) for key in set(map_sol_so.values()) | set([None])}  # SO id -> {'sold':0.0, 'done': 0.0}
+        for row_key, row_sale_line in rows_sale_line.items():
+            sale_order_id = row_key[0]
+            # sale order row
+            if sale_order_id not in rows_sale_order:
+                rows_sale_order[sale_order_id] = [{'label': map_so_names.get(sale_order_id, _('No Sales Order')), 'canceled': map_so_cancel.get(sale_order_id, False), 'res_id': sale_order_id, 'res_model': 'sale.order', 'type': 'sale_order'}] + default_row_vals[:]  # INFO, before, M1, M2, M3, Done, M3, M4, M5, After, Forecasted
+
+            for index in range(len(rows_sale_line[row_key])):
+                if index != 0:
+                    rows_sale_order[sale_order_id][index] += rows_sale_line[row_key][index]
+
+            # do not sum the milestone SO line for sold and done (for remaining computation)
+            if not rows_sale_line[row_key][0].get('is_milestone'):
+                rows_sale_order_done_sold[sale_order_id]['sold'] += rows_sale_line[row_key][-2]
+                rows_sale_order_done_sold[sale_order_id]['done'] += rows_sale_line[row_key][5]
+
+        # remaining computation of SO row, as Sold - Done (timesheet total)
+        for sale_order_id, done_sold_vals in rows_sale_order_done_sold.items():
+            if sale_order_id in rows_sale_order:
+                rows_sale_order[sale_order_id][-1] = done_sold_vals['sold'] - done_sold_vals['done']
+
+        # group rows SO, SOL and their related employee rows.
+        timesheet_forecast_table_rows = []
+        for sale_order_id, sale_order_row in rows_sale_order.items():
+            timesheet_forecast_table_rows.append(sale_order_row)
+            for sale_line_row_key, sale_line_row in rows_sale_line.items():
+                if sale_order_id == sale_line_row_key[0]:
+                    timesheet_forecast_table_rows.append(sale_line_row)
+                    for employee_row_key, employee_row in rows_employee.items():
+                        if sale_order_id == employee_row_key[0] and sale_line_row_key[1] == employee_row_key[1]:
+                            timesheet_forecast_table_rows.append(employee_row)
+
+        # complete table data
+        return {
+            'header': self._table_header(),
+            'rows': timesheet_forecast_table_rows
+        }
+    def _table_header(self):
+        initial_date = fields.Date.from_string(fields.Date.today())
+        ts_months = sorted([fields.Date.to_string(initial_date - relativedelta(months=i, day=1)) for i in range(0, DEFAULT_MONTH_RANGE)])  # M1, M2, M3
+
+        def _to_short_month_name(date):
+            month_index = fields.Date.from_string(date).month
+            return babel.dates.get_month_names('abbreviated', locale=get_lang(self.env).code)[month_index]
+
+        header_names = [_('Name'), _('Before')] + [_to_short_month_name(date) for date in ts_months] + [_('Total'), _('Sold'), _('Remaining')]
+
+        result = []
+        for name in header_names:
+            result.append({
+                'label': name,
+                'tooltip': '',
+            })
+        # add tooltip for reminaing
+        result[-1]['tooltip'] = _('What is still to deliver based on sold hours and hours already done. Equals to sold hours - done hours.')
+        return result
+
+    def _table_row_default(self):
+        lenght = len(self._table_header())
+        return [0.0] * (lenght - 1)  # before, M1, M2, M3, Done, Sold, Remaining
+
+    def _table_rows_sql_query(self):
+        initial_date = fields.Date.from_string(fields.Date.today())
+        ts_months = sorted([fields.Date.to_string(initial_date - relativedelta(months=i, day=1)) for i in range(0, DEFAULT_MONTH_RANGE)])  # M1, M2, M3
+        # build query
+        query = """
+            SELECT
+                'timesheet' AS type,
+                date_trunc('month', date)::date AS month_date,
+                E.id AS employee_id,
+                S.order_id AS sale_order_id,
+                A.so_line AS sale_line_id,
+                SUM(A.unit_amount) AS number_hours
+            FROM account_analytic_line A
+                JOIN hr_employee E ON E.id = A.employee_id
+                LEFT JOIN sale_order_line S ON S.id = A.so_line
+            WHERE A.project_id IS NOT NULL
+                AND A.project_id IN %s
+                AND A.date < %s
+            GROUP BY date_trunc('month', date)::date, S.order_id, A.so_line, E.id
+        """
+
+        last_ts_month = fields.Date.to_string(fields.Date.from_string(ts_months[-1]) + relativedelta(months=1))
+        query_params = (tuple(self.ids), last_ts_month)
+        return query, query_params
+
+    def _table_rows_get_employee_lines(self, data_from_db):
+        initial_date = fields.Date.today()
+        ts_months = sorted([initial_date - relativedelta(months=i, day=1) for i in range(0, DEFAULT_MONTH_RANGE)])  # M1, M2, M3
+        default_row_vals = self._table_row_default()
+
+        # extract employee names
+        employee_ids = set()
+        for data in data_from_db:
+            employee_ids.add(data['employee_id'])
+        map_empl_names = {empl.id: empl.name for empl in self.env['hr.employee'].sudo().browse(employee_ids)}
+
+        # extract rows data for employee, sol and so rows
+        rows_employee = {}  # (so, sol, employee) -> [INFO, before, M1, M2, M3, Done, M3, M4, M5, After, Forecasted]
+        for data in data_from_db:
+            sale_line_id = data['sale_line_id']
+            sale_order_id = data['sale_order_id']
+            # employee row
+            row_key = (data['sale_order_id'], sale_line_id, data['employee_id'])
+            if row_key not in rows_employee:
+                meta_vals = {
+                    'label': map_empl_names.get(row_key[2]),
+                    'sale_line_id': sale_line_id,
+                    'sale_order_id': sale_order_id,
+                    'res_id': row_key[2],
+                    'res_model': 'hr.employee',
+                    'type': 'hr_employee'
+                }
+                rows_employee[row_key] = [meta_vals] + default_row_vals[:]  # INFO, before, M1, M2, M3, Done, M3, M4, M5, After, Forecasted
+
+            index = False
+            if data['type'] == 'timesheet':
+                if data['month_date'] in ts_months:
+                    index = ts_months.index(data['month_date']) + 2
+                elif data['month_date'] < ts_months[0]:
+                    index = 1
+                rows_employee[row_key][index] += data['number_hours']
+                rows_employee[row_key][5] += data['number_hours']
+        return rows_employee
+
+    def _table_get_empty_so_lines(self):
+        """ get the Sale Order Lines having no timesheet but having generated a task or a project """
+        so_lines = self.sudo().mapped('sale_line_id.order_id.order_line').filtered(lambda sol: sol.is_service and not sol.is_expense and not sol.is_downpayment)
+        # include the service SO line of SO sharing the same project
+        sale_order = self.env['sale.order'].search([('project_id', 'in', self.ids)])
+        return set(so_lines.ids) | set(sale_order.mapped('order_line').filtered(lambda sol: sol.is_service and not sol.is_expense).ids), set(so_lines.mapped('order_id').ids) | set(sale_order.ids)
+
+    # --------------------------------------------------
+    # Actions: Stat buttons, ...
+    # --------------------------------------------------
+
+    def _plan_prepare_actions(self, values):
+        actions = []
+        if len(self) == 1:
+            task_order_line_ids = []
+            # retrieve all the sale order line that we will need later below
+            if self.env.user.has_group('sales_team.group_sale_salesman') or self.env.user.has_group('sales_team.group_sale_salesman_all_leads'):
+                task_order_line_ids = self.env['project.task'].read_group([('project_id', '=', self.id), ('sale_line_id', '!=', False)], ['sale_line_id'], ['sale_line_id'])
+                task_order_line_ids = [ol['sale_line_id'][0] for ol in task_order_line_ids]
+
+            if self.env.user.has_group('sales_team.group_sale_salesman'):
+                if not self.sale_line_id and not task_order_line_ids:
+                    actions.append({
+                        'label': _("Create a Sales Order"),
+                        'type': 'action',
+                        'action_id': 'sale_timesheet.project_project_action_multi_create_sale_order',
+                        'context': json.dumps({'active_id': self.id, 'active_model': 'project.project'}),
+                    })
+            if self.env.user.has_group('sales_team.group_sale_salesman_all_leads'):
+                to_invoice_amount = values['dashboard']['profit'].get('to_invoice', False)  # plan project only takes services SO line with timesheet into account
+
+                sale_order_ids = self.env['sale.order.line'].read_group([('id', 'in', task_order_line_ids)], ['order_id'], ['order_id'])
+                sale_order_ids = [s['order_id'][0] for s in sale_order_ids]
+                sale_order_ids = self.env['sale.order'].search_read([('id', 'in', sale_order_ids), ('invoice_status', '=', 'to invoice')], ['id'])
+                sale_order_ids = list(map(lambda x: x['id'], sale_order_ids))
+
+                if to_invoice_amount and sale_order_ids:
+                    if len(sale_order_ids) == 1:
+                        actions.append({
+                            'label': _("Create Invoice"),
+                            'type': 'action',
+                            'action_id': 'sale.action_view_sale_advance_payment_inv',
+                            'context': json.dumps({'active_ids': sale_order_ids, 'active_model': 'project.project'}),
+                        })
+                    else:
+                        actions.append({
+                            'label': _("Create Invoice"),
+                            'type': 'action',
+                            'action_id': 'sale_timesheet.project_project_action_multi_create_invoice',
+                            'context': json.dumps({'active_id': self.id, 'active_model': 'project.project'}),
+                        })
+        return actions
+
+    def _plan_get_stat_button(self):
+        stat_buttons = []
+        if len(self) == 1:
+            edit_project = self.env.ref('project.edit_project')
+            stat_buttons.append({
+                'name': _('Project'),
+                'icon': 'fa fa-puzzle-piece',
+                'action': _to_action_data('project.project', res_id=self.id,
+                    views=[[edit_project.id, 'form']])
+            })
+        ts_tree = self.env.ref('hr_timesheet.hr_timesheet_line_tree')
+        ts_form = self.env.ref('hr_timesheet.hr_timesheet_line_form')
+        stat_buttons.append({
+            'name': _('Timesheets'),
+            'icon': 'fa fa-calendar',
+            'action': _to_action_data(
+                'account.analytic.line',
+                domain=[('project_id', 'in', self.ids)],
+                views=[(ts_tree.id, 'list'), (ts_form.id, 'form')],
+            )
+        })
+
+        # if only one project, add it in the context as default value
+        tasks_domain = [('project_id', 'in', self.ids)]
+        tasks_context = self.env.context
+        if len(self) == 1:
+            tasks_context = {**tasks_context, 'default_project_id': self.id}
+        elif len(self):
+            task_projects_ids = self.env['project.task'].read_group([('project_id', 'in', self.ids)], ['project_id'], ['project_id'])
+            task_projects_ids = [p['project_id'][0] for p in task_projects_ids]
+            if len(task_projects_ids) == 1:
+                tasks_context = {**tasks_context, 'default_project_id': task_projects_ids[0]}
+
+        stat_buttons.append({
+            'name': _('Tasks'),
+            'count': sum(self.mapped('task_count')),
+            'icon': 'fa fa-tasks',
+            'action': _to_action_data(
+                action=self.env.ref('project.action_view_task'),
+                domain=tasks_domain,
+                context=tasks_context
+            )
+        })
+
+        if self.env.user.has_group('sales_team.group_sale_salesman_all_leads'):
+            # read all the sale orders linked to the projects' tasks
+            task_so_ids = self.env['project.task'].search_read([
+                ('project_id', 'in', self.ids), ('sale_order_id', '!=', False)
+            ], ['sale_order_id'])
+            task_so_ids = [o['sale_order_id'][0] for o in task_so_ids]
+
+            sale_orders = self.mapped('sale_line_id.order_id') | self.env['sale.order'].browse(task_so_ids)
+            if sale_orders:
+                stat_buttons.append({
+                    'name': _('Sales Orders'),
+                    'count': len(sale_orders),
+                    'icon': 'fa fa-dollar',
+                    'action': _to_action_data(
+                        action=self.env.ref('sale.action_orders'),
+                        domain=[('id', 'in', sale_orders.ids)],
+                        context={'create': False, 'edit': False, 'delete': False}
+                    )
+                })
+
+                invoice_ids = self.env['sale.order'].search_read([('id', 'in', sale_orders.ids)], ['invoice_ids'])
+                invoice_ids = list(itertools.chain(*[i['invoice_ids'] for i in invoice_ids]))
+                invoice_ids = self.env['account.move'].search_read([('id', 'in', invoice_ids), ('type', '=', 'out_invoice')], ['id'])
+                invoice_ids = list(map(lambda x: x['id'], invoice_ids))
+
+                if invoice_ids:
+                    stat_buttons.append({
+                        'name': _('Invoices'),
+                        'count': len(invoice_ids),
+                        'icon': 'fa fa-pencil-square-o',
+                        'action': _to_action_data(
+                            action=self.env.ref('account.action_move_out_invoice_type'),
+                            domain=[('id', 'in', invoice_ids), ('type', '=', 'out_invoice')],
+                            context={'create': False, 'delete': False}
+                        )
+                    })
+        return stat_buttons
+
+
+def _to_action_data(model=None, *, action=None, views=None, res_id=None, domain=None, context=None):
+    # pass in either action or (model, views)
+    if action:
+        assert model is None and views is None
+        act = clean_action(action.read()[0])
+        model = act['res_model']
+        views = act['views']
+    # FIXME: search-view-id, possibly help?
+    descr = {
+        'data-model': model,
+        'data-views': json.dumps(views),
+    }
+    if context is not None: # otherwise copy action's?
+        descr['data-context'] = json.dumps(context)
+    if res_id:
+        descr['data-res-id'] = res_id
+    elif domain:
+        descr['data-domain'] = json.dumps(domain)
+    return descr
+
+```
+
+## File: models\project_sale_line_employee_map.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import api, fields, models
+
+
+class ProjectProductEmployeeMap(models.Model):
+    _name = 'project.sale.line.employee.map'
+    _description = 'Project Sales line, employee mapping'
+
+    @api.model
+    def _default_project_id(self):
+        if self._context.get('active_id'):
+            return self._context['active_id']
+        return False
+
+    project_id = fields.Many2one('project.project', "Project", domain=[('billable_type', '!=', 'no')], required=True, default=_default_project_id)
+    employee_id = fields.Many2one('hr.employee', "Employee", required=True)
+    sale_line_id = fields.Many2one('sale.order.line', "Sale Order Item", domain=[('is_service', '=', True)], required=True)
+    price_unit = fields.Float(related='sale_line_id.price_unit', readonly=True)
+
+    _sql_constraints = [
+        ('uniqueness_employee', 'UNIQUE(project_id,employee_id)', 'An employee cannot be selected more than once in the mapping. Please remove duplicate(s) and try again.'),
+    ]
+
+```
+
+## File: models\sale_order.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import api, fields, models, _
+
+from odoo.exceptions import ValidationError
+from odoo.osv import expression
+from odoo.tools.safe_eval import safe_eval
+from odoo.tools.sql import column_exists, create_column
+
+
+class SaleOrder(models.Model):
+    _inherit = 'sale.order'
+
+    timesheet_ids = fields.Many2many('account.analytic.line', compute='_compute_timesheet_ids', string='Timesheet activities associated to this sale')
+    timesheet_count = fields.Float(string='Timesheet activities', compute='_compute_timesheet_ids', groups="hr_timesheet.group_hr_timesheet_user")
+
+    tasks_ids = fields.Many2many('project.task', compute='_compute_tasks_ids', string='Tasks associated to this sale')
+    tasks_count = fields.Integer(string='Tasks', compute='_compute_tasks_ids', groups="project.group_project_user")
+
+    visible_project = fields.Boolean('Display project', compute='_compute_visible_project', readonly=True)
+    project_id = fields.Many2one(
+        'project.project', 'Project',
+        domain="[('billable_type', 'in', ('no', 'task_rate')), ('analytic_account_id', '!=', False), ('company_id', '=', company_id)]",
+        readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]},
+        help='Select a non billable project on which tasks can be created.')
+    project_ids = fields.Many2many('project.project', compute="_compute_project_ids", string='Projects', copy=False, groups="project.group_project_user", help="Projects used in this sales order.")
+    timesheet_encode_uom_id = fields.Many2one('uom.uom', related='company_id.timesheet_encode_uom_id')
+    timesheet_total_duration = fields.Float("Timesheet Total Duration", compute='_compute_timesheet_total_duration', help="Total recorded duration, expressed in the encoding UoM")
+
+    @api.depends('analytic_account_id.line_ids')
+    def _compute_timesheet_ids(self):
+        for order in self:
+            if order.analytic_account_id:
+                order.timesheet_ids = self.env['account.analytic.line'].search(
+                    [('so_line', 'in', order.order_line.ids),
+                        ('amount', '<=', 0.0),
+                        ('project_id', '!=', False)])
+            else:
+                order.timesheet_ids = []
+            order.timesheet_count = len(order.timesheet_ids)
+
+    @api.depends('order_line.product_id.project_id')
+    def _compute_tasks_ids(self):
+        for order in self:
+            order.tasks_ids = self.env['project.task'].search(['|', ('sale_line_id', 'in', order.order_line.ids), ('sale_order_id', '=', order.id)])
+            order.tasks_count = len(order.tasks_ids)
+
+    @api.depends('order_line.product_id.service_tracking')
+    def _compute_visible_project(self):
+        """ Users should be able to select a project_id on the SO if at least one SO line has a product with its service tracking
+        configured as 'task_in_project' """
+        for order in self:
+            order.visible_project = any(
+                service_tracking == 'task_in_project' for service_tracking in order.order_line.mapped('product_id.service_tracking')
+            )
+
+    @api.depends('order_line.product_id', 'order_line.project_id')
+    def _compute_project_ids(self):
+        for order in self:
+            projects = order.order_line.mapped('product_id.project_id')
+            projects |= order.order_line.mapped('project_id')
+            projects |= order.project_id
+            order.project_ids = projects
+
+    @api.depends('timesheet_ids', 'company_id.timesheet_encode_uom_id')
+    def _compute_timesheet_total_duration(self):
+        for sale_order in self:
+            duration_list = []
+            for timesheet in sale_order.timesheet_ids:
+                duration_list.append(timesheet.unit_amount)
+            sale_order.timesheet_total_duration = sum(duration_list)
+
+    @api.onchange('project_id')
+    def _onchange_project_id(self):
+        """ Set the SO analytic account to the selected project's analytic account """
+        if self.project_id.analytic_account_id:
+            self.analytic_account_id = self.project_id.analytic_account_id
+
+    def _action_confirm(self):
+        """ On SO confirmation, some lines should generate a task or a project. """
+        result = super(SaleOrder, self)._action_confirm()
+        for order in self:
+            order.mapped('order_line').sudo().with_context(
+                force_company=order.company_id.id,
+            )._timesheet_service_generation()
+        return result
+
+    def action_view_task(self):
+        self.ensure_one()
+
+        list_view_id = self.env.ref('project.view_task_tree2').id
+        form_view_id = self.env.ref('project.view_task_form2').id
+
+        action = {'type': 'ir.actions.act_window_close'}
+
+        task_projects = self.tasks_ids.mapped('project_id')
+        if len(task_projects) == 1 and len(self.tasks_ids) > 1:  # redirect to task of the project (with kanban stage, ...)
+            action = self.with_context(active_id=task_projects.id).env.ref(
+                'project.act_project_project_2_project_task_all').read()[0]
+            if action.get('context'):
+                eval_context = self.env['ir.actions.actions']._get_eval_context()
+                eval_context.update({'active_id': task_projects.id})
+                action['context'] = safe_eval(action['context'], eval_context)
+        else:
+            action = self.env.ref('project.action_view_task').read()[0]
+            action['context'] = {}  # erase default context to avoid default filter
+            if len(self.tasks_ids) > 1:  # cross project kanban task
+                action['views'] = [[False, 'kanban'], [list_view_id, 'tree'], [form_view_id, 'form'], [False, 'graph'], [False, 'calendar'], [False, 'pivot']]
+            elif len(self.tasks_ids) == 1:  # single task -> form view
+                action['views'] = [(form_view_id, 'form')]
+                action['res_id'] = self.tasks_ids.id
+        # filter on the task of the current SO
+        action.setdefault('context', {})
+        action['context'].update({'search_default_sale_order_id': self.id})
+        return action
+
+    def action_view_project_ids(self):
+        self.ensure_one()
+        # redirect to form or kanban view
+        billable_projects = self.project_ids.filtered(lambda project: project.sale_line_id)
+        if len(billable_projects) == 1 and self.env.user.has_group('project.group_project_manager'):
+            action = billable_projects[0].action_view_timesheet_plan()
+        else:
+            view_form_id = self.env.ref('project.edit_project').id
+            view_kanban_id = self.env.ref('project.view_project_kanban').id
+            action = {
+                'type': 'ir.actions.act_window',
+                'domain': [('id', 'in', self.project_ids.ids)],
+                'views': [(view_kanban_id, 'kanban'), (view_form_id, 'form')],
+                'view_mode': 'kanban,form',
+                'name': _('Projects'),
+                'res_model': 'project.project',
+            }
+        return action
+
+    def action_view_timesheet(self):
+        self.ensure_one()
+        action = self.env.ref('sale_timesheet.timesheet_action_from_sales_order').read()[0]
+        action['context'] = {}  # erase default filters
+        if self.timesheet_count > 0:
+            action['domain'] = [('so_line', 'in', self.order_line.ids)]
+        else:
+            action = {'type': 'ir.actions.act_window_close'}
+        return action
+
+
+class SaleOrderLine(models.Model):
+    _inherit = "sale.order.line"
+
+    qty_delivered_method = fields.Selection(selection_add=[('timesheet', 'Timesheets')])
+    project_id = fields.Many2one(
+        'project.project', 'Generated Project',
+        index=True, copy=False, help="Project generated by the sales order item")
+    task_id = fields.Many2one(
+        'project.task', 'Generated Task',
+        index=True, copy=False, help="Task generated by the sales order item")
+    is_service = fields.Boolean("Is a Service", compute='_compute_is_service', store=True, compute_sudo=True, help="Sales Order item should generate a task and/or a project, depending on the product settings.")
+    analytic_line_ids = fields.One2many(domain=[('project_id', '=', False)])  # only analytic lines, not timesheets (since this field determine if SO line came from expense)
+
+    @api.depends('product_id')
+    def _compute_qty_delivered_method(self):
+        """ Sale Timesheet module compute delivered qty for product [('type', 'in', ['service']), ('service_type', '=', 'timesheet')] """
+        super(SaleOrderLine, self)._compute_qty_delivered_method()
+        for line in self:
+            if not line.is_expense and line.product_id.type == 'service' and line.product_id.service_type == 'timesheet':
+                line.qty_delivered_method = 'timesheet'
+
+    @api.depends('analytic_line_ids.project_id')
+    def _compute_qty_delivered(self):
+        super(SaleOrderLine, self)._compute_qty_delivered()
+
+        lines_by_timesheet = self.filtered(lambda sol: sol.qty_delivered_method == 'timesheet')
+        domain = lines_by_timesheet._timesheet_compute_delivered_quantity_domain()
+        mapping = lines_by_timesheet.sudo()._get_delivered_quantity_by_analytic(domain)
+        for line in lines_by_timesheet:
+            line.qty_delivered = mapping.get(line.id or line._origin.id, 0.0)
+
+    def _timesheet_compute_delivered_quantity_domain(self):
+        """ Hook for validated timesheet in addionnal module """
+        return [('project_id', '!=', False)]
+
+    @api.depends('product_id.type')
+    def _compute_is_service(self):
+        for so_line in self:
+            so_line.is_service = so_line.product_id.type == 'service'
+
+    @api.depends('product_id.type')
+    def _compute_product_updatable(self):
+        for line in self:
+            if line.product_id.type == 'service' and line.state == 'sale':
+                line.product_updatable = False
+            else:
+                super(SaleOrderLine, line)._compute_product_updatable()
+
+    def _auto_init(self):
+        """
+        Create column to stop ORM from computing it himself (too slow)
+        """
+        if not column_exists(self.env.cr, 'sale_order_line', 'is_service'):
+            create_column(self.env.cr, 'sale_order_line', 'is_service', 'bool')
+            self.env.cr.execute("""
+                UPDATE sale_order_line line
+                SET is_service = (pt.type = 'service')
+                FROM product_product pp
+                LEFT JOIN product_template pt ON pt.id = pp.product_tmpl_id
+                WHERE pp.id = line.product_id
+            """)
+        return super()._auto_init()
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        lines = super(SaleOrderLine, self).create(vals_list)
+        # Do not generate task/project when expense SO line, but allow
+        # generate task with hours=0.
+        for line in lines:
+            if line.state == 'sale' and not line.is_expense:
+                line.sudo()._timesheet_service_generation()
+                # if the SO line created a task, post a message on the order
+                if line.task_id:
+                    msg_body = _("Task Created (%s): <a href=# data-oe-model=project.task data-oe-id=%d>%s</a>") % (line.product_id.name, line.task_id.id, line.task_id.name)
+                    line.order_id.message_post(body=msg_body)
+        return lines
+
+    def write(self, values):
+        result = super(SaleOrderLine, self).write(values)
+        # changing the ordered quantity should change the planned hours on the
+        # task, whatever the SO state. It will be blocked by the super in case
+        # of a locked sale order.
+        if 'product_uom_qty' in values:
+            for line in self:
+                if line.task_id:
+                    planned_hours = line._convert_qty_company_hours(line.task_id.company_id)
+                    line.task_id.write({'planned_hours': planned_hours})
+        return result
+
+    ###########################################
+    # Service : Project and task generation
+    ###########################################
+
+    def _convert_qty_company_hours(self, dest_company):
+        company_time_uom_id = dest_company.project_time_mode_id
+        if self.product_uom.id != company_time_uom_id.id and self.product_uom.category_id.id == company_time_uom_id.category_id.id:
+            planned_hours = self.product_uom._compute_quantity(self.product_uom_qty, company_time_uom_id)
+        else:
+            planned_hours = self.product_uom_qty
+        return planned_hours
+
+    def _timesheet_create_project_prepare_values(self):
+        """Generate project values"""
+        account = self.order_id.analytic_account_id
+        if not account:
+            self.order_id._create_analytic_account(prefix=self.product_id.default_code or None)
+            account = self.order_id.analytic_account_id
+
+        return {
+            'name': '%s - %s' % (self.order_id.client_order_ref, self.order_id.name) if self.order_id.client_order_ref else self.order_id.name,
+            'analytic_account_id': account.id,
+            'partner_id': self.order_id.partner_id.id,
+            'sale_line_id': self.id,
+            'sale_order_id': self.order_id.id,
+            'active': True,
+            'company_id': self.company_id.id,
+        }
+
+    def _timesheet_create_project(self):
+        """ Generate project for the given so line, and link it.
+            :param project: record of project.project in which the task should be created
+            :return task: record of the created task
+        """
+        self.ensure_one()
+        # create the project or duplicate one
+        values = self._timesheet_create_project_prepare_values()
+        if self.product_id.project_template_id:
+            values['name'] = "%s - %s" % (values['name'], self.product_id.project_template_id.name)
+            project = self.product_id.project_template_id.copy(values)
+            project.tasks.write({
+                'sale_line_id': self.id,
+                'partner_id': self.order_id.partner_id.id,
+                'email_from': self.order_id.partner_id.email,
+            })
+            # duplicating a project doesn't set the SO on sub-tasks
+            project.tasks.filtered(lambda task: task.parent_id != False).write({
+                'sale_line_id': self.id,
+            })
+        else:
+            project = self.env['project.project'].create(values)
+
+        # Avoid new tasks to go to 'Undefined Stage'
+        if not project.type_ids:
+            project.type_ids = self.env['project.task.type'].create({'name': _('New')})
+
+        # link project as generated by current so line
+        self.write({'project_id': project.id})
+        return project
+
+    def _timesheet_create_task_prepare_values(self, project):
+        self.ensure_one()
+        planned_hours = self._convert_qty_company_hours(self.company_id)
+        sale_line_name_parts = self.name.split('\n')
+        title = sale_line_name_parts[0] or self.product_id.name
+        description = '<br/>'.join(sale_line_name_parts[1:])
+        return {
+            'name': title if project.sale_line_id else '%s: %s' % (self.order_id.name or '', title),
+            'planned_hours': planned_hours,
+            'partner_id': self.order_id.partner_id.id,
+            'email_from': self.order_id.partner_id.email,
+            'description': description,
+            'project_id': project.id,
+            'sale_line_id': self.id,
+            'company_id': project.company_id.id,
+            'user_id': False,  # force non assigned task, as created as sudo()
+        }
+
+    def _timesheet_create_task(self, project):
+        """ Generate task for the given so line, and link it.
+            :param project: record of project.project in which the task should be created
+            :return task: record of the created task
+        """
+        values = self._timesheet_create_task_prepare_values(project)
+        task = self.env['project.task'].sudo().create(values)
+        self.write({'task_id': task.id})
+        # post message on task
+        task_msg = _("This task has been created from: <a href=# data-oe-model=sale.order data-oe-id=%d>%s</a> (%s)") % (self.order_id.id, self.order_id.name, self.product_id.name)
+        task.message_post(body=task_msg)
+        return task
+
+    def _timesheet_service_generation(self):
+        """ For service lines, create the task or the project. If already exists, it simply links
+            the existing one to the line.
+            Note: If the SO was confirmed, cancelled, set to draft then confirmed, avoid creating a
+            new project/task. This explains the searches on 'sale_line_id' on project/task. This also
+            implied if so line of generated task has been modified, we may regenerate it.
+        """
+        so_line_task_global_project = self.filtered(lambda sol: sol.is_service and sol.product_id.service_tracking == 'task_global_project')
+        so_line_new_project = self.filtered(lambda sol: sol.is_service and sol.product_id.service_tracking in ['project_only', 'task_in_project'])
+
+        # search so lines from SO of current so lines having their project generated, in order to check if the current one can
+        # create its own project, or reuse the one of its order.
+        map_so_project = {}
+        if so_line_new_project:
+            order_ids = self.mapped('order_id').ids
+            so_lines_with_project = self.search([('order_id', 'in', order_ids), ('project_id', '!=', False), ('product_id.service_tracking', 'in', ['project_only', 'task_in_project']), ('product_id.project_template_id', '=', False)])
+            map_so_project = {sol.order_id.id: sol.project_id for sol in so_lines_with_project}
+            so_lines_with_project_templates = self.search([('order_id', 'in', order_ids), ('project_id', '!=', False), ('product_id.service_tracking', 'in', ['project_only', 'task_in_project']), ('product_id.project_template_id', '!=', False)])
+            map_so_project_templates = {(sol.order_id.id, sol.product_id.project_template_id.id): sol.project_id for sol in so_lines_with_project_templates}
+
+        # search the global project of current SO lines, in which create their task
+        map_sol_project = {}
+        if so_line_task_global_project:
+            map_sol_project = {sol.id: sol.product_id.with_context(force_company=sol.company_id.id).project_id for sol in so_line_task_global_project}
+
+        def _can_create_project(sol):
+            if not sol.project_id:
+                if sol.product_id.project_template_id:
+                    return (sol.order_id.id, sol.product_id.project_template_id.id) not in map_so_project_templates
+                elif sol.order_id.id not in map_so_project:
+                    return True
+            return False
+
+        def _determine_project(so_line):
+            """Determine the project for this sale order line.
+            Rules are different based on the service_tracking:
+
+            - 'project_only': the project_id can only come from the sale order line itself
+            - 'task_in_project': the project_id comes from the sale order line only if no project_id was configured
+              on the parent sale order"""
+
+            if so_line.product_id.service_tracking == 'project_only':
+                return so_line.project_id
+            elif so_line.product_id.service_tracking == 'task_in_project':
+                return so_line.order_id.project_id or so_line.project_id
+
+            return False
+
+        # task_global_project: create task in global project
+        for so_line in so_line_task_global_project:
+            if not so_line.task_id:
+                if map_sol_project.get(so_line.id):
+                    so_line._timesheet_create_task(project=map_sol_project[so_line.id])
+
+        # project_only, task_in_project: create a new project, based or not on a template (1 per SO). May be create a task too.
+        # if 'task_in_project' and project_id configured on SO, use that one instead
+        for so_line in so_line_new_project:
+            project = _determine_project(so_line)
+            if not project and _can_create_project(so_line):
+                project = so_line._timesheet_create_project()
+                if so_line.product_id.project_template_id:
+                    map_so_project_templates[(so_line.order_id.id, so_line.product_id.project_template_id.id)] = project
+                else:
+                    map_so_project[so_line.order_id.id] = project
+            elif not project:
+                # Attach subsequent SO lines to the created project
+                so_line.project_id = (
+                    map_so_project_templates.get((so_line.order_id.id, so_line.product_id.project_template_id.id))
+                    or map_so_project.get(so_line.order_id.id)
+                )
+            if so_line.product_id.service_tracking == 'task_in_project':
+                if not project:
+                    if so_line.product_id.project_template_id:
+                        project = map_so_project_templates[(so_line.order_id.id, so_line.product_id.project_template_id.id)]
+                    else:
+                        project = map_so_project[so_line.order_id.id]
+                if not so_line.task_id:
+                    so_line._timesheet_create_task(project=project)
+
+```
+
+## File: models\__init__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from . import account
+from . import account_move
+from . import product
+from . import project
+from . import project_overview
+from . import sale_order
+from . import project_sale_line_employee_map
+
+```
+
+## File: report\project_profitability_report_analysis.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import fields, models, tools
+
+
+class ProfitabilityAnalysis(models.Model):
+
+    _name = "project.profitability.report"
+    _description = "Project Profitability Report"
+    _order = 'project_id, sale_line_id'
+    _auto = False
+
+    analytic_account_id = fields.Many2one('account.analytic.account', string='Analytic Account', readonly=True)
+    project_id = fields.Many2one('project.project', string='Project', readonly=True)
+    currency_id = fields.Many2one('res.currency', string='Project Currency', readonly=True)
+    company_id = fields.Many2one('res.company', string='Project Company', readonly=True)
+    user_id = fields.Many2one('res.users', string='Project Manager', readonly=True)
+    partner_id = fields.Many2one('res.partner', string='Customer', readonly=True)
+    # cost
+    timesheet_unit_amount = fields.Float("Timesheet Unit Amount", digits=(16, 2), readonly=True, group_operator="sum")
+    timesheet_cost = fields.Float("Timesheet Cost", digits=(16, 2), readonly=True, group_operator="sum")
+    expense_cost = fields.Float("Other Cost", digits=(16, 2), readonly=True, group_operator="sum")
+    # sale revenue
+    order_confirmation_date = fields.Datetime('Sales Order Confirmation Date', readonly=True)
+    sale_line_id = fields.Many2one('sale.order.line', string='Sale Order Line', readonly=True)
+    sale_order_id = fields.Many2one('sale.order', string='Sale Order', readonly=True)
+    product_id = fields.Many2one('product.product', string='Product', readonly=True)
+
+    amount_untaxed_to_invoice = fields.Float("Untaxed Amount To Invoice", digits=(16, 2), readonly=True, group_operator="sum")
+    amount_untaxed_invoiced = fields.Float("Untaxed Amount Invoiced", digits=(16, 2), readonly=True, group_operator="sum")
+    expense_amount_untaxed_to_invoice = fields.Float("Untaxed Amount to Re-invoice", digits=(16, 2), readonly=True, group_operator="sum")
+    expense_amount_untaxed_invoiced = fields.Float("Untaxed Re-invoiced Amount", digits=(16, 2), readonly=True, group_operator="sum")
+
+    def init(self):
+        tools.drop_view_if_exists(self._cr, self._table)
+        query = """
+            CREATE VIEW %s AS (
+                SELECT
+                    ROW_NUMBER() OVER (ORDER BY P.id, SOL.id) AS id,
+                    P.id AS project_id,
+                    P.user_id AS user_id,
+                    SOL.id AS sale_line_id,
+                    P.analytic_account_id AS analytic_account_id,
+                    P.partner_id AS partner_id,
+                    C.id AS company_id,
+                    C.currency_id AS currency_id,
+                    S.id AS sale_order_id,
+                    S.date_order AS order_confirmation_date,
+                    SOL.product_id AS product_id,
+                    SOL.qty_delivered_method AS sale_qty_delivered_method,
+                    CASE
+                       WHEN SOL.qty_delivered_method = 'analytic' THEN (SOL.untaxed_amount_to_invoice / CASE COALESCE(S.currency_rate, 0) WHEN 0 THEN 1.0 ELSE S.currency_rate END)
+                       ELSE 0.0
+                    END AS expense_amount_untaxed_to_invoice,
+                    CASE
+                       WHEN SOL.qty_delivered_method = 'analytic' AND SOL.invoice_status = 'invoiced'
+                       THEN
+                            CASE
+                                WHEN T.expense_policy = 'sales_price'
+                                THEN (SOL.untaxed_amount_invoiced / CASE COALESCE(S.currency_rate, 0) WHEN 0 THEN 1.0 ELSE S.currency_rate END)
+                                ELSE -COST_SUMMARY.expense_cost
+                            END
+                       ELSE 0.0
+                    END AS expense_amount_untaxed_invoiced,
+                    CASE
+                       WHEN SOL.qty_delivered_method IN ('timesheet', 'manual', 'stock_move') THEN (SOL.untaxed_amount_to_invoice / CASE COALESCE(S.currency_rate, 0) WHEN 0 THEN 1.0 ELSE S.currency_rate END)
+                       ELSE 0.0
+                    END AS amount_untaxed_to_invoice,
+                    CASE
+                       WHEN SOL.qty_delivered_method IN ('timesheet', 'manual', 'stock_move') THEN (COALESCE(SOL.untaxed_amount_invoiced, COST_SUMMARY.downpayment_invoiced) / CASE COALESCE(S.currency_rate, 0) WHEN 0 THEN 1.0 ELSE S.currency_rate END)
+                       ELSE 0.0
+                    END AS amount_untaxed_invoiced,
+                    COST_SUMMARY.timesheet_unit_amount AS timesheet_unit_amount,
+                    COST_SUMMARY.timesheet_cost AS timesheet_cost,
+                    COST_SUMMARY.expense_cost AS expense_cost
+                FROM project_project P
+                    JOIN res_company C ON C.id = P.company_id
+                    LEFT JOIN (
+                        SELECT
+                            project_id,
+                            analytic_account_id,
+                            sale_line_id,
+                            SUM(timesheet_unit_amount) AS timesheet_unit_amount,
+                            SUM(timesheet_cost) AS timesheet_cost,
+                            SUM(expense_cost) AS expense_cost,
+                            SUM(downpayment_invoiced) AS downpayment_invoiced
+                        FROM (
+                            SELECT
+                                P.id AS project_id,
+                                P.analytic_account_id AS analytic_account_id,
+                                TS.so_line AS sale_line_id,
+                                SUM(TS.unit_amount) AS timesheet_unit_amount,
+                                SUM(TS.amount) AS timesheet_cost,
+                                0.0 AS expense_cost,
+                                0.0 AS downpayment_invoiced
+                            FROM account_analytic_line TS, project_project P
+                            WHERE TS.project_id IS NOT NULL AND P.id = TS.project_id AND P.active = 't' AND P.allow_timesheets = 't'
+                            GROUP BY P.id, TS.so_line
+
+                            UNION
+
+                            SELECT
+                                P.id AS project_id,
+                                P.analytic_account_id AS analytic_account_id,
+                                AAL.so_line AS sale_line_id,
+                                0.0 AS timesheet_unit_amount,
+                                0.0 AS timesheet_cost,
+                                CASE
+                                  WHEN AAL.product_id != CAST((COALESCE((SELECT value FROM ir_config_parameter WHERE key='sale.default_deposit_product_id'), '-1')) as INT)
+                                  THEN (SUM(AAL.amount))
+                                  ELSE 0.0
+                                END AS expense_cost,
+                                0.0 AS downpayment_invoiced
+                            FROM project_project P
+                                LEFT JOIN account_analytic_account AA ON P.analytic_account_id = AA.id
+                                LEFT JOIN account_analytic_line AAL ON AAL.account_id = AA.id
+                                LEFT JOIN account_move_line RINVL ON AAL.move_id = RINVL.id
+                                                                 AND RINVL.parent_state = 'posted'
+                                                                 AND RINVL.exclude_from_invoice_tab = 'f'
+                                -- Check if the AAL is not related to a reversed credit note
+                                LEFT JOIN account_move RINV ON RINV.id = RINVL.move_id
+                                LEFT JOIN account_move_line INVL ON INVL.move_id = RINV.reversed_entry_id
+                                                                AND INVL.parent_state = 'posted'
+                                                                AND INVL.exclude_from_invoice_tab = 'f'
+                                                                AND INVL.product_id = RINVL.product_id
+
+                                -- Check if it's not a bill which has been reversed
+                                -- In this case, RINVL should be considered as a Vendor Bill line, and here below we search for the bill reversal.
+                                LEFT JOIN account_move RBILL ON RBILL.reversed_entry_id = RINVL.move_id
+                                LEFT JOIN account_move_line RBILLL ON RBILLL.move_id = RBILL.id
+                                                                AND RBILLL.parent_state = 'posted'
+                                                                AND RBILLL.exclude_from_invoice_tab = 'f'
+                                                                AND RBILLL.product_id = RINVL.product_id
+
+                            WHERE AAL.amount < 0.0 AND AAL.project_id IS NULL AND P.active = 't' AND P.allow_timesheets = 't'
+                              AND INVL.id IS NULL -- exclude credit notes from this subquery
+                              AND RBILLL.id IS NULL
+                            GROUP BY P.id, AA.id, AAL.so_line, AAL.product_id
+
+                            UNION
+
+                            SELECT
+                                P.id AS project_id,
+                                P.analytic_account_id AS analytic_account_id,
+                                SOLDOWN.id AS sale_line_id,
+                                0.0 AS timesheet_unit_amount,
+                                0.0 AS timesheet_cost,
+                                0.0 AS expense_cost,
+                                CASE WHEN SOLDOWN.invoice_status = 'invoiced' THEN SOLDOWN.price_reduce ELSE 0.0 END AS downpayment_invoiced
+                            FROM project_project P
+                                INNER JOIN sale_order_line SOL ON P.sale_line_id = SOL.id
+                                INNER JOIN sale_order_line SOLDOWN ON SOLDOWN.order_id = SOL.order_id AND SOLDOWN.is_downpayment = 't'
+                                LEFT JOIN sale_order_line_invoice_rel SOINV ON SOINV.order_line_id = SOLDOWN.id
+                                LEFT JOIN account_move_line INVL ON SOINV.invoice_line_id = INVL.id
+                                                                AND INVL.parent_state = 'posted'
+                                                                AND INVL.exclude_from_invoice_tab = 'f'
+                                LEFT JOIN account_move RINV ON INVL.move_id = RINV.reversed_entry_id
+                                LEFT JOIN account_move_line RINVL ON RINV.id = RINVL.move_id
+                                                                 AND RINVL.parent_state = 'posted'
+                                                                 AND RINVL.exclude_from_invoice_tab = 'f'
+                                                                 AND RINVL.product_id = SOLDOWN.product_id
+                                LEFT JOIN account_analytic_line ANLI ON ANLI.move_id = RINVL.id AND ANLI.amount < 0.0
+                            WHERE ANLI.id IS NULL -- there are no credit note for this downpayment
+                              AND P.active = 't' AND P.allow_timesheets = 't'
+                            GROUP BY P.id, SOLDOWN.id
+
+                            UNION
+
+                            SELECT
+                                P.id AS project_id,
+                                P.analytic_account_id AS analytic_account_id,
+                                SOL.id AS sale_line_id,
+                                0.0 AS timesheet_unit_amount,
+                                0.0 AS timesheet_cost,
+                                0.0 AS expense_cost,
+                                0.0 AS downpayment_invoiced
+                            FROM sale_order_line SOL
+                                INNER JOIN project_project P ON SOL.project_id = P.id
+                            WHERE P.active = 't' AND P.allow_timesheets = 't'
+
+                            UNION
+
+                            SELECT
+                                P.id AS project_id,
+                                P.analytic_account_id AS analytic_account_id,
+                                SOL.id AS sale_line_id,
+                                0.0 AS timesheet_unit_amount,
+                                0.0 AS timesheet_cost,
+                                0.0 AS expense_cost,
+                                0.0 AS downpayment_invoiced
+                            FROM sale_order_line SOL
+                                INNER JOIN project_task T ON SOL.task_id = T.id
+                                INNER JOIN project_project P ON P.id = T.project_id
+                            WHERE P.active = 't' AND P.allow_timesheets = 't'
+                        ) SUB_COST_SUMMARY
+                        GROUP BY project_id, analytic_account_id, sale_line_id
+                    ) COST_SUMMARY ON COST_SUMMARY.project_id = P.id
+                    LEFT JOIN sale_order_line SOL ON COST_SUMMARY.sale_line_id = SOL.id
+                    LEFT JOIN sale_order S ON SOL.order_id = S.id
+                    LEFT JOIN product_product PP on (SOL.product_id=PP.id)
+                    LEFT JOIN product_template T on (PP.product_tmpl_id=T.id)
+                    WHERE P.active = 't' AND P.analytic_account_id IS NOT NULL
+            )
+        """ % self._table
+        self._cr.execute(query)
+
+```
+
+## File: report\project_profitability_report_analysis_views.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="project_profitability_report_view_pivot" model="ir.ui.view">
+        <field name="name">project.profitability.report.pivot</field>
+        <field name="model">project.profitability.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Profitability Analysis" display_quantity="true" disable_linking="True">
+                <field name="project_id" type="row"/>
+                <field name="amount_untaxed_to_invoice" type="measure"/>
+                <field name="amount_untaxed_invoiced" type="measure"/>
+                <field name="timesheet_cost" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="project_profitability_report_view_graph" model="ir.ui.view">
+        <field name="name">project.profitability.report.graph</field>
+        <field name="model">project.profitability.report</field>
+        <field name="arch" type="xml">
+            <graph string="Profitability Analysis" type="bar">
+                <field name="project_id" type="row"/>
+                <field name="product_id" type="col"/>
+                <field name="amount_untaxed_to_invoice" type="measure"/>
+                <field name="amount_untaxed_invoiced" type="measure"/>
+                <field name="timesheet_cost" type="measure"/>
+             </graph>
+         </field>
+    </record>
+
+    <record id="project_profitability_report_view_search" model="ir.ui.view">
+        <field name="name">project.profitability.report.search</field>
+        <field name="model">project.profitability.report</field>
+        <field name="arch" type="xml">
+            <search string="Profitability Analysis">
+                <field name="project_id"/>
+                <field name="user_id"/>
+                <field name="product_id"/>
+                <field name="partner_id" filter_domain="[('partner_id', 'child_of', self)]"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <filter string="My Project" name="my_project" domain="[('user_id','=', uid)]"/>
+                <group expand="1" string="Group By">
+                    <filter string="Project" name="group_by_project" context="{'group_by':'project_id'}"/>
+                    <filter string="Project Manager" name="group_by_user_id" context="{'group_by':'user_id'}"/>
+                    <filter string="Customer" name="group_by_partner_id" context="{'group_by':'partner_id'}"/>
+                    <filter string="Company" name="group_by_company" context="{'group_by':'company_id'}" groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="project_profitability_report_action" model="ir.actions.act_window">
+        <field name="name">Project Costs and Revenues</field>
+        <field name="res_model">project.profitability.report</field>
+        <field name="view_mode">pivot,graph</field>
+        <field name="search_view_id" ref="project_profitability_report_view_search"/>
+        <field name="context">{
+            'group_by_no_leaf':1,
+            'group_by':[],
+            'sale_show_order_product_name': 1,
+        }</field>
+        <field name="help">This report allows you to analyse the profitability of your projects: compare the amount to invoice, the ones already invoiced and the project cost (via timesheet cost of your employees).</field>
+    </record>
+
+    <menuitem id="menu_project_profitability_analysis"
+        parent="project.menu_project_report"
+        action="project_profitability_report_action"
+        name="Project Costs and Revenues"
+        sequence="50"/>
+
+</odoo>
+
+```
+
+## File: report\__init__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from . import project_profitability_report_analysis
+
+```
+
+## File: security\ir.model.access.csv
+
+```csv
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_project_profitability_report_analysis_manager,project.profitability.report.analysis,model_project_profitability_report,project.group_project_manager,1,1,1,1
+access_project_sale_line_employee_map,access_project_sale_line_employee_map,model_project_sale_line_employee_map,base.group_user,1,0,0,0
+access_project_sale_line_employee_map_manager,access_project_sale_line_employee_map_project_manager,model_project_sale_line_employee_map,project.group_project_manager,1,1,1,1
+access_sale_order_line_project_manager,sale.order.line.project.manager,sale.model_sale_order_line,project.group_project_manager,1,0,0,0
+access_sale_order_project_manager,sale.order.project.manager,sale.model_sale_order,project.group_project_manager,1,0,0,0
+
+```
+
+## File: security\sale_timesheet_security.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <data noupdate="1">
+
+        <record id="sale_order_line_rule_project_manager" model="ir.rule">
+            <field name="name">Project Manager Sales Orders Line</field>
+            <field name="model_id" ref="sale.model_sale_order_line"/>
+            <field name="domain_force">['&amp;', '&amp;', ('state', 'in', ['sale', 'done']), ('is_service', '=', True), '|', ('project_id','!=', False), ('task_id','!=', False)]</field>
+            <field name="groups" eval="[(4, ref('project.group_project_manager'))]"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+            <field name="perm_read" eval="1"/>
+        </record>
+
+    </data>
+</odoo>
+
+```
+
+## File: views\account_invoice_views.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_timesheet_from_invoice" model="ir.actions.act_window">
+        <field name="name">Timesheet</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">account.analytic.line</field>
+        <field name="view_mode">tree,form,graph</field>
+        <field name="context">{}</field>
+        <field name="domain">[('timesheet_invoice_id', '=', active_id)]</field>
+    </record>
+
+    <record id="account_invoice_view_form_inherit_sale_timesheet" model="ir.ui.view">
+        <field name="name">account.invoice.form.inherit.timesheet</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="%(sale_timesheet.action_timesheet_from_invoice)d" type="action" class="oe_stat_button" icon="fa-calendar" attrs="{'invisible':[('timesheet_count','=', 0)]}">
+                    <field name="timesheet_count" widget="statinfo" string="Timesheets"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
+
+```
+
+## File: views\hr_timesheet_templates.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="assets_backend" name="sale timesheet assets" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <link rel="stylesheet" type="text/scss" href="/sale_timesheet/static/src/scss/sale_timesheet.scss"/>
+        </xpath>
+    </template>
+
+    <record id="timesheet_plan" model="ir.ui.view">
+        <field name="name">Timesheet Plan</field>
+        <field name="type">qweb</field>
+        <field name="model">project.project</field>
+        <field name="arch" type="xml">
+        <nav class="o_qweb_cp_buttons" t-if="actions">
+            <button t-foreach="actions" t-as="action"
+                    type="action" class="btn btn-primary"
+                    t-att-name="action['action_id']"
+                    t-att-data-context="action.get('context')"
+            >
+                <t t-esc="action['label']"/>
+            </button>
+        </nav>
+        <div class="o_form_view o_form_readonly o_project_plan">
+            <div class="o_form_sheet_bg">
+                <div class="o_form_sheet o_timesheet_plan_content">
+                    <div class="o_timesheet_plan_sale_timesheet">
+                        <div class="o_timesheet_plan_sale_timesheet_dashboard">
+
+                            <div class="o_timesheet_plan_stat_buttons oe_button_box">
+                                <t t-foreach="stat_buttons" t-as="stat_button">
+                                    <a class="btn oe_stat_button"
+                                       type="action"
+                                       t-att="stat_button['action']"
+                                    >
+                                        <div t-attf-class="fa fa-fw o_button_icon #{stat_button['icon']}" role="img" aria-label="Statistics" title="Statistics"></div>
+                                        <div class="o_field_widget o_stat_info o_readonly_modifier" t-att-title="stat_button['name']">
+                                            <span class="o_stat_value" t-if="stat_button.get('count')">
+                                                <t t-esc="stat_button['count']"/>
+                                            </span>
+                                            <span class="o_stat_text">
+                                                <t t-esc="stat_button['name']"/>
+                                            </span>
+                                        </div>
+                                    </a>
+                                </t>
+                            </div>
+
+                            <div class="o_title">
+                                <h2>Hours recorded and Profitability</h2>
+                            </div>
+
+                            <t t-set="display_cost" t-value="dashboard['profit']['expense_cost'] != 0.0"/>
+                            <div class="o_profitability_wrapper">
+                                <div class="o_profitability_section">
+                                    <div>
+                                        <table class="table">
+                                            <tbody>
+                                                <th>
+                                                    <a type="action" data-model="account.analytic.line" t-att-data-domain="json.dumps(timesheet_domain)" data-context='{"pivot_row_groupby": ["date:month"],"pivot_column_groupby": ["timesheet_invoice_type"], "pivot_measures": ["unit_amount"]}' data-views='[[0, "pivot"], [0, "list"]]' tabindex="-1">Hours</a>
+                                                </th>
+                                                <tr>
+                                                    <td class="o_timesheet_plan_dashboard_cell">
+                                                        <t t-esc="dashboard['hours']['billable_time']" t-options="{'widget': 'float_time'}"/>
+                                                    </td>
+                                                    <td class="o_timesheet_plan_dashboard_cell">
+                                                        (<t t-esc="dashboard['rates']['billable_time']"/> %)
+                                                    </td>
+                                                    <td title="Includes the time logged into tasks for which you invoice based on timesheets on tasks.">
+                                                        Billed on Timesheets
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="o_timesheet_plan_dashboard_cell">
+                                                        <t t-esc="dashboard['hours']['billable_fixed']" t-options="{'widget': 'float_time'}"/>
+                                                    </td>
+                                                    <td class="o_timesheet_plan_dashboard_cell">
+                                                        (<t t-esc="dashboard['rates']['billable_fixed']"/> %)
+                                                    </td>
+                                                    <td title="Includes the time logged into tasks for which you invoice based on ordered quantities or on milestones.">
+                                                        Billed at a Fixed price
+                                                    </td>
+                                                </tr>
+                                                <tr t-if="dashboard['hours']['non_billable_project'] != 0">
+                                                    <td class="o_timesheet_plan_dashboard_cell">
+                                                        <t t-esc="dashboard['hours']['non_billable_project']" t-options="{'widget': 'float_time'}"/>
+                                                    </td>
+                                                    <td class="o_timesheet_plan_dashboard_cell">
+                                                        (<t t-esc="dashboard['rates']['non_billable_project']"/> %)
+                                                    </td>
+                                                    <td title="Includes the time logged from the Timesheet module that is linked to a project, but not to a task.">
+                                                        No task found
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="o_timesheet_plan_dashboard_cell">
+                                                        <t t-esc="dashboard['hours']['non_billable']" t-options="{'widget': 'float_time'}"/>
+                                                    </td>
+                                                    <td class="o_timesheet_plan_dashboard_cell">
+                                                        (<t t-esc="dashboard['rates']['non_billable']"/> %)
+                                                    </td>
+                                                    <td>
+                                                        <a type="action"
+                                                            data-model="project.task"
+                                                            data-views='[[false, "list"], [false, "form"]]'
+                                                            t-att-data-domain="json.dumps([['project_id', 'in', projects.ids], ['sale_line_id', '=', False]])"
+                                                        >
+                                                            <span class="btn-link"
+                                                                  style="font-weight:normal;"
+                                                                  title="Includes the time logged into a task which is not linked to any Sales Order.">
+                                                                Non Billable Tasks
+                                                            </span>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                <tr t-if="dashboard['hours']['canceled'] > 0">
+                                                    <td class="o_timesheet_plan_dashboard_cell">
+                                                        <t t-esc="dashboard['hours']['canceled']" t-options="{'widget': 'float_time'}"/>
+                                                    </td>
+                                                    <td class="o_timesheet_plan_dashboard_cell">
+                                                        (<t t-esc="dashboard['rates']['canceled']"/> %)
+                                                    </td>
+                                                    <td title="Includes the time logged into a task which is linked to a cancelled Sales Order.">
+                                                        Cancelled
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="o_timesheet_plan_dashboard_total"><b><t t-esc="dashboard['hours']['total']" t-options="{'widget': 'float_time'}"/></b></td>
+                                                    <td><b>Total</b></td>
+                                                    <td></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="o_profitability_section">
+                                    <div>
+                                        <table class="table">
+                                            <tbody>
+                                                <th>
+                                                    <a type="action" data-model="project.profitability.report" t-att-data-domain="json.dumps(profitability_domain)" data-context="{'group_by_no_leaf':1, 'group_by':[], 'sale_show_order_product_name': 1}" data-views='[[0, "pivot"], [0, "graph"]]' tabindex="-1">Profitability</a>
+                                                </th>
+                                                <tr>
+                                                    <td class="o_timesheet_plan_dashboard_cell">
+                                                        <t t-esc="dashboard['profit']['invoiced']" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                                    </td>
+                                                    <td>Invoiced</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="o_timesheet_plan_dashboard_cell">
+                                                        <t t-esc="dashboard['profit']['to_invoice']" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                                    </td>
+                                                    <td>To invoice</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="o_timesheet_plan_dashboard_cell">
+                                                        <t t-esc="dashboard['profit']['cost']" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                                    </td>
+                                                    <td title="This cost is based on the &quot;Timesheet cost&quot; set in the HR Settings of your employees.">
+                                                        Timesheet costs
+                                                    </td>
+                                                </tr>
+                                                <tr t-if="display_cost">
+                                                    <td class="o_timesheet_plan_dashboard_cell">
+                                                        <t t-esc="dashboard['profit']['expense_cost']" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                                    </td>
+                                                    <td>Other costs</td>
+                                                </tr>
+                                                <tr t-if="display_cost &amp; (dashboard['profit']['expense_amount_untaxed_invoiced'] != 0)">
+                                                    <td class="o_timesheet_plan_dashboard_cell">
+                                                        <t t-esc="dashboard['profit']['expense_amount_untaxed_invoiced']" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                                    </td>
+                                                    <td>Re-invoiced costs</td>
+                                                </tr>
+                                                <tr t-if="display_cost &amp; (dashboard['profit']['expense_amount_untaxed_to_invoice'] != 0)">
+                                                    <td class="o_timesheet_plan_dashboard_cell">
+                                                        <t t-esc="dashboard['profit']['expense_amount_untaxed_to_invoice']" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                                    </td>
+                                                    <td>To re-invoice costs</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="o_timesheet_plan_dashboard_total">
+                                                        <b>
+                                                            <t t-esc="dashboard['profit']['total']" t-options='{"widget": "monetary", "display_currency": currency}'/>
+                                                        </b>
+                                                    </td>
+                                                    <td><b>Total</b></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="o_title">
+                            <h2>Time by people</h2>
+                        </div>
+
+                        <div class="o_timesheet_plan_sale_timesheet_people_time">
+                            <t t-if="not repartition_employee">
+                                <p>There are no timesheets for now.</p>
+                            </t>
+                            <t t-if="repartition_employee">
+                                <div class="float-right o_timesheet_plan_badge">
+                                    <span class="badge badge-pill o_progress_billable_time">
+                                        <a type="action" data-model="account.analytic.line" t-att-data-domain="json.dumps(timesheet_domain + [('timesheet_invoice_type','=','billable_time')])" tabindex="-1">Billed on Timesheets</a>
+                                    </span>
+                                    <span class="badge badge-pill o_progress_billable_fixed">
+                                        <a type="action" data-model="account.analytic.line" t-att-data-domain="json.dumps(timesheet_domain + [('timesheet_invoice_type','=','billable_fixed')])" tabindex="-1">Billed at a Fixed price</a>
+                                    </span>
+                                    <span t-if="dashboard['hours']['non_billable_project'] != 0" class="badge badge-pill o_progress_non_billable_project">
+                                        <a type="action" data-model="account.analytic.line" t-att-data-domain="json.dumps(timesheet_domain + [('timesheet_invoice_type','=','non_billable_project')])" tabindex="-1">No task found</a>
+                                    </span>
+                                    <span class="badge badge-pill o_progress_non_billable">
+                                        <a type="action" data-model="account.analytic.line" t-att-data-domain="json.dumps(timesheet_domain + [('timesheet_invoice_type','=','non_billable')])" tabindex="-1">Non billable tasks</a>
+                                    </span>
+                                    <!-- only show the canceled pill if there were timesheets on canceled so -->
+                                    <t t-if="sum([employee.get('canceled', 0.0) for employee in repartition_employee.values()]) > 0">
+                                        <span class="badge badge-pill o_progress_canceled">
+                                            <a type="action" data-model="account.analytic.line" t-att-data-domain="json.dumps(timesheet_domain + [('so_line.state', '=', 'cancel')])" tabindex="-1">Cancelled</a>
+                                        </span>
+                                    </t>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <tbody>
+                                            <t t-foreach="repartition_employee" t-as="employee_id">
+                                                <t t-set="employee" t-value="repartition_employee[employee_id]"/>
+                                                <tr>
+                                                    <td style="width: 15%">
+                                                        <a type="action" data-model="account.analytic.line" t-att-data-domain="json.dumps(timesheet_domain)" t-att-data-context="json.dumps({'search_default_employee_id': employee_id})" data-views="[[0, &quot;list&quot;]]" tabindex="-1">
+                                                            <t t-esc="employee['employee_name']"/>
+                                                        </a>
+                                                    </td>
+                                                    <td style="width: 10%">
+                                                        <t t-esc="employee['total']" t-options="{'widget': 'float_time'}"/>
+                                                    </td>
+                                                    <td>
+                                                        <div t-if="repartition_employee_max" class="progress" t-attf-style="width: {{employee['total'] / repartition_employee_max * 100}}%">
+
+                                                            <t t-set="total" t-value="employee['total'] or 1.0" />
+                                                            <t t-call="sale_timesheet.progressbar">
+                                                                <t t-set="label">Billed on Timesheets</t>
+                                                                <t t-set="key" t-translation="off">billable_time</t>
+                                                            </t>
+                                                            <t t-call="sale_timesheet.progressbar">
+                                                                <t t-set="label">Billed at a Fixed price</t>
+                                                                <t t-set="key" t-translation="off">billable_fixed</t>
+                                                            </t>
+                                                            <t t-call="sale_timesheet.progressbar">
+                                                                <t t-set="label">No task found</t>
+                                                                <t t-set="key" t-translation="off">non_billable_project</t>
+                                                            </t>
+                                                            <t t-call="sale_timesheet.progressbar">
+                                                                <t t-set="label">Non billable tasks</t>
+                                                                <t t-set="key" t-translation="off">non_billable</t>
+                                                            </t>
+                                                            <t t-call="sale_timesheet.progressbar">
+                                                                <t t-set="label">Cancelled</t>
+                                                                <t t-set="key" t-translation="off">canceled</t>
+                                                            </t>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </t>
+                        </div>
+
+                        <div class="o_title">
+                            <h2>Timesheets</h2>
+                        </div>
+
+                        <!-- NOTE: this template to display a table works whatever the length of the rows, as project_timesheet_forecast_sale extends the table to add forecasts -->
+                        <div class="o_project_plan_project_timesheet_forecast">
+                            <t t-if="timesheet_forecast_table and timesheet_forecast_table['rows']">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th colspan="5" id="table_plan_title" class="o_right_bordered"><h3>Timesheets</h3></th>
+                                                <th colspan="2" id="table_plan_total"></th>
+                                            </tr>
+                                            <tr>
+                                                <t t-foreach="timesheet_forecast_table['header']" t-as="header_val">
+                                                    <th t-att-class="'o_right_bordered' if header_val_index in [5,10] else ''">
+                                                        <span t-att-title="header_val['tooltip']"><t t-esc="header_val['label']"/></span>
+                                                    </th>
+                                                </t>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-set="row_is_milestone" t-value="False"/>
+                                            <t t-foreach="timesheet_forecast_table['rows']" t-as="row">
+                                                <t t-set="row_type" t-value="row[0].get('type')"/>
+                                                <t t-if="row_type == 'sale_order_line'">
+                                                    <t t-set="row_is_milestone" t-value="row[0].get('is_milestone')"/>
+                                                </t>
+                                                <tr t-att-class="'o_timesheet_forecast_' + row_type">
+                                                    <t t-foreach="row" t-as="row_value">
+                                                        <td t-att-class="'o_right_bordered' if row_value_index in [5,10] else '' + ' text-center' if row_value_index != 0 else ''">
+                                                            <t t-if="row_value_index == 0">
+                                                                <t t-if="row_type == 'sale_order'">
+                                                                    <a type="action" t-att-data-model="row_value['res_model']" t-att-data-res-id="row_value['res_id']" t-att-class="'o_timesheet_plan_redirect' if row_value['res_id'] else ''">
+                                                                        <t t-esc="row_value.get('label')"/>
+                                                                    </a>
+                                                                    <span t-if="row_value.get('canceled')" class="badge badge-pill o_canceled_tag">
+                                                                        Cancelled
+                                                                    </span>
+                                                                </t>
+                                                                <t t-if="row_type != 'sale_order'">
+                                                                    <t t-if="not row_is_milestone">
+                                                                        <span><t t-esc="row_value.get('label')"/></span>
+                                                                    </t>
+                                                                     <t t-if="row_is_milestone">
+                                                                        <span><i><t t-esc="row_value.get('label')"/></i></span>
+                                                                    </t>
+                                                                </t>
+                                                            </t>
+                                                            <t t-if="row_value_index != 0">
+                                                                <t t-if="row_value_index &lt; len(row)-2">
+                                                                    <t t-if="row_is_milestone">
+                                                                        <i t-att-class="'text-muted' if not row_value else ''"><t t-esc="row_value" t-options="{'widget': 'float_time'}"/></i>
+                                                                    </t>
+                                                                    <t t-else="">
+                                                                        <span t-att-class="'text-muted' if not row_value else ''"><t t-esc="row_value" t-options="{'widget': 'float_time'}"/></span>
+                                                                    </t>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <t t-if="not row_is_milestone and not row[0].get('type') == 'hr_employee'">
+                                                                        <span t-att-class="'text-muted' if not row_value else ''"><t t-esc="row_value" t-options="{'widget': 'float_time'}"/></span>
+                                                                    </t>
+                                                                </t>
+                                                            </t>
+                                                        </td>
+                                                    </t>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </t>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        </field>
+    </record>
+
+    <template id="progressbar" name="project overview progressbar segments">
+        <t t-set="amount" t-value="employee[key]"/>
+        <t t-if="amount">
+            <t t-set="title"><t t-esc="label"/>: <t t-esc="amount" t-options="{'widget': 'float_time'}"/></t>
+            <a t-attf-class="progress-bar o_progress_{{key}}"
+               t-attf-style="width: {{amount / total * 100}}%"
+               type="action" data-model="account.analytic.line"
+               t-att-data-domain="employee['__domain_' + key]"
+            >
+                <span t-att-title="title" style="font-size: 0px; width: 100%; height: 100%;">
+                    <t t-esc="label" />
+                </span>
+            </a>
+        </t>
+    </template>
+
+</odoo>
+
+```
+
+## File: views\hr_timesheet_views.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="timesheet_view_search" model="ir.ui.view">
+            <field name="name">account.analytic.line.search</field>
+            <field name="model">account.analytic.line</field>
+            <field name="inherit_id" ref="hr_timesheet.hr_timesheet_line_search"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='month']" position="before">
+                    <filter name="billable_time" string="Billed on Timesheets" domain="[('timesheet_invoice_type', '=', 'billable_time')]"/>
+                    <filter name="billable_fixed" string="Billed at a Fixed Price" domain="[('timesheet_invoice_type', '=', 'billable_fixed')]"/>
+                    <filter name="non_billable" string="Non Billable Tasks" domain="[('timesheet_invoice_type', '=', 'non_billable')]"/>
+                    <separator/>
+                </xpath>
+            </field>
+    </record>
+
+    <record id="timesheet_view_pivot_revenue" model="ir.ui.view">
+        <field name="name">account.analytic.line.pivot.revenue</field>
+        <field name="model">account.analytic.line</field>
+        <field name="arch" type="xml">
+            <pivot string="Timesheet">
+                <field name="employee_id" type="row"/>
+                <field name="date" interval="month" type="col"/>
+                <field name="unit_amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!--
+        Timesheet from Sales Order
+    -->
+    <record id="timesheet_action_from_sales_order" model="ir.actions.act_window">
+        <field name="name">Timesheets</field>
+        <field name="res_model">account.analytic.line</field>
+        <field name="search_view_id" ref="hr_timesheet.hr_timesheet_line_search"/>
+        <field name="domain">[('project_id', '!=', False)]</field>
+    </record>
+
+    <record id="timesheet_action_from_sales_order_tree" model="ir.actions.act_window.view">
+        <field name="sequence" eval="4"/>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="hr_timesheet.timesheet_view_tree_user"/>
+        <field name="act_window_id" ref="timesheet_action_from_sales_order"/>
+    </record>
+
+    <record id="timesheet_action_from_sales_order_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="5"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="hr_timesheet.timesheet_view_form_user"/>
+        <field name="act_window_id" ref="timesheet_action_from_sales_order"/>
+    </record>
+
+    <!--
+        Reporting
+    -->
+    <record id="timesheet_action_billing_report" model="ir.actions.act_window">
+        <field name="name">Timesheets By Billing Rate</field>
+        <field name="res_model">account.analytic.line</field>
+        <field name="view_mode">pivot,graph</field>
+        <field name="domain">[('project_id', '!=', False)]</field>
+        <field name="context">{"search_default_week":1}</field>
+        <field name="search_view_id" ref="hr_timesheet.hr_timesheet_line_search"/>
+    </record>
+
+    <record id="timesheet_filter_billing" model="ir.filters">
+        <field name="name">Billing Rate</field>
+        <field name="model_id">account.analytic.line</field>
+        <field name="user_id" eval="False"/>
+        <field name="domain">[('project_id', '!=', False)]</field>
+        <field name="is_default" eval="True"/>
+        <field name="context">{
+            'col_group_by': ['date:month', 'timesheet_invoice_type'],
+            'group_by': ['project_id', 'employee_id'],
+            'measures': ['amount_currency', 'unit_amount', '__count']
+        }</field>
+        <field name="action_id" ref="timesheet_action_billing_report"/>
+    </record>
+
+    <menuitem id="menu_timesheet_billing_analysis"
+            parent="hr_timesheet.menu_timesheets_reports_timesheet"
+            action="timesheet_action_billing_report"
+            name="By Billing Rate"
+            sequence="40"/>
+
+    <!--
+        Plan
+    -->
+    <record id="timesheet_action_plan_pivot" model="ir.actions.act_window">
+        <field name="name">Timesheet</field>
+        <field name="res_model">account.analytic.line</field>
+        <field name="view_mode">pivot,tree,form</field>
+        <field name="domain">[('project_id', '!=', False)]</field>
+        <field name="search_view_id" ref="hr_timesheet.hr_timesheet_line_search"/>
+    </record>
+
+    <record id="timesheet_action_from_plan" model="ir.actions.act_window">
+        <field name="name">Timesheet</field>
+        <field name="res_model">account.analytic.line</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('project_id', '!=', False)]</field>
+        <field name="search_view_id" ref="hr_timesheet.hr_timesheet_line_search"/>
+    </record>
+
+</odoo>
+
+```
+
+## File: views\product_views.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_product_timesheet_form" model="ir.ui.view">
+        <field name="name">product.template.timesheet.form</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="sale.product_template_form_view_invoice_policy"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_policy']" position="attributes">
+                <attribute name="invisible">False</attribute>
+                <attribute name="attrs">{'invisible': [('type','==','service')]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='service_type']" position="after">
+                <field name="service_policy" widget="radio" attrs="{'invisible': [('type','!=','service')]}"/>
+                <field name="service_tracking" widget="radio" attrs="{'invisible': [('type','!=','service')]}"/>
+                <field name="project_id" attrs="{'invisible':[('service_tracking','!=','task_global_project')], 'required':[('service_tracking','==','task_global_project')]}"/>
+                <field name="project_template_id" context="{'active_test': False}" attrs="{'invisible':[('service_tracking','not in',['task_in_project', 'project_only'])]}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_template_view_search_sale_timesheet" model="ir.ui.view">
+        <field name="name">product.template.search.timesheet</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='consumable']" position="after">
+                <separator/>
+                <filter string="Time-based services" name="product_time_based" domain="[('type', '=', 'service'), ('invoice_policy', '=', 'delivery'), ('service_type', '=', 'timesheet')]"/>
+                <filter string="Fixed price services" name="product_service_fixed" domain="[('type', '=', 'service'), ('invoice_policy', '=', 'order'), ('service_type', '=', 'timesheet')]"/>
+                <filter string="Milestone services" name="product_service_milestone" domain="[('type', '=', 'service'), ('invoice_policy', '=', 'delivery'), ('service_type', '=', 'manual')]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_template_action_default_services" model="ir.actions.act_window">
+        <field name="name">Products</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="sale_timesheet.product_template_view_search_sale_timesheet"/>
+        <field name="context">{'search_default_services': 1, 'default_type': 'service'}</field>
+    </record>
+
+</odoo>
+
+```
+
+## File: views\project_task_views.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="project_project_view_form" model="ir.ui.view">
+        <field name="name">project.project.form.inherit</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_make_billable" string="Create Sales Order" type="object" attrs="{'invisible': [('billable_type', '!=', 'no')]}" group="sale.group_sale_salesman"/>
+            </xpath>
+            <xpath expr="//page[@name='emails']" position="after">
+                <page name="billing_employee_rate" string="Invoicing" attrs="{'invisible': [('billable_type', '=', 'no')]}">
+                    <group>
+                        <field name="billable_type" invisible="1"/>
+                        <field name="sale_order_id" attrs="{'invisible': [('billable_type', '=', 'no')]}"/>
+                        <field name="sale_line_id" attrs="{'invisible': [('billable_type', '=', 'no')]}" context="{'create': False, 'edit': False, 'delete': False}"/>
+                    </group>
+                    <field name="sale_line_employee_ids">
+                        <tree editable="top">
+                            <field name="employee_id" options="{'no_create': True}"/>
+                            <field name="sale_line_id" options="{'no_create': True}" domain="[('order_id','=',parent.sale_order_id), ('is_service', '=', True)]"/>
+                            <field name="price_unit"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="project_project_view_kanban_inherit_sale_timesheet" model="ir.ui.view">
+        <field name="name">project.project.kanban.inherit.sale.timesheet</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="hr_timesheet.view_project_kanban_inherited"/>
+        <field name="arch" type="xml">
+            <xpath expr="//a[@t-if='record.allow_timesheets.raw_value']" position="replace">
+                <a t-if="record.allow_timesheets.raw_value" name="action_view_timesheet" type="object" class="o_project_kanban_box o_project_timesheet_box" groups="project.group_project_manager">
+                    <div>
+                        <span class="o_label">Overview</span>
+                    </div>
+                </a>
+            </xpath>
+        </field>
+    </record>
+
+        <record id="view_sale_service_inherit_form2" model="ir.ui.view">
+            <field name="name">sale.service.form.view.inherit</field>
+            <field name="model">project.task</field>
+            <field name="groups_id" eval="[(4, ref('base.group_user'))]"/>
+            <field name="inherit_id" ref="project.view_task_form2"/>
+            <field name="arch" type="xml">
+                <field name="partner_id" position="after">
+                    <field name="sale_line_id" string="Sales Order Item" attrs="{'invisible': ['|', ('partner_id', '=', False), '&amp;', ('sale_order_id', '!=', False), ('sale_line_id', '=', False)]}" options='{"no_open": True}' readonly="1" context="{'create': False, 'edit': False, 'delete': False}"/>
+                    <field name="billable_type" invisible="1"/>
+                    <field name="sale_order_id" invisible="1" />
+                </field>
+            </field>
+        </record>
+
+    <record id="project_task_view_form_inherit_sale_line_editable" model="ir.ui.view">
+        <field name="name">project.task.form.inherit.sale.line.editable.salesman</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="view_sale_service_inherit_form2"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='sale_line_id']" position="attributes">
+                <attribute name="options">{"no_create": True}</attribute>
+                <attribute name="readonly">0</attribute>
+            </xpath>
+        </field>
+        <field name="groups_id" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+    </record>
+
+    <record id="project_task_view_form_sale_order" model="ir.ui.view">
+        <field name="name">project.task.form.inherit.sale.order</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button type="object" name="action_view_so"
+                        class="oe_stat_button" icon="fa-dollar"
+                        attrs="{'invisible': [('sale_order_id', '=', False)]}"
+                        string="Sales Order"/>
+                <field name="sale_order_id" invisible="1"/>
+            </div>
+        </field>
+        <field name="groups_id" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+    </record>
+
+    <record id="project_task_view_search" model="ir.ui.view">
+        <field name="name">project.task.search.inherit</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_search_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='stage_id']" position="before">
+                <field name="sale_order_id" string="Sale Order" filter_domain="['|', ('sale_order_id', 'ilike', self), ('sale_line_id', 'ilike', self)]"/>
+            </xpath>
+        </field>
+    </record>
+
+        <record id="project_task_view_form_inherit_sale_timesheet" model="ir.ui.view">
+            <field name="name">project.task.form.inherit.timesheet</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="hr_timesheet.view_task_form2_inherited"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='timesheet_ids']/tree" position="attributes">
+                    <attribute name="decoration-muted">timesheet_invoice_id != False</attribute>
+                </xpath>
+                <xpath expr="//field[@name='user_id']" position="after">
+                    <field name="is_project_map_empty" invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='timesheet_ids']/tree" position="inside">
+                    <field name="timesheet_invoice_id" invisible="1"/>
+                    <field name="so_line" readonly="1" attrs="{'column_invisible': ['|', ('parent.is_project_map_empty', '=', True), ('parent.billable_type', '!=', 'employee_rate')]}"/>
+                </xpath>
+            </field>
+        </record>
+
+    <record id="project_timesheet_action_client_timesheet_plan" model="ir.actions.act_window">
+        <field name="name">Overview</field>
+        <field name="res_model">project.project</field>
+        <field name="view_mode">qweb</field>
+    </record>
+
+</odoo>
+
+```
+
+## File: views\res_config_settings_views.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.sale.timesheet</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="1"/>
+        <field name="inherit_id" ref="hr_timesheet.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='section_leaves']" position="before">
+                <h2>Billing</h2>
+                <div name="timesheet_billing" class="row mt16 o_settings_container">
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Time Billing</span>
+                            <div class="text-muted">
+                                Sell services and invoice time spent
+                            </div>
+                            <div class="content-group" name="msg_module_sale_timesheet">
+                                <div class="mt8">
+                                    <div>
+                                        <button name="%(sale_timesheet.product_template_action_default_services)d" string="Configure your services" type="action" class="btn-link" icon="fa-arrow-right"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
+
+```
+
+## File: views\sale_order_views.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="view_order_form_inherit_sale_timesheet" model="ir.ui.view">
+            <field name="name">sale.order.form.sale.timesheet</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <data>
+                    <xpath expr="//button[@name='action_view_invoice']" position="before">
+                       <button type="object"
+                           name="action_view_project_ids"
+                           class="oe_stat_button"
+                           icon="fa-puzzle-piece"
+                           string="Project Overview"
+                           attrs="{'invisible': ['|', ('state', 'in', ['draft', 'sent']), ('project_ids', '=', [])]}"
+                           groups="project.group_project_manager">
+                          <field name="project_ids" invisible="1"/>
+                       </button>
+                    </xpath>
+                    <xpath expr="//button[@name='action_view_invoice']" position="before">
+                        <button type="object"
+                           name="action_view_task"
+                           class="oe_stat_button"
+                           icon="fa-tasks"
+                           attrs="{'invisible': [('tasks_count', '=', 0)]}"
+                           groups="project.group_project_user">
+                           <field name="tasks_count" widget="statinfo" string="Tasks"/>
+                        </button>
+                        <field name="timesheet_count" invisible="1" />
+                        <button type="object"
+                           name="action_view_timesheet"
+                           class="oe_stat_button"
+                           icon="fa-clock-o"
+                           attrs="{'invisible': [('timesheet_count', '=', 0)]}"
+                           groups="hr_timesheet.group_hr_timesheet_user">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="timesheet_total_duration" class="mr4" widget="timesheet_uom"/>
+                                    <field name="timesheet_encode_uom_id" options="{'no_open' : True}"/>
+                                </span>
+                                <span class="o_stat_text">Recorded</span>
+                            </div>
+                        </button>
+                    </xpath>
+                    <xpath expr="//field[@name='analytic_account_id']" position="after">
+                       <field name="visible_project" invisible="1"/>
+                       <field name="project_id" options="{'no_create': True}" attrs="{'invisible': [('visible_project', '=', False)]}"/>
+                    </xpath>
+                </data>
+           </field>
+        </record>
+</odoo>
+
+```
+
+## File: views\sale_timesheet_portal_templates.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="assets_frontend" name="report timesheet assets" inherit_id="web.assets_frontend">
+        <xpath expr="." position="inside">
+            <link rel="stylesheet" type="text/scss" href="/sale_timesheet/static/src/scss/sale_timesheet_portal.scss"/>
+        </xpath>
+    </template>
+
+    <template id="portal_invoice_page_inherit_timesheet" inherit_id="account.portal_invoice_page">
+        <xpath expr="//t[@t-call='portal.portal_record_sidebar']//div[hasclass('o_download_pdf')]" position="after">
+            <li t-if="timesheets" class="list-group-item flex-grow-1" >
+                <a href="#accordion">Timesheets</a>
+            </li>
+        </xpath>
+
+        <xpath expr="//div[@id='invoice_content']//div[hasclass('o_portal_html_view')]" position="after">
+            <div t-if="timesheets" class="container">
+                <div id="accordion" class="o_timesheet_accordion mt-4">
+                    <div class="card mb-0">
+                        <div class="card-header">
+                            <h5 class="mb0">
+                                <a class="card-title" data-toggle="collapse" href="#collapseTimesheet">
+                                    Timesheets
+                                </a>
+                            </h5>
+                        </div>
+                        <div id="collapseTimesheet" class="card-body show" data-parent="#accordion">
+                            <t t-call="hr_timesheet.portal_timesheet_table"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+</odoo>
+
+```
+
+## File: wizard\project_create_invoice.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import api, fields, models, _
+from odoo.exceptions import UserError
+
+
+class ProjectCreateInvoice(models.TransientModel):
+    _name = 'project.create.invoice'
+    _description = "Create Invoice from project"
+
+    @api.model
+    def default_get(self, fields):
+        result = super(ProjectCreateInvoice, self).default_get(fields)
+
+        active_model = self._context.get('active_model')
+        if active_model != 'project.project':
+            raise UserError(_('You can only apply this action from a project.'))
+
+        active_id = self._context.get('active_id')
+        if 'project_id' in fields and active_id:
+            result['project_id'] = active_id
+        return result
+
+    project_id = fields.Many2one('project.project', "Project", help="Project to make billable", required=True)
+    sale_order_id = fields.Many2one('sale.order', string="Choose the Sales Order to invoice", required=True)
+    amount_to_invoice = fields.Monetary("Amount to invoice", compute='_compute_amount_to_invoice', currency_field='currency_id', help="Total amount to invoice on the sales order, including all items (services, storables, expenses, ...)")
+    currency_id = fields.Many2one(related='sale_order_id.currency_id', readonly=True)
+
+    @api.onchange('project_id')
+    def _onchange_project_id(self):
+        sale_orders = self.project_id.tasks.mapped('sale_line_id.order_id').filtered(lambda so: so.invoice_status == 'to invoice')
+        return {
+            'domain': {'sale_order_id': [('id', 'in', sale_orders.ids)]},
+        }
+
+    @api.depends('sale_order_id')
+    def _compute_amount_to_invoice(self):
+        for wizard in self:
+            amount_untaxed = 0.0
+            amount_tax = 0.0
+            for line in wizard.sale_order_id.order_line.filtered(lambda sol: sol.invoice_status == 'to invoice'):
+                amount_untaxed += line.price_reduce * line.qty_to_invoice
+                amount_tax += line.price_tax
+            wizard.amount_to_invoice = amount_untaxed + amount_tax
+
+    def action_create_invoice(self):
+        if not self.sale_order_id and self.sale_order_id.invoice_status != 'to invoice':
+            raise UserError(_("The selected Sales Order should contain something to invoice."))
+        action = self.env.ref('sale.action_view_sale_advance_payment_inv').read()[0]
+        action['context'] = {
+            'active_ids': self.sale_order_id.ids
+        }
+        return action
+
+```
+
+## File: wizard\project_create_invoice_views.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="project_create_invoice_view_form" model="ir.ui.view">
+        <field name="name">project.create.invoice.view.form</field>
+        <field name="model">project.create.invoice</field>
+        <field name="arch" type="xml">
+            <form string="Create Sales Order from Project">
+                <group>
+                    <field name="project_id" readonly="1"/>
+                    <field name="sale_order_id" options="{'no_create_edit': True}" context="{'sale_show_partner_name': True}"/>
+                    <field name="amount_to_invoice"/>
+                </group>
+                <footer>
+                    <button string="Create Invoice" type="object" name="action_create_invoice" class="oe_highlight"/>
+                    <button string="Cancel" special="cancel" type="object" class="btn btn-secondary oe_inline"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="project_project_action_multi_create_invoice" model="ir.actions.act_window">
+        <field name="name">Create Invoice</field>
+        <field name="res_model">project.create.invoice</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="project_create_invoice_view_form"/>
+        <field name="target">new</field>
+        <field name="groups_id" eval="[(4, ref('sales_team.group_sale_salesman_all_leads'))]"/>
+    </record>
+
+</odoo>
+
+```
+
+## File: wizard\project_create_sale_order.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import api, fields, models, _
+from odoo.exceptions import UserError
+
+
+class ProjectCreateSalesOrder(models.TransientModel):
+    _name = 'project.create.sale.order'
+    _description = "Create SO from project"
+
+    @api.model
+    def default_get(self, fields):
+        result = super(ProjectCreateSalesOrder, self).default_get(fields)
+
+        active_model = self._context.get('active_model')
+        if active_model != 'project.project':
+            raise UserError(_("You can only apply this action from a project."))
+
+        active_id = self._context.get('active_id')
+        if 'project_id' in fields and active_id:
+            project = self.env['project.project'].browse(active_id)
+            if project.billable_type != 'no':
+                raise UserError(_("The project is already billable."))
+            result['project_id'] = active_id
+            result['partner_id'] = project.partner_id.id
+        return result
+
+    project_id = fields.Many2one('project.project', "Project", domain=[('sale_line_id', '=', False)], help="Project for which we are creating a sales order", required=True)
+    company_id = fields.Many2one(related='project_id.company_id')
+    partner_id = fields.Many2one('res.partner', string="Customer", required=True, help="Customer of the sales order")
+    product_id = fields.Many2one('product.product', domain=[('type', '=', 'service'), ('invoice_policy', '=', 'delivery'), ('service_type', '=', 'timesheet')], string="Service", help="Product of the sales order item. Must be a service invoiced based on timesheets on tasks.")
+    price_unit = fields.Float("Unit Price", help="Unit price of the sales order item.")
+    currency_id = fields.Many2one('res.currency', string="Currency", related='product_id.currency_id', readonly=False)
+
+    billable_type = fields.Selection([
+        ('project_rate', 'At Project Rate'),
+        ('employee_rate', 'At Employee Rate'),
+    ], string="Billing Type", default='project_rate', required=True, help="* At Project Rate: All timesheets on the project will be billed at the same rate\n* At Employee Rate: Timesheets will be billed at a rate defined at employee level")
+
+    line_ids = fields.One2many('project.create.sale.order.line', 'wizard_id', string='Lines')
+
+    @api.onchange('billable_type', 'product_id')
+    def _onchange_product_id(self):
+        if self.billable_type == 'project_rate':
+            if self.product_id:
+                self.price_unit = self.product_id.lst_price
+        else:
+            self.price_unit = 0.0
+
+    def action_create_sale_order(self):
+        # if project linked to SO line or at least on tasks with SO line, then we consider project as billable.
+        if self.project_id.sale_line_id:
+            raise UserError(_("The project is already linked to a sales order item."))
+
+        if self.billable_type == 'employee_rate':
+            # at least one line
+            if not self.line_ids:
+                raise UserError(_("At least one line should be filled."))
+
+            # all employee having timesheet should be in the wizard map
+            timesheet_employees = self.env['account.analytic.line'].search([('task_id', 'in', self.project_id.tasks.ids)]).mapped('employee_id')
+            map_employees = self.line_ids.mapped('employee_id')
+            missing_meployees = timesheet_employees - map_employees
+            if missing_meployees:
+                raise UserError(_('The Sales Order cannot be created because you did not enter some employees that entered timesheets on this project. Please list all the relevant employees before creating the Sales Order.\nMissing employee(s): %s') % (', '.join(missing_meployees.mapped('name'))))
+
+        # check here if timesheet already linked to SO line
+        timesheet_with_so_line = self.env['account.analytic.line'].search_count([('task_id', 'in', self.project_id.tasks.ids), ('so_line', '!=', False)])
+        if timesheet_with_so_line:
+            raise UserError(_('The sales order cannot be created because some timesheets of this project are already linked to another sales order.'))
+
+        # create SO according to the chosen billable type
+        sale_order = self._create_sale_order()
+
+        view_form_id = self.env.ref('sale.view_order_form').id
+        action = self.env.ref('sale.action_orders').read()[0]
+        action.update({
+            'views': [(view_form_id, 'form')],
+            'view_mode': 'form',
+            'name': sale_order.name,
+            'res_id': sale_order.id,
+        })
+        return action
+
+    def _create_sale_order(self):
+        """ Private implementation of generating the sales order """
+        sale_order = self.env['sale.order'].create({
+            'project_id': self.project_id.id,
+            'partner_id': self.partner_id.id,
+            'analytic_account_id': self.project_id.analytic_account_id.id,
+            'client_order_ref': self.project_id.name,
+            'company_id': self.project_id.company_id.id,
+        })
+        sale_order.onchange_partner_id()
+        sale_order.onchange_partner_shipping_id()
+
+        # create the sale lines, the map (optional), and assign existing timesheet to sale lines
+        self._make_billable(sale_order)
+
+        # confirm SO
+        sale_order.action_confirm()
+        return sale_order
+
+    def _make_billable(self, sale_order):
+        if self.billable_type == 'project_rate':
+            self._make_billable_at_project_rate(sale_order)
+        else:
+            self._make_billable_at_employee_rate(sale_order)
+
+    def _make_billable_at_project_rate(self, sale_order):
+        # trying to simulate the SO line created a task, according to the product configuration
+        # To avoid, generating a task when confirming the SO
+        task_id = False
+        if self.product_id.service_tracking in ['task_in_project', 'task_global_project']:
+            task_id = self.env['project.task'].search([('project_id', '=', self.project_id.id)], order='create_date DESC', limit=1).id
+
+        # create SO line
+        sale_order_line = self.env['sale.order.line'].create({
+            'order_id': sale_order.id,
+            'product_id': self.product_id.id,
+            'price_unit': self.price_unit,
+            'project_id': self.project_id.id,  # prevent to re-create a project on confirmation
+            'task_id': task_id,
+            'product_uom_qty': 0.0,
+        })
+
+        # link the project and the tasks to the SO line
+        self.project_id.write({
+            'sale_order_id': sale_order.id,
+            'sale_line_id': sale_order_line.id,
+            'partner_id': self.partner_id.id,
+        })
+        self.project_id.tasks.filtered(lambda task: task.billable_type == 'no').write({
+            'sale_line_id': sale_order_line.id,
+            'partner_id': sale_order.partner_id.id,
+            'email_from': sale_order.partner_id.email,
+        })
+
+        # assign SOL to timesheets
+        self.env['account.analytic.line'].search([('task_id', 'in', self.project_id.tasks.ids), ('so_line', '=', False)]).write({
+            'so_line': sale_order_line.id
+        })
+
+        return sale_order_line
+
+    def _make_billable_at_employee_rate(self, sale_order):
+        # trying to simulate the SO line created a task, according to the product configuration
+        # To avoid, generating a task when confirming the SO
+        task_id = self.env['project.task'].search([('project_id', '=', self.project_id.id)], order='create_date DESC', limit=1).id
+        project_id = self.project_id.id
+
+        non_billable_tasks = self.project_id.tasks.filtered(lambda task: task.billable_type == 'no')
+
+        map_entries = self.env['project.sale.line.employee.map']
+        EmployeeMap = self.env['project.sale.line.employee.map'].sudo()
+
+        # create SO lines: create on SOL per product/price. So many employee can be linked to the same SOL
+        map_product_price_sol = {}  # (product_id, price) --> SOL
+        for wizard_line in self.line_ids:
+            map_key = (wizard_line.product_id.id, wizard_line.price_unit)
+            if map_key not in map_product_price_sol:
+                values = {
+                    'order_id': sale_order.id,
+                    'product_id': wizard_line.product_id.id,
+                    'price_unit': wizard_line.price_unit,
+                    'product_uom_qty': 0.0,
+                }
+                if wizard_line.product_id.service_tracking in ['task_in_project', 'task_global_project']:
+                    values['task_id'] = task_id
+                if wizard_line.product_id.service_tracking in ['task_in_project', 'project_only']:
+                    values['project_id'] = project_id
+
+                sale_order_line = self.env['sale.order.line'].create(values)
+                map_product_price_sol[map_key] = sale_order_line
+
+            map_entries |= EmployeeMap.create({
+                'project_id': self.project_id.id,
+                'sale_line_id': map_product_price_sol[map_key].id,
+                'employee_id': wizard_line.employee_id.id,
+            })
+
+        # link the project to the SO
+        self.project_id.write({
+            'sale_order_id': sale_order.id,
+            'sale_line_id': sale_order.order_line[0].id,
+            'partner_id': self.partner_id.id,
+        })
+        non_billable_tasks.write({
+            'sale_line_id': sale_order.order_line[0].id,
+            'partner_id': sale_order.partner_id.id,
+            'email_from': sale_order.partner_id.email,
+        })
+
+        # assign SOL to timesheets
+        for map_entry in map_entries:
+            self.env['account.analytic.line'].search([('task_id', 'in', self.project_id.tasks.ids), ('employee_id', '=', map_entry.employee_id.id), ('so_line', '=', False)]).write({
+                'so_line': map_entry.sale_line_id.id
+            })
+
+        return map_entries
+
+
+class ProjectCreateSalesOrderLine(models.TransientModel):
+    _name = 'project.create.sale.order.line'
+    _description = 'Create SO Line from project'
+    _order = 'id,create_date'
+
+    wizard_id = fields.Many2one('project.create.sale.order', required=True)
+    product_id = fields.Many2one('product.product', domain=[('type', '=', 'service'), ('invoice_policy', '=', 'delivery'), ('service_type', '=', 'timesheet')], string="Service", required=True,
+        help="Product of the sales order item. Must be a service invoiced based on timesheets on tasks.")
+    price_unit = fields.Float("Unit Price", default=1.0, help="Unit price of the sales order item.")
+    currency_id = fields.Many2one('res.currency', string="Currency", related='product_id.currency_id', readonly=False)
+    employee_id = fields.Many2one('hr.employee', string="Employee", required=True, help="Employee that has timesheets on the project.")
+
+    _sql_constraints = [
+        ('unique_employee_per_wizard', 'UNIQUE(wizard_id, employee_id)', "An employee cannot be selected more than once in the mapping. Please remove duplicate(s) and try again."),
+    ]
+
+    @api.onchange('product_id')
+    def _onchange_product_id(self):
+        if self.product_id:
+            self.price_unit = self.product_id.lst_price
+
+```
+
+## File: wizard\project_create_sale_order_views.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="project_create_sale_order_view_form" model="ir.ui.view">
+        <field name="name">project.create.sale.order.wizard.form</field>
+        <field name="model">project.create.sale.order</field>
+        <field name="arch" type="xml">
+            <form string="Create a Sales Order">
+                <group>
+                    <group>
+                        <field name="project_id" readonly="1"/>
+                        <field name="company_id" invisible="1"/>
+                        <field name="partner_id" domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]"/>
+                    </group>
+                    <group>
+                        <field name="billable_type" widget="radio"/>
+                    </group>
+                </group>
+                <group attrs="{'invisible': [('billable_type', '=', 'employee_rate')]}">
+                    <group>
+                        <field name="product_id" options="{'no_create_edit': True, 'no_create': True}" attrs="{'required': [('billable_type', '=', 'project_rate')]}"/>
+                    </group>
+                    <group>
+                        <field name="price_unit" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}" attrs="{'required': [('billable_type', '=', 'project_rate')]}"/>
+                        <field name="currency_id" invisible="1"/>
+                    </group>
+                </group>
+                <group attrs="{'invisible': [('billable_type', '=', 'project_rate')]}">
+                    <field name="line_ids" nolabel="1" attrs="{'required': [('billable_type', '=', 'employee_rate')]}">
+                        <tree editable="bottom">
+                            <field name="employee_id" options="{'no_create_edit': True, 'no_create': True}"/>
+                            <field name="product_id" options="{'no_create_edit': True, 'no_create': True}"/>
+                            <field name="price_unit" widget='monetary' options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                            <field name="currency_id" invisible="1"/>
+                        </tree>
+                    </field>
+                </group>
+                <footer>
+                    <button string="Create Sales Order" type="object" name="action_create_sale_order" class="oe_highlight"/>
+                    <button string="Cancel" special="cancel" type="object" class="btn btn-secondary oe_inline"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="project_project_action_multi_create_sale_order" model="ir.actions.act_window">
+        <field name="name">Create a Sales Order</field>
+        <field name="res_model">project.create.sale.order</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="project_create_sale_order_view_form"/>
+        <field name="target">new</field>
+        <field name="groups_id" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+    </record>
+
+</odoo>
+
+```
+
+## File: wizard\__init__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from . import project_create_sale_order
+from . import project_create_invoice
+
+```
+

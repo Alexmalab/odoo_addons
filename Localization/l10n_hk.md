@@ -1,0 +1,168 @@
+# Odoo Module: l10n_hk
+
+Category: Localization
+
+This file contains the source code of the Odoo module.
+
+## File: __init__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+```
+
+## File: __manifest__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+{
+    'name': 'Hong Kong - Accounting',
+    'version': '1.0',
+    'category': 'Localization',
+    'description': """ This is the base module to manage chart of accounting and localization for Hong Kong """,
+    'author': 'Odoo SA',
+    'depends': ['account'],
+    'data': [
+        'data/account_chart_template_data.xml',
+        'data/account.account.template.csv',
+        'data/l10n_hk_chart_data.xml',
+        'data/account_chart_template_configure_data.xml',
+    ],
+    'license': 'LGPL-3',
+}
+
+```
+
+## File: data\account.account.template.csv
+
+```csv
+"id","name","code","user_type_id/id","chart_template_id/id","tag_ids/id","reconcile"
+"l10n_hk_11","Fixed Assets","11","account.data_account_type_fixed_assets","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_1110","Furniture and Fixtures","1110","account.data_account_type_non_current_assets","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_1130","Equipment","1130","account.data_account_type_non_current_assets","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_1140","Decoration","1140","account.data_account_type_non_current_assets","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_1160","Investments","1160","account.data_account_type_non_current_assets","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_12","Current Assets","12","account.data_account_type_current_assets","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_1240","Account Receivable","1240","account.data_account_type_receivable","l10n_hk.l10n_hk_chart_template","","True"
+"l10n_hk_1241","Utility & Rental Deposit","1241","account.data_account_type_current_assets","l10n_hk.l10n_hk_chart_template","","True"
+"l10n_hk_1242","Supplier Prepayments","1242","account.data_account_type_current_assets","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_1243","Account Receivable (PoS)","1243","account.data_account_type_receivable","l10n_hk.l10n_hk_chart_template","","True"
+"l10n_hk_1245","Sundry Deposits","1245","account.data_account_type_current_assets","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_1246","Other Receivable","1246","account.data_account_type_receivable","l10n_hk.l10n_hk_chart_template","","True"
+"l10n_hk_1250","Stock Interim Account (Received)","1250","account.data_account_type_current_assets","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_1260","Stock Interim Account (Delivered)","1260","account.data_account_type_current_assets","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_1270","Stock Valuation Account","1270","account.data_account_type_current_assets","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_21","Non-current Liabilities","21","account.data_account_type_non_current_liabilities","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_22","Current Liabilities","22","account.data_account_type_current_liabilities","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_2210","Accruals","2210","account.data_account_type_current_liabilities","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_2211","Account Payable","2211","account.data_account_type_payable","l10n_hk.l10n_hk_chart_template","","True"
+"l10n_hk_2212","Receipt in Advance (Customer Prepayments)","2212","account.data_account_type_current_liabilities","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_2214","Provision for Taxation","2214","account.data_account_type_current_liabilities","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_2215","Proposed Dividend","2215","account.data_account_type_current_liabilities","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_2216","Other Payable","2216","account.data_account_type_payable","l10n_hk.l10n_hk_chart_template","","True"
+"l10n_hk_31","Paid Capital","31","account.data_account_type_current_liabilities","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_32","Accumulated Profit & Loss","32","account.data_account_type_current_liabilities","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_33","Profit & Loss Account","33","account.data_account_type_current_liabilities","l10n_hk.l10n_hk_chart_template","","False"
+"l10n_hk_41","Trade Income","41","account.data_account_type_revenue","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_42","Other Income and Gains","42","account.data_account_type_revenue","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_4210","Sundry Income","4210","account.data_account_type_revenue","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_4220","Exchange Adjustment","4220","account.data_account_type_revenue","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_4230","Bank Interest Income","4230","account.data_account_type_revenue","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_4240","Foreign Exchange Gain","4240","account.data_account_type_revenue","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_51","Costs","51","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5101","Trade Costs","5101","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5105","Misc. Costs","5105","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5106","Costs of Transportation","5106","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5111","Declaration Fees","5111","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5112","Packing Fees","5112","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_52","Expenses","52","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5201","Bank Charges","5201","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5202","Entertainment","5202","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5203","Electricity & Water Fees","5203","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5205","Postage & Stamps","5205","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5206","Printing & Stationery","5206","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5207","Rent & Rates","5207","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5208","Sundry Expenses","5208","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5209","Telecommunication Expenses","5209","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5210","Traffic Fees","5210","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5211","IT Expenses","5211","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5214","Insurance","5214","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5215","Sales Commission","5215","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5216","Overseas Traveling","5216","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5217","MPF Contribution","5217","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5218","Wages & Salaries","5218","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5219","Bonus Payment","5219","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5221","Taxation","5221","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5222","Local Delivery","5222","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5223","Management Fees","5223","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5224","Depreciation","5224","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5225","Audit Fees","5225","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5226","Bad Debts","5226","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5228","Legal & Professional Fees","5228","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5229","Dividend","5229","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5231","Disposal","5231","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5234","Repair and Maintenance","5234","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5235","Advertising","5235","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+"l10n_hk_5240","Foreign Exchange Loss","5240","account.data_account_type_expenses","l10n_hk.l10n_hk_chart_template","account.account_tag_operating","False"
+```
+
+## File: data\account_chart_template_configure_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <function model="account.chart.template" name="try_loading">
+        <value eval="[ref('l10n_hk.l10n_hk_chart_template')]"/>
+    </function>
+</odoo>
+
+```
+
+## File: data\account_chart_template_data.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="base.CNY" model="res.currency">
+        <field name="active" eval="True" />
+    </record>
+
+    <!-- Account Chart template -->
+    <record id="l10n_hk_chart_template" model="account.chart.template">
+        <field name="name">Hong Kong - Chart of Accounts</field>
+        <field name="bank_account_code_prefix">1200</field>
+        <field name="cash_account_code_prefix">1210</field>
+        <field name="transfer_account_code_prefix">111220</field>
+        <field name="code_digits">6</field>
+        <field name="currency_id" ref="base.HKD" />
+    </record>
+</odoo>
+
+```
+
+## File: data\l10n_hk_chart_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Account Chart Template -->
+    <record id="l10n_hk_chart_template" model="account.chart.template">
+        <field name="name">Hong Kong - Chart of Accounts</field>
+        <field name="property_account_receivable_id" ref="l10n_hk_1240" />
+        <field name="property_account_payable_id" ref="l10n_hk_2211" />
+        <field name="property_account_income_categ_id" ref="l10n_hk_41" />
+        <field name="property_account_expense_categ_id" ref="l10n_hk_51" />
+        <field name="expense_currency_exchange_account_id" ref="l10n_hk_5240" />
+        <field name="income_currency_exchange_account_id" ref="l10n_hk_4240" />
+        <field name="default_pos_receivable_account_id" ref="l10n_hk_1243" />
+        <field name="use_anglo_saxon" eval="True" />
+    </record>
+
+</odoo>
+
+```
+
