@@ -1,0 +1,2849 @@
+# Odoo Module: test_mail
+
+Category: Hidden
+
+This file contains the source code of the Odoo module.
+
+## File: __init__.py
+
+```python
+# -*- coding: utf-8 -*-
+
+from . import data
+from . import models
+
+```
+
+## File: __manifest__.py
+
+```python
+# -*- coding: utf-8 -*-
+
+{
+    'name': 'Mail Tests',
+    'version': '1.0',
+    'category': 'Hidden',
+    'sequence': 9876,
+    'summary': 'Mail Tests: performances and tests specific to mail',
+    'description': """This module contains tests related to mail. Those are
+present in a separate module as it contains models used only to perform
+tests independently to functional aspects of other models. """,
+    'depends': [
+        'mail',
+        'test_performance',
+    ],
+    'data': [
+        'security/ir.model.access.csv',
+        'security/test_mail_security.xml',
+        'data/data.xml',
+        'data/mail_template_data.xml',
+        'data/subtype_data.xml',
+    ],
+    'assets': {
+        'web.assets_unit_tests': [
+            'test_mail/static/tests/**/*',
+        ],
+        'web.assets_tests': [
+            'test_mail/static/tests/tours/*',
+        ],
+    },
+    'installable': True,
+    'license': 'LGPL-3',
+}
+
+```
+
+## File: data\data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="mail_act_test_todo" model="mail.activity.type">
+        <field name="name">Do Stuff</field>
+        <field name="summary">Really?! Wow! A superpowers drug you can just rub onto your skin?</field>
+        <field name="category">default</field>
+        <field name="res_model">mail.test.activity</field>
+    </record>
+    <record id="mail_act_test_meeting" model="mail.activity.type">
+        <field name="name">Meet People</field>
+        <field name="summary">You'd think it would be something you'd have to freebase. Noooooo!</field>
+        <field name="category">default</field>
+        <field name="res_model">mail.test.activity</field>
+    </record>
+    <record id="mail_act_test_call" model="mail.activity.type">
+        <field name="name">Call People</field>
+        <field name="summary">Then throw her in the laundry room, which will hereafter be referred to as "the brig".</field>
+        <field name="category">default</field>
+        <field name="res_model">mail.test.activity</field>
+    </record>
+    <record id="mail_act_test_chained_2" model="mail.activity.type">
+        <field name="name">Step 2</field>
+        <field name="summary">Take the second step.</field>
+        <field name="category">default</field>
+        <field name="res_model">mail.test.activity</field>
+        <field name="delay_count">10</field>
+        <field name="delay_from">current_date</field>
+        <field name="delay_unit">days</field>
+    </record>
+    <record id="mail_act_test_chained_1" model="mail.activity.type">
+        <field name="name">Step 1</field>
+        <field name="summary">Take the first step.</field>
+        <field name="category">default</field>
+        <field name="res_model">mail.test.activity</field>
+        <field name="chaining_type">trigger</field>
+        <field name="triggered_next_type_id" ref="test_mail.mail_act_test_chained_2"/>
+    </record>
+    <record id="mail_act_test_upload_document" model="mail.activity.type">
+        <field name="name">Upload Document</field>
+        <field name="delay_count">5</field>
+        <field name="category">upload_file</field>
+        <field name="res_model">mail.test.activity</field>
+    </record>
+
+</odoo>
+
+```
+
+## File: data\mail_template_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mail_test_ticket_tracking_tpl" model="mail.template">
+        <field name="name">Mail Test Full: Tracking Template</field>
+        <field name="subject">Test Template</field>
+        <field name="partner_to">{{ object.customer_id.id }}</field>
+        <field name="body_html" type="html"><p>Hello <t t-out="object.name or ''"></t></p></field>
+        <field name="model_id" ref="test_mail.model_mail_test_ticket"/>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <record id="mail_test_container_tpl" model="mail.template">
+        <field name="name">Mail Test: Template</field>
+        <field name="subject">Post on {{ object.name }}</field>
+        <field name="partner_to">{{ object.customer_id.id }}</field>
+        <field name="body_html" type="html"><p>Adding stuff on <t t-out="object.name or ''"></t></p></field>
+        <field name="model_id" ref="test_mail.model_mail_test_container"/>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <template id="mail_test_ticket_tracking_view">
+    	<p><span t-out="object.name or ''"/> datetime has been updated to <span t-out="object.datetime or ''"/></p>
+    </template>
+
+    <template id="mail_test_ticket_test_template">
+        <t t-call="web.html_container">
+            <t t-set="o" t-value="res_company"/>
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <p>This is a sample of an external report.</p>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <template id="mail_test_ticket_test_template_2">
+        <t t-call="web.html_container">
+            <t t-set="o" t-value="res_company"/>
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <p>This is another sample of an external report.</p>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <template id="mail_test_ticket_test_variable_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="ticket">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <p>This is a sample of an external report for a ticket for
+                            <span t-out="ticket.count"></span> people.</p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="mail_template_simple_test">
+        <p>Hello <t t-out="partner.name"/>, this comes from <t t-out="object.name"/>.</p>
+    </template>
+
+</odoo>
+
+```
+
+## File: data\subtype_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- mail.test.simple -->
+    <record id="st_mail_test_simple_external" model="mail.message.subtype">
+        <field name="name">External subtype</field>
+        <field name="description">External subtype</field>
+        <field name="res_model">mail.test.simple</field>
+        <field name="default" eval="False"/>
+        <field name="internal" eval="False"/>
+    </record>
+
+    <!-- mail.test.ticket -->
+    <record id="st_mail_test_ticket_container_upd" model="mail.message.subtype">
+        <field name="name">Container Changed Subtype</field>
+        <field name="description">Container Changed</field>
+        <field name="res_model">mail.test.ticket</field>
+        <field name="default" eval="True"/>
+        <field name="internal" eval="False"/>
+    </record>
+
+    <!-- mail.test.container -->
+    <record id="st_mail_test_container_default" model="mail.message.subtype">
+        <field name="name">Container Default Subtype</field>
+        <field name="res_model">mail.test.container</field>
+        <field name="default" eval="True"/>
+        <field name="internal" eval="False"/>
+    </record>
+    <!-- when subscribing to mail.test.container, delegate to mail.test.ticket child -->
+    <record id="st_mail_test_container_child_full" model="mail.message.subtype">
+        <field name="name">Container Child Full Subtype</field>
+        <field name="res_model">mail.test.container</field>
+        <field name="parent_id" ref="test_mail.st_mail_test_ticket_container_upd"/>
+        <field name="relation_field">container_id</field>
+        <field name="default" eval="False"/>
+        <field name="internal" eval="False"/>
+    </record>
+
+    <!-- mail.test.ticket.mc -->
+    <record id="st_mail_test_ticket_container_mc_upd" model="mail.message.subtype">
+        <field name="name">Container MC Changed Subtype</field>
+        <field name="description">Container Changed</field>
+        <field name="res_model">mail.test.ticket.mc</field>
+        <field name="default" eval="True"/>
+        <field name="internal" eval="False"/>
+    </record>
+    <record id="st_mail_test_ticket_internal" model="mail.message.subtype">
+        <field name="name">Ticket MC Internal</field>
+        <field name="description">Ticket MC Internal</field>
+        <field name="res_model">mail.test.ticket.mc</field>
+        <field name="default" eval="False"/>
+        <field name="internal" eval="True"/>
+    </record>
+
+</odoo>
+
+```
+
+## File: data\test_mail_data.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+MAIL_TEMPLATE = """Return-Path: {return_path}
+To: {to}
+cc: {cc}
+Received: by mail1.openerp.com (Postfix, from userid 10002)
+    id 5DF9ABFB2A; Fri, 10 Aug 2012 16:16:39 +0200 (CEST)
+From: {email_from}
+Subject: {subject}
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+    boundary="----=_Part_4200734_24778174.1344608186754"
+Date: Fri, 10 Aug 2012 14:16:26 +0000
+Message-ID: {msg_id}
+{extra}
+------=_Part_4200734_24778174.1344608186754
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+Please call me as soon as possible this afternoon!
+
+--
+Sylvie
+------=_Part_4200734_24778174.1344608186754
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+ <head>=20
+  <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8" />
+ </head>=20
+ <body style=3D"margin: 0; padding: 0; background: #ffffff;-webkit-text-size-adjust: 100%;">=20
+
+  <p>Please call me as soon as possible this afternoon!</p>
+
+  <p>--<br/>
+     Sylvie
+  <p>
+ </body>
+</html>
+------=_Part_4200734_24778174.1344608186754--
+"""
+
+MAIL_TEMPLATE_EXTRA_HTML = """Return-Path: <whatever-2a840@postmaster.twitter.com>
+To: {to}
+cc: {cc}
+Received: by mail1.openerp.com (Postfix, from userid 10002)
+    id 5DF9ABFB2A; Fri, 10 Aug 2012 16:16:39 +0200 (CEST)
+From: {email_from}
+Subject: {subject}
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+    boundary="----=_Part_4200734_24778174.1344608186754"
+Date: Fri, 10 Aug 2012 14:16:26 +0000
+Message-ID: {msg_id}
+{extra}
+------=_Part_4200734_24778174.1344608186754
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+Please call me as soon as possible this afternoon!
+
+--
+Sylvie
+------=_Part_4200734_24778174.1344608186754
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+ <head>=20
+  <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8" />
+ </head>=20
+ <body style=3D"margin: 0; padding: 0; background: #ffffff;-webkit-text-size-adjust: 100%;">=20
+
+  <p>Please call me as soon as possible this afternoon!</p>
+  {extra_html}
+
+  <p>--<br/>
+     Sylvie
+  <p>
+ </body>
+</html>
+------=_Part_4200734_24778174.1344608186754--
+"""
+
+
+MAIL_TEMPLATE_PLAINTEXT = """Return-Path: <whatever-2a840@postmaster.twitter.com>
+To: {to}
+Received: by mail1.openerp.com (Postfix, from userid 10002)
+    id 5DF9ABFB2A; Fri, 10 Aug 2012 16:16:39 +0200 (CEST)
+From: {email_from}
+Subject: {subject}
+MIME-Version: 1.0
+Content-Type: text/plain
+Date: Fri, 10 Aug 2012 14:16:26 +0000
+Message-ID: {msg_id}
+{extra}
+
+Please call me as soon as possible this afternoon!
+
+--
+Sylvie
+"""
+
+MAIL_TEMPLATE_HTML = """Return-Path: {return_path}
+To: {to}
+cc: {cc}
+Received: by mail1.openerp.com (Postfix, from userid 10002)
+    id 5DF9ABFB2A; Fri, 10 Aug 2012 16:16:39 +0200 (CEST)
+From: {email_from}
+Subject: {subject}
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 10 Aug 2012 14:16:26 +0000
+Message-ID: {msg_id}
+{extra}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+ <head>=20
+  <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8" />
+ </head>=20
+ <body style=3D"margin: 0; padding: 0; background: #ffffff;-webkit-text-size-adjust: 100%;">=20
+
+  <p>Please call me as soon as possible this afternoon!</p>
+
+  <p>--<br/>
+     Sylvie
+  <p>
+ </body>
+</html>
+"""
+
+MAIL_MULTIPART_MIXED = """Return-Path: <ignasse.carambar@gmail.com>
+X-Original-To: raoul@grosbedon.fr
+Delivered-To: raoul@grosbedon.fr
+Received: by mail1.grosbedon.com (Postfix, from userid 10002)
+    id E8166BFACA; Fri, 23 Aug 2013 13:18:01 +0200 (CEST)
+X-Spam-Checker-Version: SpamAssassin 3.3.1 (2010-03-16) on mail1.grosbedon.com
+X-Spam-Level:
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,FREEMAIL_FROM,
+    HTML_MESSAGE,RCVD_IN_DNSWL_LOW autolearn=unavailable version=3.3.1
+Received: from mail-ie0-f173.google.com (mail-ie0-f173.google.com [209.85.223.173])
+    by mail1.grosbedon.com (Postfix) with ESMTPS id 9BBD7BFAAA
+    for <raoul@openerp.fr>; Fri, 23 Aug 2013 13:17:55 +0200 (CEST)
+Received: by mail-ie0-f173.google.com with SMTP id qd12so575130ieb.4
+        for <raoul@grosbedon.fr>; Fri, 23 Aug 2013 04:17:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=mime-version:date:message-id:subject:from:to:content-type;
+        bh=dMNHV52EC7GAa7+9a9tqwT9joy9z+1950J/3A6/M/hU=;
+        b=DGuv0VjegdSrEe36ADC8XZ9Inrb3Iu+3/52Bm+caltddXFH9yewTr0JkCRQaJgMwG9
+         qXTQgP8qu/VFEbCh6scu5ZgU1hknzlNCYr3LT+Ih7dAZVUEHUJdwjzUU1LFV95G2RaCd
+         /Lwff6CibuUvrA+0CBO7IRKW0Sn5j0mukYu8dbaKsm6ou6HqS8Nuj85fcXJfHSHp6Y9u
+         dmE8jBh3fHCHF/nAvU+8aBNSIzl1FGfiBYb2jCoapIuVFitKR4q5cuoodpkH9XqqtOdH
+         DG+YjEyi8L7uvdOfN16eMr7hfUkQei1yQgvGu9/5kXoHg9+Gx6VsZIycn4zoaXTV3Nhn
+         nu4g==
+MIME-Version: 1.0
+X-Received: by 10.50.124.65 with SMTP id mg1mr1144467igb.43.1377256674216;
+ Fri, 23 Aug 2013 04:17:54 -0700 (PDT)
+Received: by 10.43.99.71 with HTTP; Fri, 23 Aug 2013 04:17:54 -0700 (PDT)
+Date: Fri, 23 Aug 2013 13:17:54 +0200
+Message-ID: <CAP76m_V4BY2F7DWHzwfjteyhW8L2LJswVshtmtVym+LUJ=rASQ@mail.gmail.com>
+Subject: Test mail multipart/mixed
+From: =?ISO-8859-1?Q?Raoul Grosbedon=E9e?= <ignasse.carambar@gmail.com>
+To: Followers of ASUSTeK-Joseph-Walters <raoul@grosbedon.fr>
+Content-Type: multipart/mixed; boundary=089e01536c4ed4d17204e49b8e96
+
+--089e01536c4ed4d17204e49b8e96
+Content-Type: multipart/alternative; boundary=089e01536c4ed4d16d04e49b8e94
+
+--089e01536c4ed4d16d04e49b8e94
+Content-Type: text/plain; charset=ISO-8859-1
+
+Should create a multipart/mixed: from gmail, *bold*, with attachment.
+
+--
+Marcel Boitempoils.
+
+--089e01536c4ed4d16d04e49b8e94
+Content-Type: text/html; charset=ISO-8859-1
+
+<div dir="ltr">Should create a multipart/mixed: from gmail, <b>bold</b>, with attachment.<br clear="all"><div><br></div>-- <br>Marcel Boitempoils.</div>
+
+--089e01536c4ed4d16d04e49b8e94--
+--089e01536c4ed4d17204e49b8e96
+Content-Type: text/plain; charset=US-ASCII; name="test.txt"
+Content-Disposition: attachment; filename="test.txt"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_hkpb27k00
+
+dGVzdAo=
+--089e01536c4ed4d17204e49b8e96--"""
+
+MAIL_MULTIPART_MIXED_TWO = r"""X-Original-To: raoul@grosbedon.fr
+Delivered-To: raoul@grosbedon.fr
+Received: by mail1.grosbedon.com (Postfix, from userid 10002)
+    id E8166BFACA; Fri, 23 Aug 2013 13:18:01 +0200 (CEST)
+From: "Bruce Wayne" <bruce@wayneenterprises.com>
+Content-Type: multipart/alternative;
+ boundary="Apple-Mail=_9331E12B-8BD2-4EC7-B53E-01F3FBEC9227"
+Message-Id: <6BB1FAB2-2104-438E-9447-07AE2C8C4A92@sexample.com>
+Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
+
+--Apple-Mail=_9331E12B-8BD2-4EC7-B53E-01F3FBEC9227
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+    charset=us-ascii
+
+First and second part
+
+--Apple-Mail=_9331E12B-8BD2-4EC7-B53E-01F3FBEC9227
+Content-Type: multipart/mixed;
+ boundary="Apple-Mail=_CA6C687E-6AA0-411E-B0FE-F0ABB4CFED1F"
+
+--Apple-Mail=_CA6C687E-6AA0-411E-B0FE-F0ABB4CFED1F
+Content-Transfer-Encoding: 7bit
+Content-Type: text/html;
+    charset=us-ascii
+
+<html><head></head><body>First part</body></html>
+
+--Apple-Mail=_CA6C687E-6AA0-411E-B0FE-F0ABB4CFED1F
+Content-Disposition: inline;
+    filename=thetruth.pdf
+Content-Type: application/pdf;
+    name="thetruth.pdf"
+Content-Transfer-Encoding: base64
+
+SSBhbSB0aGUgQmF0TWFuCg==
+
+--Apple-Mail=_CA6C687E-6AA0-411E-B0FE-F0ABB4CFED1F
+Content-Transfer-Encoding: 7bit
+Content-Type: text/html;
+    charset=us-ascii
+
+<html><head></head><body>Second part</body></html>
+--Apple-Mail=_CA6C687E-6AA0-411E-B0FE-F0ABB4CFED1F--
+
+--Apple-Mail=_9331E12B-8BD2-4EC7-B53E-01F3FBEC9227--
+"""
+
+MAIL_FILE_ENCODING = """MIME-Version: 1.0
+Date: Sun, 26 Mar 2023 05:23:22 +0200
+Message-ID: {msg_id}
+Subject: {subject}
+From: "Sylvie Lelitre" <test.sylvie.lelitre@agrolait.com>
+To: groups@test.mycompany.com
+Content-Type: multipart/mixed; boundary="000000000000b951de05f7c47a9e"
+
+--000000000000b951de05f7c47a9e
+Content-Type: multipart/alternative; boundary="000000000000b951da05f7c47a9c"
+
+--000000000000b951da05f7c47a9c
+Content-Type: text/plain; charset="UTF-8"
+
+Test Body
+
+--000000000000b951da05f7c47a9c
+Content-Type: text/html; charset="UTF-8"
+
+<div dir="ltr">Test Body</div>
+
+--000000000000b951da05f7c47a9c--
+--000000000000b951de05f7c47a9e
+Content-Type: text/plain; name="test.txt"{charset}
+Content-Disposition: attachment; filename="test.txt"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_lfosfm0l0
+Content-ID: <f_lfosfm0l0>
+
+{content}
+
+--000000000000b951de05f7c47a9e--
+"""
+
+MAIL_MULTIPART_BINARY_OCTET_STREAM = """X-Original-To: raoul@grosbedon.fr
+Delivered-To: raoul@grosbedon.fr
+Received: by mail1.grosbedon.com (Postfix, from userid 10002)
+    id E8166BFACA; Fri, 10 Nov 2021 06:04:01 +0200 (CEST)
+From: "Bruce Wayne" <bruce@wayneenterprises.com>
+Content-Type: multipart/alternative;
+ boundary="Apple-Mail=_9331E12B-8BD2-4EC7-B53E-01F3FBEC9227"
+Message-Id: <6BB1FAB2-2104-438E-9447-07AE2C8C4A92@sexample.com>
+Mime-Version: 1.0 (Mac OS X Mail 7.3 \\(1878.6\\))
+
+--Apple-Mail=_9331E12B-8BD2-4EC7-B53E-01F3FBEC9227
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+    charset=us-ascii
+
+The attached file contains b"Hello world\\n"
+
+--Apple-Mail=_9331E12B-8BD2-4EC7-B53E-01F3FBEC9227
+Content-Disposition: attachment;
+ filename="hello_world.dat"
+Content-Type: binary/octet-stream;
+ name="hello_world.dat"
+Content-Transfer-Encoding: base64
+
+SGVsbG8gd29ybGQK
+--Apple-Mail=_9331E12B-8BD2-4EC7-B53E-01F3FBEC9227--
+"""
+
+MAIL_MULTIPART_INVALID_ENCODING = """Return-Path: <whatever-2a840@postmaster.twitter.com>
+To: {to}
+cc: {cc}
+Received: by mail1.openerp.com (Postfix, from userid 10002)
+    id 5DF9ABFB2A; Fri, 10 Aug 2012 16:16:39 +0200 (CEST)
+From: {email_from}
+Subject: {subject}
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+    boundary="00000000000005d9da05fa394cc0"
+Date: Fri, 10 Aug 2012 14:16:26 +0000
+Message-ID: {msg_id}
+{extra}
+
+--00000000000005d9da05fa394cc0
+Content-Type: multipart/alternative; boundary="00000000000005d9d905fa394cbe"
+
+--00000000000005d9d905fa394cbe
+Content-Type: text/plain; charset="UTF-8"
+
+Dear customer,
+
+Please find attached the Peppol Bis 3 attachment of your invoice (with an
+encoding error in the address)
+
+Cheers,
+
+--00000000000005d9d905fa394cbe
+Content-Type: text/html; charset="UTF-8"
+
+<div dir="ltr">Dear customer,<div><br></div><div>Please find attached the Peppol Bis 3 attachment of your invoice (with an encoding error in the address)</div><div><br></div><div>Cheers,</div></div>
+
+--00000000000005d9d905fa394cbe--
+
+--00000000000005d9da05fa394cc0
+Content-Type: text/xml; charset="US-ASCII";
+ name="bis3_with_error_encoding_address.xml"
+Content-Disposition: attachment; 
+	filename="bis3_with_error_encoding_address.xml"
+Content-Transfer-Encoding: base64
+Content-ID: <f_lgxgdqx40>
+X-Attachment-Id: f_lgxgdqx40
+
+PEludm9pY2UgeG1sbnM6Y2JjPSJ1cm46b2FzaXM6bmFtZXM6c3BlY2lmaWNhdGlvbjp1Ymw6c2No
+ZW1hOnhzZDpDb21tb25CYXNpY0NvbXBvbmVudHMtMiIgeG1sbnM9InVybjpvYXNpczpuYW1lczpz
+cGVjaWZpY2F0aW9uOnVibDpzY2hlbWE6eHNkOkludm9pY2UtMiI+DQo8Y2JjOlN0cmVldE5hbWU+
+Q2hhdXNz77+977+9ZSBkZSBCcnV4ZWxsZXM8L2NiYzpTdHJlZXROYW1lPg0KPC9JbnZvaWNlPg0K
+--00000000000005d9da05fa394cc0--
+"""
+
+MAIL_MULTIPART_OMITTED_CHARSET_XML = """Return-Path: <whatever-2a840@postmaster.twitter.com>
+To: {to}
+cc: {cc}
+Received: by mail1.openerp.com (Postfix, from userid 10002)
+    id 5DF9ABFB2A; Fri, 10 Aug 2012 16:16:39 +0200 (CEST)
+From: {email_from}
+Subject: {subject}
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+    boundary="00000000000005d9da05fa394cc0"
+Date: Fri, 10 Aug 2012 14:16:26 +0000
+Message-ID: {msg_id}
+{extra}
+
+--00000000000005d9da05fa394cc0
+Content-Type: multipart/alternative; boundary="00000000000005d9d905fa394cbe"
+
+--00000000000005d9d905fa394cbe
+Content-Type: text/plain; charset="UTF-8"
+
+Dear customer,
+
+Please find attached the UBL attachment of your invoice
+
+Cheers,
+
+--00000000000005d9d905fa394cbe
+Content-Type: text/html; charset="UTF-8"
+
+<div dir="ltr">Dear customer,<div><br></div><div>Please find attached the UBL attachment of your invoice</div><div><br></div><div>Cheers,</div></div>
+
+--00000000000005d9d905fa394cbe--
+
+--00000000000005d9da05fa394cc0
+Content-Disposition: attachment; filename="bis3.xml"
+Content-Transfer-Encoding: base64
+Content-Type: text/xml; name="bis3.xml"
+Content-ID: <f_lgxgdqx40>
+X-Attachment-Id: f_lgxgdqx40
+
+PEludm9pY2U+Q2hhdXNzw6llIGRlIEJydXhlbGxlczwvSW52b2ljZT4=
+--00000000000005d9da05fa394cc0--
+"""
+
+MAIL_MULTIPART_OMITTED_CHARSET_CSV = """Return-Path: <whatever-2a840@postmaster.twitter.com>
+To: {to}
+cc: {cc}
+Received: by mail1.openerp.com (Postfix, from userid 10002)
+    id 5DF9ABFB2A; Fri, 10 Aug 2012 16:16:39 +0200 (CEST)
+From: {email_from}
+Subject: {subject}
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+    boundary="00000000000005d9da05fa394cc0"
+Date: Fri, 10 Aug 2012 14:16:26 +0000
+Message-ID: {msg_id}
+{extra}
+
+--00000000000005d9da05fa394cc0
+Content-Type: multipart/alternative; boundary="00000000000005d9d905fa394cbe"
+
+--00000000000005d9d905fa394cbe
+Content-Type: text/plain; charset="UTF-8"
+
+Dear customer,
+
+Please find attached the UBL attachment of your invoice
+
+Cheers,
+
+--00000000000005d9d905fa394cbe
+Content-Type: text/html; charset="UTF-8"
+
+<div dir="ltr">Dear customer,<div><br></div><div>Please find attached the UBL attachment of your invoice</div><div><br></div><div>Cheers,</div></div>
+
+--00000000000005d9d905fa394cbe--
+
+--00000000000005d9da05fa394cc0
+Content-Disposition: attachment; filename="bis3.csv"
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/csv; name="bis3.csv"
+
+=EF=BB=BFAuftraggeber;LieferadresseStra=C3=9Fe;=
+--00000000000005d9da05fa394cc0--
+"""
+
+MAIL_MULTIPART_OMITTED_CHARSET_TXT = """Return-Path: <whatever-2a840@postmaster.twitter.com>
+To: {to}
+cc: {cc}
+Received: by mail1.openerp.com (Postfix, from userid 10002)
+    id 5DF9ABFB2A; Fri, 10 Aug 2012 16:16:39 +0200 (CEST)
+From: {email_from}
+Subject: {subject}
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+    boundary="00000000000005d9da05fa394cc0"
+Date: Fri, 10 Aug 2012 14:16:26 +0000
+Message-ID: {msg_id}
+{extra}
+
+--00000000000005d9da05fa394cc0
+Content-Type: multipart/alternative; boundary="00000000000005d9d905fa394cbe"
+
+--00000000000005d9d905fa394cbe
+Content-Type: text/plain; charset="UTF-8"
+
+Dear customer,
+
+Please find attached the UBL attachment of your invoice
+
+Cheers,
+
+--00000000000005d9d905fa394cbe
+Content-Type: text/html; charset="UTF-8"
+
+<div dir="ltr">Dear customer,<div><br></div><div>Please find attached the UBL attachment of your invoice</div><div><br></div><div>Cheers,</div></div>
+
+--00000000000005d9d905fa394cbe--
+
+--00000000000005d9da05fa394cc0
+Content-Disposition: attachment; filename="bis3.txt"
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name="bis3.txt"
+
+=C3=84pfel und Birnen sind Fr=C3=BCchte, die im Herbst geerntet werden. =
+In der N=C3=A4he des Flusses steht ein gro=C3=9Fes, altes Schloss. =C3=9Cb=
+er den D=C3=A4chern sieht man oft V=C3=B6gel fliegen. M=C3=BCller und =
+Schr=C3=B6der sind typische deutsche Nachnamen. Die Stra=C3=9Fe, in der =
+ich wohne, hei=C3=9Ft =E2=80=9EBachstra=C3=9Fe=E2=80=9C und ist sehr =
+ruhig. =C3=9Cberall im Wald wachsen B=C3=A4ume mit kr=C3=A4ftigen =
+=C3=84sten. K=C3=B6nnen wir uns =C3=BCber die Pl=C3=A4ne f=C3=BCr das =
+n=C3=A4chste Wochenende unterhalten?=
+--00000000000005d9da05fa394cc0--
+"""
+
+
+MAIL_SINGLE_BINARY = r"""X-Original-To: raoul@grosbedon.fr
+Delivered-To: raoul@grosbedon.fr
+Received: by mail1.grosbedon.com (Postfix, from userid 10002)
+    id E8166BFACA; Fri, 23 Aug 2013 13:18:01 +0200 (CEST)
+From: "Bruce Wayne" <bruce@wayneenterprises.com>
+Content-Type: application/pdf;
+Content-Disposition: filename=thetruth.pdf
+Content-Transfer-Encoding: base64
+Message-Id: <6BB1FAB2-2104-438E-9447-07AE2C8C4A92@sexample.com>
+Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
+
+SSBhbSB0aGUgQmF0TWFuCg=="""
+
+
+MAIL_MULTIPART_WEIRD_FILENAME = """X-Original-To: john@doe.com
+Delivered-To: johndoe@example.com
+Received: by mail.example.com (Postfix, from userid 10002)
+    id E8166BFACB; Fri, 23 Aug 2013 13:18:02 +0200 (CEST)
+From: "Bruce Wayne" <bruce@wayneenterprises.com>
+Subject: test
+Message-ID: <c0c20fdd-a38e-b296-865b-d9232bf30ce5@odoo.com>
+Date: Mon, 26 Aug 2019 16:55:09 +0200
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="------------FACA7766210AAA981EAE01F3"
+Content-Language: en-US
+
+This is a multi-part message in MIME format.
+--------------FACA7766210AAA981EAE01F3
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+plop
+
+
+--------------FACA7766210AAA981EAE01F3
+Content-Type: text/plain; charset=UTF-8;
+ name="=?UTF-8?B?NjJfQDssXVspPS4ow4fDgMOJLnR4dA==?="
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename*0*=utf-8'en-us'%36%32%5F%40%3B%2C%5D%5B%29%3D%2E%28%C3%87%C3%80%C3%89;
+ filename*1*=%2E%74%78%74
+
+SSBhbSBhIGZpbGUgd2l0aCBhIHZhbGlkIHdpbmRvd3MgZmlsZW5hbWUK
+--------------FACA7766210AAA981EAE01F3--
+"""
+
+
+MAIL_MULTIPART_IMAGE = """X-Original-To: raoul@example.com
+Delivered-To: micheline@example.com
+Received: by mail1.example.com (Postfix, from userid 99999)
+    id 9DFB7BF509; Thu, 17 Dec 2015 15:22:56 +0100 (CET)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on mail1.example.com
+X-Spam-Level: *
+X-Spam-Status: No, score=1.1 required=5.0 tests=FREEMAIL_FROM,
+    HTML_IMAGE_ONLY_08,HTML_MESSAGE,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H3,
+    RCVD_IN_MSPIKE_WL,T_DKIM_INVALID autolearn=no autolearn_force=no version=3.4.0
+Received: from mail-lf0-f44.example.com (mail-lf0-f44.example.com [209.85.215.44])
+    by mail1.example.com (Postfix) with ESMTPS id 1D80DBF509
+    for <micheline@example.com>; Thu, 17 Dec 2015 15:22:56 +0100 (CET)
+Authentication-Results: mail1.example.com; dkim=pass
+    reason="2048-bit key; unprotected key"
+    header.d=example.com header.i=@example.com header.b=kUkTIIlt;
+    dkim-adsp=pass; dkim-atps=neutral
+Received: by mail-lf0-f44.example.com with SMTP id z124so47959461lfa.3
+        for <micheline@example.com>; Thu, 17 Dec 2015 06:22:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=example.com; s=20120113;
+        h=mime-version:date:message-id:subject:from:to:content-type;
+        bh=GdrEuMrz6vxo/Z/F+mJVho/1wSe6hbxLx2SsP8tihzw=;
+        b=kUkTIIlt6fe4dftKHPNBkdHU2rO052o684R0e2bqH7roGUQFb78scYE+kqX0wo1zlk
+         zhKPVBR1TqTsYlqcHu+D3aUzai7L/Q5m40sSGn7uYGkZJ6m1TwrWNqVIgTZibarqvy94
+         NWhrjjK9gqd8segQdSjCgTipNSZME4bJCzPyBg/D5mqe07FPBJBGoF9SmIzEBhYeqLj1
+         GrXjb/D8J11aOyzmVvyt+bT+oeLUJI8E7qO5g2eQkMncyu+TyIXaRofOOBA14NhQ+0nS
+         w5O9rzzqkKuJEG4U2TJ2Vi2nl2tHJW2QPfTtFgcCzGxQ0+5n88OVlbGTLnhEIJ/SYpem
+         O5EA==
+MIME-Version: 1.0
+X-Received: by 10.25.167.197 with SMTP id q188mr22222517lfe.129.1450362175493;
+ Thu, 17 Dec 2015 06:22:55 -0800 (PST)
+Received: by 10.25.209.145 with HTTP; Thu, 17 Dec 2015 06:22:55 -0800 (PST)
+Date: Thu, 17 Dec 2015 15:22:55 +0100
+Message-ID: <CAP76m_UB=aLqWEFccnq86AhkpwRB3aZoGL9vMffX7co3YEro_A@mail.gmail.com>
+Subject: {subject}
+From: =?UTF-8?Q?Thibault_Delavall=C3=A9e?= <raoul@example.com>
+To: {to}
+Content-Type: multipart/related; boundary=001a11416b9e9b229a05272b7052
+
+--001a11416b9e9b229a05272b7052
+Content-Type: multipart/alternative; boundary=001a11416b9e9b229805272b7051
+
+--001a11416b9e9b229805272b7051
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+Premi=C3=A8re image, orang=C3=A9e.
+
+[image: Inline image 1]
+
+Seconde image, rosa=C3=A7=C3=A9e.
+
+[image: Inline image 2]
+
+Troisi=C3=A8me image, verte!=C2=B5
+
+[image: Inline image 3]
+
+J'esp=C3=A8re que tout se passera bien.
+--=20
+Thibault Delavall=C3=A9e
+
+--001a11416b9e9b229805272b7051
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>Premi=C3=A8re image, orang=C3=A9e.</div><div><br></di=
+v><div><img src=3D"cid:ii_151b519fc025fdd3" alt=3D"Inline image 1" width=3D=
+"2" height=3D"2"><br></div><div><br></div><div>Seconde image, rosa=C3=A7=C3=
+=A9e.</div><div><br></div><div><img src=3D"cid:ii_151b51a290ed6a91" alt=3D"=
+Inline image 2" width=3D"2" height=3D"2"></div><div><br></div><div>Troisi=
+=C3=A8me image, verte!=C2=B5</div><div><br></div><div><img src=3D"cid:ii_15=
+1b51a37e5eb7a6" alt=3D"Inline image 3" width=3D"10" height=3D"10"><br></div=
+><div><br></div><div>J&#39;esp=C3=A8re que tout se passera bien.</div>-- <b=
+r><div class=3D"gmail_signature">Thibault Delavall=C3=A9e</div>
+</div>
+
+--001a11416b9e9b229805272b7051--
+--001a11416b9e9b229a05272b7052
+Content-Type: image/gif; name="=?UTF-8?B?b3JhbmfDqWUuZ2lm?="
+Content-Disposition: inline; filename="=?UTF-8?B?b3JhbmfDqWUuZ2lm?="
+Content-Transfer-Encoding: base64
+Content-ID: <ii_151b519fc025fdd3>
+X-Attachment-Id: ii_151b519fc025fdd3
+
+R0lGODdhAgACALMAAAAAAP///wAAAP//AP8AAP+AAAD/AAAAAAAA//8A/wAAAAAAAAAAAAAAAAAA
+AAAAACwAAAAAAgACAAAEA7DIEgA7
+--001a11416b9e9b229a05272b7052
+Content-Type: image/gif; name="=?UTF-8?B?dmVydGUhwrUuZ2lm?="
+Content-Disposition: inline; filename="=?UTF-8?B?dmVydGUhwrUuZ2lm?="
+Content-Transfer-Encoding: base64
+Content-ID: <ii_151b51a37e5eb7a6>
+X-Attachment-Id: ii_151b51a37e5eb7a6
+
+R0lGODlhCgAKALMAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwICAgP8AAAD/AP//AAAA//8A/wD/
+/////ywAAAAACgAKAAAEClDJSau9OOvNe44AOw==
+--001a11416b9e9b229a05272b7052
+Content-Type: image/gif; name="=?UTF-8?B?cm9zYcOnw6llLmdpZg==?="
+Content-Disposition: inline; filename="=?UTF-8?B?cm9zYcOnw6llLmdpZg==?="
+Content-Transfer-Encoding: base64
+Content-ID: <ii_151b51a290ed6a91>
+X-Attachment-Id: ii_151b51a290ed6a91
+
+R0lGODdhAgACALMAAAAAAP///wAAAP//AP8AAP+AAAD/AAAAAAAA//8A/wAAAP+AgAAAAAAAAAAA
+AAAAACwAAAAAAgACAAAEA3DJFQA7
+--001a11416b9e9b229a05272b7052--
+"""
+
+MAIL_EML_ATTACHMENT = """Subject: {subject}
+From: {email_from}
+To: {to}
+References: {references}
+Message-ID: {msg_id}
+Date: Wed, 14 Mar 2018 14:26:58 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
+ Thunderbird/52.6.0
+MIME-Version: 1.0
+In-Reply-To: <f3b9f8f8-28fa-2543-cab2-7aa68f679ebb@odoo.com>
+Content-Type: multipart/mixed;
+ boundary="------------A6B5FD5F68F4D73ECD739009"
+Content-Language: en-US
+
+This is a multi-part message in MIME format.
+--------------A6B5FD5F68F4D73ECD739009
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+
+
+On 14/03/18 14:20, Anon wrote:
+> Some nice content
+>
+
+
+--------------A6B5FD5F68F4D73ECD739009
+Content-Type: message/rfc822;
+ name="original_msg.eml"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment;
+ filename="original_msg.eml"
+
+Delivered-To: anon2@gmail1.openerp.com
+Received: by 10.46.1.170 with SMTP id f42csp2379722lji;
+        Mon, 5 Mar 2018 01:19:23 -0800 (PST)
+X-Google-Smtp-Source: AG47ELsYTlAcblMxfnaEENQuF+MFoac5Q07wieyw0cybq/qOX4+DmayqoQILkiWT+NiTOcnr/ACO
+X-Received: by 10.28.154.213 with SMTP id c204mr7237750wme.64.1520241563503;
+        Mon, 05 Mar 2018 01:19:23 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1520241563; cv=none;
+        d=google.com; s=arc-20160816;
+        b=BqgMSbqmbpYW1ZtfGTVjj/654MBmabw4XadNZEaI96hDaub6N6cP8Guu3PoxscI9os
+         0OLYVP1s/B+Vv9rIzulCwHyHsgnX+aTxGYepTDN6x8SA9Qeb9aQoNSVvQLryTAoGpaFr
+         vXhw8aPWyr28edE03TDFA/s7X65Bf6dV5zJdMiUPVqGkfYfcTHMf3nDER5vk8vQj7tve
+         Cfyy0h9vLU9RSEtdFwmlEkLmgT9NQ3GDf0jQ97eMXPgR2q6duCPoMcz15KlWOno53xgH
+         EiV7aIZ5ZMN/m+/2xt3br/ubJ5euFojWhDnHUZoaqd08TCSQPd4fFCCx75MjDeCnwYMn
+         iKSg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=content-language:mime-version:user-agent:date:message-id:subject
+         :from:to:dkim-signature:arc-authentication-results;
+        bh=/UIFqhjCCbwBLsI4w7YY98QH6G/wxe+2W4bbMDCskjM=;
+        b=Wv5jt+usnSgWI96GaZWUN8/VKl1drueDpU/4gkyX/iK4d6S4CuSDjwYAc3guz/TjeW
+         GoKCqT30IGZoStpXQbuLry7ezXNK+Fp8MJKN2n/x5ClJWHxIsxIGlP2QC3TO8RI0P5o0
+         GXG9izW93q1ubkdPJFt3unSjjwSYf5XVQAZQtRm9xKjqA+lbtFbsnbjJ4wgYBURnD8ma
+         Qxb2xsxXDelaZvtdlzHRDn5SEkbqhcCclEYw6oRLpVQFZeYtPxcCleVybtj2owJxdaLp
+         7wXuo/gpYe6E2cPuS2opei8AzjEhYTNzlYXTPvaoxCCTTjfGTaPv22TeRDehuIXngSEl
+         Nmmw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@odoo.com header.s=mail header.b=MCzhjB9b;
+       spf=pass (google.com: domain of soup@odoo.com designates 149.202.180.44 as permitted sender) smtp.mailfrom=soup@odoo.com;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=odoo.com
+Return-Path: <soup@odoo.com>
+Received: from mail2.odoo.com (mail2.odoo.com. [149.202.180.44])
+        by mx.google.com with ESMTPS id y4si4279200wmy.148.2018.03.05.01.19.22
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 05 Mar 2018 01:19:23 -0800 (PST)
+Received-SPF: pass (google.com: domain of soup@odoo.com designates 149.202.180.44 as permitted sender) client-ip=149.202.180.44;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@odoo.com header.s=mail header.b=MCzhjB9b;
+       spf=pass (google.com: domain of soup@odoo.com designates 149.202.180.44 as permitted sender) smtp.mailfrom=soup@odoo.com;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=odoo.com
+Received: from [10.10.31.24] (unknown [91.183.114.50])
+	(Authenticated sender: soup)
+	by mail2.odoo.com (Postfix) with ESMTPSA id 7B571A4085
+	for <what@odoo.com>; Mon,  5 Mar 2018 10:19:21 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=odoo.com; s=mail;
+	t=1520241562; bh=L2r7Sp/vjogIdM1k8H9zDGDjnhKolsTTLLjndnFC4Jc=;
+	h=To:From:Subject:Date:From;
+	b=MCzhjB9bnsrJ3uKjq+GjujFxmtrq3fc7Vv7Vg2C72EPKnkxgqy6yPjWKtXbBlaiT3
+	 YjKI24aiSQlOeOPQiqFgiDzeqqemNDp+CRuhoYz1Vbz+ESRaHtkWRLb7ZjvohS2k7e
+	 RTq7tUxY2nUL2YrNHV7DFYtJVBwiTuyLP6eAiJdE=
+To: what@odoo.com
+From: Soup <soup@odoo.com>
+Subject: =?UTF-8?Q?Soupe_du_jour_:_Pois_cass=c3=a9s?=
+Message-ID: <a05d8334-7b7c-df68-c96a-4a88ed19f31b@odoo.com>
+Date: Mon, 5 Mar 2018 10:19:21 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
+ Thunderbird/52.6.0
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="------------1F2D18B1129FC2F0B9EECF50"
+Content-Language: en-US
+X-Spam-Status: No, score=-1.2 required=5.0 tests=ALL_TRUSTED,BAYES_00,
+	HTML_IMAGE_ONLY_08,HTML_MESSAGE,T_REMOTE_IMAGE autolearn=no
+	autolearn_force=no version=3.4.0
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on mail2.odoo.com
+
+This is a multi-part message in MIME format.
+--------------1F2D18B1129FC2F0B9EECF50
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+
+Résultat de recherche d'images pour "dessin la princesse au petit pois"
+
+--
+Soup
+
+Odoo S.A.
+Chaussée de Namur, 40
+B-1367 Grand Rosière
+Web: http://www.odoo.com
+
+
+--------------1F2D18B1129FC2F0B9EECF50
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  </head>
+  <body text="#000000" bgcolor="#FFFFFF">
+    <p><img
+src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjCNAadd3NDM8g9w0P_-gAVYrrqC0wmBNYKGsTZ2Pst5SsNxTRnA"
+        alt="Résultat de recherche d'images pour &quot;dessin la
+        princesse au petit pois&quot;"></p>
+    <pre class="moz-signature" cols="72">--
+Soup
+
+Odoo S.A.
+Chaussée de Namur, 40
+B-1367 Grand Rosière
+Web: <a class="moz-txt-link-freetext" href="http://www.odoo.com">http://www.odoo.com</a> </pre>
+  </body>
+</html>
+
+--------------1F2D18B1129FC2F0B9EECF50--
+
+--------------A6B5FD5F68F4D73ECD739009--"""
+
+MAIL_EML_ATTACHMENT_BOUNCE_HEADERS="""\
+Date: Tue, 24 Dec 2019 11:32:07 +0100 (CET)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary=16063919151.b32bE0eD.7
+Content-Transfer-Encoding: 7bit
+Subject: Undelivered Mail Returned to Sender
+From: {email_from}
+To: {to}
+Message-Id: <20191224103207.415713014C@example.com>
+Return-Path: <MAILER-DAEMON>
+Delivered-To: odoo+82240-account.invoice-19177@mycompany.example.com
+Received: by example.com (Postfix) id 415713014C; Tue, 24 Dec
+ 2019 11:32:07 +0100 (CET)
+Auto-Submitted: auto-replied
+
+
+--16063919151.b32bE0eD.7
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary=16063919150.2cD3F37.7
+Content-Transfer-Encoding: 7bit
+Content-ID: <16063919152.fD96.7@8f286b7b7880>
+
+
+--16063919150.2cD3F37.7
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+
+This is the mail system at host example.com.
+
+I'm sorry to have to inform you that your message could not
+be delivered to one or more recipients. It's attached below.
+
+For further assistance, please send mail to postmaster.
+
+If you do so, please include this problem report. You can
+delete your own text from the attached returned message.
+
+
+--16063919151.b32bE0eD.7
+Content-Type: text/rfc822-headers
+Content-Transfer-Encoding: 7bit
+
+Return-Path: <bounce+82240-account.invoice-19177@mycompany.example.com>
+Received: by example.com (Postfix) id 415713014C; Tue, 24 Dec
+Content-Type: multipart/mixed; boundary="===============3600759226158551994=="
+MIME-Version: 1.0
+Message-Id: {msg_id}
+references: <1571814481.189281940460205.799582441238467-openerp-19177-account.invoice@mycompany.example.com>
+Subject: Test
+From: "Test" <noreply+srglvrz-gmail.com@mycompany.example.com>
+Reply-To: "MY COMPANY" <info@mycompany.example.com>
+To: "Test" <test@anothercompany.example.com>
+Date: Tue, 24 Dec 2019 10:32:05 -0000
+X-Odoo-Objects: account.invoice-19177
+
+--16063919151.b32bE0eD.7--"""
+
+MAIL_XHTML = """Return-Path: <xxxx@xxxx.com>
+Received: from xxxx.internal (xxxx.xxxx.internal [1.1.1.1])
+	 by xxxx (xxxx 1.1.1-111-g972eecc-slipenbois) with LMTPA;
+	 Fri, 13 Apr 2018 22:11:52 -0400
+X-Cyrus-Session-Id: sloti35d1t38-1111111-11111111111-5-11111111111111111111
+X-Sieve: CMU Sieve 1.0
+X-Spam-known-sender: no ("Email failed DMARC policy for domain"); in-addressbook
+X-Spam-score: 0.0
+X-Spam-hits: ALL_TRUSTED -1, BAYES_00 -1.9, FREEMAIL_FROM 0.001,
+  HTML_FONT_LOW_CONTRAST 0.001, HTML_MESSAGE 0.001, SPF_SOFTFAIL 0.665,
+  LANGUAGES en, BAYES_USED global, SA_VERSION 1.1.0
+X-Spam-source: IP='1.1.1.1', Host='unk', Country='unk', FromHeader='com',
+  MailFrom='com'
+X-Spam-charsets: plain='utf-8', html='utf-8'
+X-IgnoreVacation: yes ("Email failed DMARC policy for domain")
+X-Resolved-to: catchall@xxxx.xxxx
+X-Delivered-to: catchall@xxxx.xxxx
+X-Mail-from: xxxx@xxxx.com
+Received: from mx4 ([1.1.1.1])
+  by xxxx.internal (LMTPProxy); Fri, 13 Apr 2018 22:11:52 -0400
+Received: from xxxx.xxxx.com (localhost [127.0.0.1])
+	by xxxx.xxxx.internal (Postfix) with ESMTP id E1111C1111;
+	Fri, 13 Apr 2018 22:11:51 -0400 (EDT)
+Received: from xxxx.xxxx.internal (localhost [127.0.0.1])
+    by xxxx.xxxx.com (Authentication Milter) with ESMTP
+    id BBDD1111D1A;
+    Fri, 13 Apr 2018 22:11:51 -0400
+ARC-Authentication-Results: i=1; xxxx.xxxx.com; arc=none (no signatures found);
+    dkim=pass (2048-bit rsa key sha256) header.d=xxxx.com header.i=@xxxx.com header.b=P1aaAAaa x-bits=2048 x-keytype=rsa x-algorithm=sha256 x-selector=fm2;
+    dmarc=fail (p=none,d=none) header.from=xxxx.com;
+    iprev=pass policy.iprev=1.1.1.1 (out1-smtp.xxxx.com);
+    spf=softfail smtp.mailfrom=xxxx@xxxx.com smtp.helo=out1-smtp.xxxx.com;
+    x-aligned-from=pass (Address match);
+    x-cm=none score=0;
+    x-ptr=pass x-ptr-helo=out1-smtp.xxxx.com x-ptr-lookup=out1-smtp.xxxx.com;
+    x-return-mx=pass smtp.domain=xxxx.com smtp.result=pass smtp_is_org_domain=yes header.domain=xxxx.com header.result=pass header_is_org_domain=yes;
+    x-tls=pass version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128;
+    x-vs=clean score=0 state=0
+Authentication-Results: xxxx.xxxx.com;
+    arc=none (no signatures found);
+    dkim=pass (2048-bit rsa key sha256) header.d=xxxx.com header.i=@xxxx.com header.b=P1awJPiy x-bits=2048 x-keytype=rsa x-algorithm=sha256 x-selector=fm2;
+    dmarc=fail (p=none,d=none) header.from=xxxx.com;
+    iprev=pass policy.iprev=66.111.4.25 (out1-smtp.xxxx.com);
+    spf=softfail smtp.mailfrom=xxxx@xxxx.com smtp.helo=out1-smtp.xxxx.com;
+    x-aligned-from=pass (Address match);
+    x-cm=none score=0;
+    x-ptr=pass x-ptr-helo=out1-smtp.xxxx.com x-ptr-lookup=out1-smtp.xxxx.com;
+    x-return-mx=pass smtp.domain=xxxx.com smtp.result=pass smtp_is_org_domain=yes header.domain=xxxx.com header.result=pass header_is_org_domain=yes;
+    x-tls=pass version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128;
+    x-vs=clean score=0 state=0
+X-ME-VSCategory: clean
+X-ME-CMScore: 0
+X-ME-CMCategory: none
+Received-SPF: softfail
+    (gmail.com ... _spf.xxxx.com: Sender is not authorized by default to use 'xxxx@xxxx.com' in 'mfrom' identity, however domain is not currently prepared for false failures (mechanism '~all' matched))
+    receiver=xxxx.xxxx.com;
+    identity=mailfrom;
+    envelope-from="xxxx@xxxx.com";
+    helo=out1-smtp.xxxx.com;
+    client-ip=1.1.1.1
+Received: from xxxx.xxxx.internal (gateway1.xxxx.internal [1.1.1.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by xxxx.xxxx.internal (Postfix) with ESMTPS;
+	Fri, 13 Apr 2018 22:11:51 -0400 (EDT)
+Received: from compute3.internal (xxxx.xxxx.internal [10.202.2.43])
+	by xxxx.xxxx.internal (Postfix) with ESMTP id 8BD5B21BBD;
+	Fri, 13 Apr 2018 22:11:51 -0400 (EDT)
+Received: from xxxx ([10.202.2.163])
+  by xxxx.internal (MEProxy); Fri, 13 Apr 2018 22:11:51 -0400
+X-ME-Sender: <xms:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa>
+Received: from [1.1.1.1] (unknown [1.1.1.1])
+	by mail.xxxx.com (Postfix) with ESMTPA id BF5E1111D
+	for <catchall@xxxx.xxxx>; Fri, 13 Apr 2018 22:11:50 -0400 (EDT)
+From: Sylvie Lelitre <test.sylvie.lelitre@agrolait.com>
+To: generic@mydomain.com
+Subject: Re: xxxx (Ref PO1)
+Date: Sat, 14 Apr 2018 02:11:42 +0000
+Message-Id: <em67f5c44a-xxxx-xxxx-xxxx-69f56d618a94@wswin7hg4n4l1ce>
+In-Reply-To: <829228111124527.1111111602.256611118262939-openerp-129-xxxx.xxxx@ip-1-1-1-1>
+References: <867911111953277.1523671337.187951111160400-openerp-129-xxxx.xxxx@ip-1-1-1-1>
+ <867911111953277.1523671337.256611118262939-openerp-129-xxxx.xxxx@ip-1-1-1-1>
+Reply-To: "xxxx xxxx" <xxxx@xxxx.com>
+User-Agent: eM_Client/7.0.26687.0
+Mime-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="------=_MB48E455BD-1111-42EC-1111-886CDF48905E"
+
+--------=_MB48E455BD-1111-42EC-1111-886CDF48905E
+Content-Type: text/plain; format=flowed; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+xxxx
+
+
+------ Original Message ------
+From: "xxxx" <xxxx@xxxx.com>
+To: "xxxx" <xxxx@xxxx.com>
+Sent: 4/13/2018 7:06:43 PM
+Subject: xxxx
+
+>xxxx
+
+--------=_MB48E455BD-1111-42EC-1111-886CDF48905E
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<?xml version=3D"1.0" encoding=3D"utf-16"?><html><head><style type=3D"text/=
+css"><!--blockquote.cite
+{margin-left: 5px; margin-right: 0px; padding-left: 10px; padding-right:=
+ 0px; border-left-width: 1px; border-left-style: solid; border-left-color:=
+ rgb(204, 204, 204);}
+blockquote.cite2
+{margin-left: 5px; margin-right: 0px; padding-left: 10px; padding-right:=
+ 0px; border-left-width: 1px; border-left-style: solid; border-left-color:=
+ rgb(204, 204, 204); margin-top: 3px; padding-top: 0px;}
+a img
+{border: 0px;}
+body
+{font-family: Tahoma; font-size: 12pt;}
+--></style></head><body><div>this is a reply to PO200109 from emClient</div=
+><div id=3D"signature_old"><div style=3D"font-family: Tahoma; font-size:=
+ 12 pt;">-- <br /><span><span class=3D"__postbox-detected-content __postbox=
+-detected-address" style=3D"TEXT-DECORATION: underline; COLOR: rgb(115,133,=
+172); PADDING-BOTTOM: 0pt; PADDING-TOP: 0pt; PADDING-LEFT: 0pt; DISPLAY:=
+ inline; PADDING-RIGHT: 0pt" __postbox-detected-content=3D"__postbox-detect=
+ed-address"></span>xxxx<br />xxxx<br /><b=
+r />xxxx</span></=
+div></div><div><br /></div><div><br /></div><div><br /></div>
+<div>------ Original Message ------</div>
+<div>From: "xxxx" &lt;<a href=3D"mailto:xxxx@xxxx.com">xxxx=
+@xxxx.com</a>&gt;</div>
+<div>To: "xxxx" &lt;<a href=3D"mailto:xxxx@xxxx.com">a=
+xxxx@xxxx.com</a>&gt;</div>
+<div>Sent: 4/13/2018 7:06:43 PM</div>
+<div>Subject: xxxx</div><div><br /></div=
+>
+<div id=3D"x00b4101ba6e64ce"><blockquote cite=3D"829228972724527.1523671602=
+.256660938262939-openerp-129-xxxx.xxxx@ip-1-1-1-1" type=3D"cite"=
+ class=3D"cite2">
+<table border=3D"0" width=3D"100%" cellpadding=3D"0" bgcolor=3D"#ededed"=
+ style=3D"padding: 20px; background-color: #ededed" summary=3D"o_mail_notif=
+ication">
+                    <tbody>
+
+                      <!-- HEADER -->
+                      <tr>
+                        <td align=3D"center" style=3D"min-width: 590px;">
+                          <table width=3D"590" border=3D"0" cellpadding=3D=
+"0" bgcolor=3D"#875A7B" style=3D"min-width: 590px; background-color: rgb(13=
+5,90,123); padding: 20px;">
+                            <tbody><tr>
+                              <td valign=3D"middle">
+                                  <span style=3D"font-size:20px; color:whit=
+e; font-weight: bold;">
+                                      mangez des saucisses
+                                  </span>
+                              </td>
+                              <td valign=3D"middle" align=3D"right">
+                                  <img src=3D"http://erp.xxxx.xxxx/logo.png=
+" style=3D"padding: 0px; margin: 0px; height: auto; width: 80px;" alt=3D=
+"xxxx" />
+                              </td>
+                            </tr>
+                          </tbody></table>
+                        </td>
+                      </tr>
+
+                      <!-- CONTENT -->
+                      <tr>
+                        <td align=3D"center" style=3D"min-width: 590px;">
+                          <table width=3D"590" border=3D"0" cellpadding=3D=
+"0" bgcolor=3D"#ffffff" style=3D"min-width: 590px; background-color: rgb(25=
+5, 255, 255); padding: 20px;">
+                            <tbody>
+                              <tr><td valign=3D"top" style=3D"font-family:A=
+rial,Helvetica,sans-serif; color: #555; font-size: 14px;">
+                                <p style=3D"margin: 0px 0px 9px 0px; font-s=
+ize: 13px; font-family: &quot;Lucida Grande&quot;, Helvetica, Verdana, Aria=
+l, sans-serif">xxxx.=20
+,</p>
+<p style=3D"margin: 0px 0px 9px 0px; font-size: 13px; font-family: &quot;Lu=
+cida Grande&quot;, Helvetica, Verdana, Arial, sans-serif">
+xxxx.
+</p>
+
+<p style=3D"margin: 0px 0px 9px 0px; font-size: 13px; font-family: &quot;Lu=
+cida Grande&quot;, Helvetica, Verdana, Arial, sans-serif">You can reply =
+to this email if you have any questions.</p>
+<p style=3D"margin: 0px 0px 9px 0px; font-size: 13px; font-family: &quot;Lu=
+cida Grande&quot;, Helvetica, Verdana, Arial, sans-serif">Thank you,</p>
+                              </td>
+                            </tr></tbody>
+                          </table>
+                        </td>
+                      </tr>
+
+                      <!-- FOOTER -->
+                      <tr>
+                        <td align=3D"center" style=3D"min-width: 590px;">
+                          <table width=3D"590" border=3D"0" cellpadding=3D=
+"0" bgcolor=3D"#875A7B" style=3D"min-width: 590px; background-color: rgb(13=
+5,90,123); padding: 20px;">
+                            <tbody><tr>
+                              <td valign=3D"middle" align=3D"left" style=
+=3D"color: #fff; padding-top: 10px; padding-bottom: 10px; font-size: 12px;"=
+>
+                                xxxx<br />
+                                +1-801-980-4240
+                              </td>
+                              <td valign=3D"middle" align=3D"right" style=
+=3D"color: #fff; padding-top: 10px; padding-bottom: 10px; font-size: 12px;"=
+>
+                                <a href=3D"http://erp.xxxx.xxxx/info@xxxx-a=
+aa.com" style=3D"text-decoration:none; color: white;">info@aust-mfg.com</a>=
+<br />
+                                    <a href=3D"http://www.xxxx=
+.com" style=3D"text-decoration:none; color: white;">
+                                        http://www.xxxx.com
+                                    </a>
+                              </td>
+                            </tr>
+                          </tbody></table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align=3D"center">
+                            Powered by <a href=3D"https://www.odoo.com">Odo=
+o</a>.
+                        </td>
+                      </tr>
+                    </tbody>
+                </table>
+               =20
+                <pre style=3D"white-space: pre-wrap">xxxx.
+</pre>
+</blockquote></div>
+</body></html>
+--------=_MB48E455BD-2850-42EC-B1CA-886CDF48905E--"""
+
+
+MAIL_BOUNCE = """Return-Path: <>
+X-Original-To: {to}
+Delivered-To: {to}
+Received: by mail2.test.ironsky (Postfix)
+    id 93A83A5F0D; Mon, 15 Apr 2019 15:41:06 +0200 (CEST)
+Date: Mon, 15 Apr 2019 15:41:06 +0200 (CEST)
+From: MAILER-DAEMON@mail2.test.ironsky (Mail Delivery System)
+Subject: {subject}
+To: {to}
+Auto-Submitted: auto-replied
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status;
+    boundary="92726A5F09.1555335666/mail2.test.ironsky"
+Message-Id: <20190415134106.93A83A5F0D@mail2.test.ironsky>
+
+This is a MIME-encapsulated message.
+
+--92726A5F09.1555335666/mail2.test.ironsky
+Content-Description: Notification
+Content-Type: text/plain; charset=us-ascii
+
+This is the mail system at host mail2.test.ironsky.
+
+I'm sorry to have to inform you that your message could not
+be delivered to one or more recipients. It's attached below.
+
+For further assistance, please send mail to postmaster.
+
+If you do so, please include this problem report. You can
+delete your own text from the attached returned message.
+
+                   The mail system
+
+<{email_from}>: host tribulant.com[23.22.38.89] said: 550 No such
+    person at this address. (in reply to RCPT TO command)
+
+--92726A5F09.1555335666/mail2.test.ironsky
+Content-Description: Delivery report
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; mail2.test.ironsky
+X-Postfix-Queue-ID: 92726A5F09
+X-Postfix-Sender: rfc822; {to}
+Arrival-Date: Mon, 15 Apr 2019 15:40:24 +0200 (CEST)
+
+Final-Recipient: rfc822; {email_from}
+Original-Recipient: rfc822;{email_from}
+Action: failed
+Status: 5.0.0
+Remote-MTA: dns; tribulant.com
+Diagnostic-Code: smtp; 550 No such person at this address.
+
+--92726A5F09.1555335666/mail2.test.ironsky
+Content-Description: Undelivered Message
+Content-Type: message/rfc822
+
+Return-Path: <{to}>
+Received: from [127.0.0.1] (host-212-68-194-133.dynamic.voo.be [212.68.194.133])
+    (Authenticated sender: aaa)
+    by mail2.test.ironsky (Postfix) with ESMTPSA id 92726A5F09
+    for <{email_from}>; Mon, 15 Apr 2019 15:40:24 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=test.ironsky; s=mail;
+    t=1555335624; bh=x6cSjphxNDiRDMmm24lMAUKtdCFfftM8w/fdUyfoeFs=;
+    h=references:Subject:From:Reply-To:To:Date:From;
+    b=Bo0BsXAHgKiBfBtMvvO/+KaS9PuuS0+AozL4SxU05jHZcJFc7qFIPEpqkJIdbzNcQ
+     wq0PJYclgX7QZDOMm3VHQwcwOxBDXAbdnpfkPM9/wa+FWKfr6ikowMTHHT3CA1qNbe
+     h+BQVyBKIvr/LDFPSN2hQmfXWwWupm1lgUhJ07T4=
+Content-Type: multipart/mixed; boundary="===============7355787381227985247=="
+MIME-Version: 1.0
+Message-Id: {extra}
+references: <670034078674109.1555335454.587288856506348-openerp-32-project.task@aaa>
+Subject: Re: Test
+From: Mitchell Admin <admin@yourcompany.example.com>
+Reply-To: YourCompany Research & Development <aaa+catchall@test.ironsky>
+To: Raoul <{email_from}>
+Date: Mon, 15 Apr 2019 13:40:24 -0000
+X-Odoo-Objects: project.project-3, ,project.task-32
+X-Spam-Status: No, score=-2.0 required=5.0 tests=ALL_TRUSTED,BAYES_00,
+    DKIM_ADSP_NXDOMAIN,HEADER_FROM_DIFFERENT_DOMAINS,HTML_MESSAGE
+    shortcircuit=no autolearn=no autolearn_force=no version=3.4.2
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on mail2.test.ironsky
+
+--===============7355787381227985247==
+Content-Type: multipart/alternative; boundary="===============8588563873240298690=="
+MIME-Version: 1.0
+
+--===============8588563873240298690==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+
+CgpaYm91bGl1b2l1b2l6ZWYKCi0tCkFkbWluaXN0cmF0b3IKU2VudApieQpbMV0gWW91ckNvbXBh
+bnkKCnVzaW5nCk9kb28gWzJdIC4KCgoKWzFdIGh0dHA6Ly93d3cuZXhhbXBsZS5jb20KWzJdIGh0
+dHBzOi8vd3d3Lm9kb28uY29tP3V0bV9zb3VyY2U9ZGImdXRtX21lZGl1bT1lbWFpbAo=
+
+--===============8588563873240298690==
+Content-Type: text/html; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+
+CjxkaXY+CgoKPGRpdj48cD5aYm91bGl1b2l1b2l6ZWY8L3A+PC9kaXY+Cgo8ZGl2IGNsYXNzPSJm
+b250LXNpemU6IDEzcHg7Ij48c3BhbiBkYXRhLW8tbWFpbC1xdW90ZT0iMSI+LS0gPGJyIGRhdGEt
+by1tYWlsLXF1b3RlPSIxIj4KQWRtaW5pc3RyYXRvcjwvc3Bhbj48L2Rpdj4KPHAgc3R5bGU9ImNv
+bG9yOiAjNTU1NTU1OyBtYXJnaW4tdG9wOjMycHg7Ij4KICAgIFNlbnQKICAgIDxzcGFuPgogICAg
+YnkKICAgIDxhIHN0eWxlPSJ0ZXh0LWRlY29yYXRpb246bm9uZTsgY29sb3I6ICM4NzVBN0I7IiBo
+cmVmPSJodHRwOi8vd3d3LmV4YW1wbGUuY29tIj4KICAgICAgICA8c3Bhbj5Zb3VyQ29tcGFueTwv
+c3Bhbj4KICAgIDwvYT4KICAgIAogICAgPC9zcGFuPgogICAgdXNpbmcKICAgIDxhIHRhcmdldD0i
+X2JsYW5rIiBocmVmPSJodHRwczovL3d3dy5vZG9vLmNvbT91dG1fc291cmNlPWRiJmFtcDt1dG1f
+bWVkaXVtPWVtYWlsIiBzdHlsZT0idGV4dC1kZWNvcmF0aW9uOm5vbmU7IGNvbG9yOiAjODc1QTdC
+OyI+T2RvbzwvYT4uCjwvcD4KPC9kaXY+CiAgICAgICAg
+
+--===============8588563873240298690==--
+
+--===============7355787381227985247==--
+
+--92726A5F09.1555335666/mail2.test.ironsky--
+"""
+
+
+MAIL_BOUNCE_QP_RFC822_HEADERS = """\
+Received: by mailserver.odoo.com (Postfix)
+        id EA0B917B8E4; Tue, 29 Feb 2023 11:11:11 +0100 (CET)
+From: {email_from} 
+Subject: Undelivered Mail Returned to Sender
+To: {email_to}
+Auto-Submitted: auto-replied
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status;
+        boundary="DFFDC17AA03.1673346179/mailserver.odoo.com"
+Message-Id: <40230110102259.EA0B917B8E4@mailserver.odoo.com>
+Content-Transfer-Encoding: 7bit
+Delivered-To: {delivered_to}
+Return-Path: <>
+
+--DFFDC17AA03.1673346179/mailserver.odoo.com
+Content-Description: Notification
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+I'm sorry to have to inform you that your message could not
+be delivered to one or more recipients.
+
+<rdesfrdgtfdrfesd@outlook.com>: host
+    outlook-com.olc.protection.outlook.com[104.47.56.33] said: 550 5.5.0
+    Requested action not taken: mailbox unavailable (S2017062302). (in re=
+ply to
+    RCPT TO command)
+
+--DFFDC17AA03.1673346179/mailserver.odoo.com
+Content-Description: Delivery report
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; mailserver.odoo.com
+X-Postfix-Queue-ID: DFFDC17AA03
+X-Postfix-Sender: rfc822; bounce@xxx.odoo.com
+Arrival-Date: Tue, 29 Feb 2023 10:10:10 +0100 (CET)
+
+Final-Recipient: rfc822; rdesfrdgtfdrfesd@outlook.com
+Original-Recipient: rfc822;rdesfrdgtfdrfesd@outlook.com
+Action: failed
+Status: 5.5.0
+Remote-MTA: dns; outlook-com.olc.protection.outlook.com
+Diagnostic-Code: smtp; 550 5.5.0 Requested action not taken: mailbox
+    unavailable (S2017062302).
+
+--DFFDC17AA03.1673346179/mailserver.odoo.com
+Content-Description: Undelivered Message Headers
+Content-Type: text/rfc822-headers
+Content-Transfer-Encoding: quoted-printable
+
+Return-Path: <bounce@xxx.odoo.com>
+Received: from eupp00.odoo.com (00.72.79.34.bc.googleusercontent.com [34.=
+79.72.00])
+        by mailserver.odoo.com (Postfix) with ESMTPS id DFFDC17AA03;
+        Tue, 10 Jan 2023 11:22:57 +0100 (CET)
+DKIM-Signature: v=3D1; a=3Drsa-sha256; c=3Dsimple/simple; d=3Dxxx.be;
+        s=3Dodoo; t=3D1673346178;
+        bh=3DYPJOqkUi8B28X1MrRUsgmsL8KRz/ZIkpbYyc6wNITXA=3D;
+        h=3Dreferences:Subject:From:Reply-To:To:Date:From;
+        b=3DCMqh7mUvpgUw+JpCeGluv1+MZ3y6EsXd0acmsfzpYBjcoy1InvD6FLT1/lQCcgetf
+         cGyL/8R4vvDKATyE0AtOIpoYDsbpnMoiYWqaSXnDVuLTrEZzyrK/2j10ZTnHZ2uDTC
+         b7wPjFfQ9pted/t6CAUhVT1XydDNalSwEZovy/QI=3D
+Message-Id: <368396033905967.1673346177.695352554321289-openerp-11-sale.o=
+rder@eupp00>
+references: <792105153140463.1673746527.352018594741821-openerp-11-sale.o=
+rder@xxx.odoo.com> <368396033905967.1673346177.695352554321289-openerp-11=
+-sale.order@eupp00>
+Subject: Thi is a SO (Ref SO/11)
+From: info@xxx.odoo.com
+Reply-To: "SO/11" <catchall@xxx.odoo.com=
+>
+To: "rdesfrdgtfdrfesd@outlook.com" <rdesfrdgtfdrfesd@outlook.com>
+Date: Tue, 29 Feb 2023 06:09:06 -0000
+X-Odoo-Objects: sale.order-11
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary=3D"=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D5706316606908750110=3D=3D"
+
+--DFFDC17AA03.1673346179/mailserver.odoo.com--
+
+"""
+
+MAIL_NO_BODY = '''\
+Return-Path: <{email_from}>
+Delivered-To: catchall@xxxx.xxxx
+Received: from in66.mail.ovh.net (unknown [10.101.4.66])
+    by vr38.mail.ovh.net (Postfix) with ESMTP id 4GLCGr70Kyz1myr75
+    for <catchall@xxxx.xxxx>; Thu,  8 Jul 2021 10:30:12 +0000 (UTC)
+X-Comment: SPF check N/A for local connections - client-ip=213.186.33.59; helo=mail663.ha.ovh.net; envelope-from={email_from}; receiver=catchall@xxxx.xxxx 
+Authentication-Results: in66.mail.ovh.net; dkim=none; dkim-atps=neutral
+Delivered-To: xxxx.xxxx-{email_to}
+X-ME-Helo: opme11oxm23aub.bagnolet.francetelecom.fr
+X-ME-Auth: ZnJlZGVyaWMuYmxhY2hvbjA3QG9yYW5nZS5mcg==
+X-ME-Date: Thu, 08 Jul 2021 12:30:11 +0200
+X-ME-IP: 86.221.151.111
+Date: Thu, 8 Jul 2021 12:30:11 +0200 (CEST)
+From: =?UTF-8?Q?Fr=C3=A9d=C3=A9ric_BLACHON?= <{email_from}>
+Reply-To: 
+    =?UTF-8?Q?Fr=C3=A9d=C3=A9ric_BLACHON?= <{email_from}>
+To: {email_to}
+Message-ID: <1024471522.82574.1625740211606.JavaMail.open-xchange@opme11oxm23aub.bagnolet.francetelecom.fr>
+Subject: transport autorisation 19T
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+    boundary="----=_Part_82573_178179506.1625740211587"
+
+------=_Part_82573_178179506.1625740211587
+MIME-Version: 1.0
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+ </head><body style="font-family: arial,helvetica,sans-serif; font-size: 13pt"></body></html>
+'''
+
+MAIL_NO_FINAL_RECIPIENT = """\
+Return-Path: <bounce-md_9656353.6125275c.v1-f28f7746389e45f0bfbf9faefe9e0dc8@mandrillapp.com>
+Delivered-To: catchall@xxxx.xxxx
+Received: from in58.mail.ovh.net (unknown [10.101.4.58])
+	by vr46.mail.ovh.net (Postfix) with ESMTP id 4GvFsq2QLYz1t0N7r
+	for <catchall@xxxx.xxxx>; Tue, 24 Aug 2021 17:07:43 +0000 (UTC)
+Received-SPF: Softfail (mailfrom) identity=mailfrom; client-ip=46.105.72.169; helo=40.mo36.mail-out.ovh.net; envelope-from=bounce-md_9656353.6125275c.v1-f28f7746389e45f0bfbf9faefe9e0dc8@mandrillapp.com; receiver=catchall@xxxx.xxxx 
+Authentication-Results: in58.mail.ovh.net;
+	dkim=pass (1024-bit key; unprotected) header.d=mandrillapp.com header.i=bounces-noreply@mandrillapp.com header.b="TDzUcdJs";
+	dkim=pass (1024-bit key) header.d=mandrillapp.com header.i=@mandrillapp.com header.b="MyjddTY5";
+	dkim-atps=neutral
+Delivered-To: xxxx.xxxx-{email_to}
+Authentication-Results: in62.mail.ovh.net;
+	dkim=pass (1024-bit key; unprotected) header.d=mandrillapp.com header.i=bounces-noreply@mandrillapp.com header.b="TDzUcdJs";
+	dkim=pass (1024-bit key) header.d=mandrillapp.com header.i=@mandrillapp.com header.b="MyjddTY5";
+	dkim-atps=neutral
+From: MAILER-DAEMON <bounces-noreply@mandrillapp.com>
+Subject: Undelivered Mail Returned to Sender
+To: {email_to}
+X-Report-Abuse: Please forward a copy of this message, including all headers, to abuse@mandrill.com
+X-Report-Abuse: You can also report abuse here: http://mandrillapp.com/contact/abuse?id=9656353.f28f7746389e45f0bfbf9faefe9e0dc8
+X-Mandrill-User: md_9656353
+Feedback-ID: 9656353:9656353.20210824:md
+Message-Id: <9656353.20210824170740.6125275cf21879.17950539@mail9.us4.mandrillapp.com>
+Date: Tue, 24 Aug 2021 17:07:40 +0000
+MIME-Version: 1.0
+Content-Type: multipart/report; boundary="_av-UfLe6y6qxNo54-urtAxbJQ"
+
+--_av-UfLe6y6qxNo54-urtAxbJQ
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+    --- The following addresses had delivery problems ---
+
+<{email_from}>   (5.7.1 <{email_from}>: Recipient address rejected: Access denied)
+
+
+--_av-UfLe6y6qxNo54-urtAxbJQ
+Content-Type: message/delivery-status
+Content-Transfer-Encoding: 7bit
+
+Original-Recipient: <{email_from}>
+Action: failed
+Diagnostic-Code: smtp; 554 5.7.1 <{email_from}>: Recipient address rejected: Access denied
+Remote-MTA: 10.245.192.40
+
+
+
+--_av-UfLe6y6qxNo54-urtAxbJQ--"""
+
+MAIL_FORWARDED = """X-Original-To: lucie@petitebedaine.fr
+Delivered-To: raoul@grosbedon.fr
+Delivered-To: lucie@petitebedaine.fr
+To: lucie@petitebedaine.fr
+From: "Bruce Wayne" <bruce@wayneenterprises.com>
+
+SSBhbSB0aGUgQmF0TWFuCg=="""
+
+MAIL_PDF_MIME_TEMPLATE = """\
+To: {to}
+From: {email_from}
+Subject: {subject}
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+    boundary="----=_Part_4200734_24778174.1344608186754"
+Date: Fri, 10 Aug 2012 14:16:26 +0000
+
+------=_Part_4200734_24778174.1344608186754
+Content-Type: {pdf_mime}; name="scan_soraya.lernout_1691652648.pdf"
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjEKJcKlwrHDqwoKMSAwIG9iagogIDw8IC9UeXBlIC9DYXRhbG9nCiAgICAgL1BhZ2VzIDIgMCBSCiAgPj4KZW5kb2JqCgoyIDAgb2JqCiAgPDwgL1R5cGUgL1BhZ2VzCiAgICAgL0tpZHMgWzMgMCBSXQogICAgIC9Db3VudCAxCiAgICAgL01lZGlhQm94IFswIDAgMzAwIDE0NF0KICA+PgplbmRvYmoKCjMgMCBvYmoKICA8PCAgL1R5cGUgL1BhZ2UKICAgICAgL1BhcmVudCAyIDAgUgogICAgICAvUmVzb3VyY2VzCiAgICAgICA8PCAvRm9udAogICAgICAgICAgIDw8IC9GMQogICAgICAgICAgICAgICA8PCAvVHlwZSAvRm9udAogICAgICAgICAgICAgICAgICAvU3VidHlwZSAvVHlwZTEKICAgICAgICAgICAgICAgICAgL0Jhc2VGb250IC9UaW1lcy1Sb21hbgogICAgICAgICAgICAgICA+PgogICAgICAgICAgID4+CiAgICAgICA+PgogICAgICAvQ29udGVudHMgNCAwIFIKICA+PgplbmRvYmoKCjQgMCBvYmoKICA8PCAvTGVuZ3RoIDU1ID4+CnN0cmVhbQogIEJUCiAgICAvRjEgMTggVGYKICAgIDAgMCBUZAogICAgKEhlbGxvIFdvcmxkKSBUagogIEVUCmVuZHN0cmVhbQplbmRvYmoKCnhyZWYKMCA1CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAxOCAwMDAwMCBuIAowMDAwMDAwMDc3IDAwMDAwIG4gCjAwMDAwMDAxNzggMDAwMDAgbiAKMDAwMDAwMDQ1NyAwMDAwMCBuIAp0cmFpbGVyCiAgPDwgIC9Sb290IDEgMCBSCiAgICAgIC9TaXplIDUKICA+PgpzdGFydHhyZWYKNTY1CiUlRU9GCg==
+
+------=_Part_4200734_24778174.1344608186754--
+"""
+
+PDF_PARSED = b'''%PDF-1.1\n%\xc2\xa5\xc2\xb1\xc3\xab\n\n1 0 obj\n  << /Type /Catalog\n     /Pages 2 0 R\n  >>\nendobj\n\n2 0 obj\n  << /Type /Pages\n     /Kids [3 0 R]\n     /Count 1\n     /MediaBox [0 0 300 144]\n  >>\nendobj\n\n3 0 obj\n  <<  /Type /Page\n      /Parent 2 0 R\n      /Resources\n       << /Font\n           << /F1\n               << /Type /Font\n                  /Subtype /Type1\n                  /BaseFont /Times-Roman\n               >>\n           >>\n       >>\n      /Contents 4 0 R\n  >>\nendobj\n\n4 0 obj\n  << /Length 55 >>\nstream\n  BT\n    /F1 18 Tf\n    0 0 Td\n    (Hello World) Tj\n  ET\nendstream\nendobj\n\nxref\n0 5\n0000000000 65535 f \n0000000018 00000 n \n0000000077 00000 n \n0000000178 00000 n \n0000000457 00000 n \ntrailer\n  <<  /Root 1 0 R\n      /Size 5\n  >>\nstartxref\n565\n%%EOF\n'''
+
+THAI_EMAIL_WINDOWS_874 = '''\
+From: Thai Customer <outlook_windows@outlook.com>
+To: "Thai Odoo User" <thai-user@odoo.com>
+Subject: =?windows-874?B?4MPX6M2n?=
+Thread-Topic: =?windows-874?B?4MPX6M2n?=
+Thread-Index: AQHahRQ4qiMBoXtK0U2XwaGg8w9Y9g==
+X-MS-Exchange-MessageSentRepresentingType: 1
+Date: Tue, 2 Apr 2024 15:42:24 +0000
+Message-ID: <PH7P220MB158617DEAEC85ECA2A0D2CAFBC3E2@PH7P220MB1586.NAMP220.PROD.OUTLOOK.COM>
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-Exchange-Organization-SCL: -1
+X-MS-TNEF-Correlator:
+X-MS-Exchange-Organization-RecordReviewCfmType: 0
+msip_labels:
+Content-Type: text/plain; charset="windows-874"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+=C3=E8=D2=A7=A1=D2=C2='''
+
+```
+
+## File: data\__init__.py
+
+```python
+# -*- coding: utf-8 -*-
+
+from . import test_mail_data
+
+```
+
+## File: models\mail_test_access.py
+
+```python
+from odoo import exceptions, fields, models
+
+
+class MailTestAccess(models.Model):
+    """ Test access on mail models without depending on real models like channel
+    or partner which have their own set of ACLs. """
+    _description = 'Mail Access Test'
+    _name = 'mail.test.access'
+    _inherit = ['mail.thread.blacklist']
+    _mail_post_access = 'write'  # default value but ease mock
+    _order = 'id DESC'
+    _primary_email = 'email_from'
+
+    name = fields.Char()
+    email_from = fields.Char()
+    phone = fields.Char()
+    customer_id = fields.Many2one('res.partner', 'Customer')
+    access = fields.Selection(
+        [
+            ('public', 'public'),
+            ('logged', 'Logged'),
+            ('logged_ro', 'Logged readonly for portal'),
+            ('followers', 'Followers'),
+            ('internal', 'Internal'),
+            ('internal_ro', 'Internal readonly'),
+            ('admin', 'Admin'),
+        ],
+        name='Access', default='public')
+
+    def _mail_get_partner_fields(self):
+        return ['customer_id']
+
+
+class MailTestAccessCusto(models.Model):
+    """ Test access on mail models without depending on real models like channel
+    or partner which have their own set of ACLs. """
+    _description = 'Mail Access Test with Custo'
+    _name = 'mail.test.access.custo'
+    _inherit = ['mail.thread.blacklist']
+    _mail_post_access = 'write'  # default value but ease mock
+    _order = 'id DESC'
+    _primary_email = 'email_from'
+
+    name = fields.Char()
+    email_from = fields.Char()
+    phone = fields.Char()
+    customer_id = fields.Many2one('res.partner', 'Customer')
+    is_locked = fields.Boolean()
+
+    def _mail_get_partner_fields(self):
+        return ['customer_id']
+
+    def _get_mail_message_access(self, res_ids, operation, model_name=None):
+        # customize message creation
+        if operation == "create":
+            if any(record.is_locked for record in self.browse(res_ids)):
+                raise exceptions.AccessError('Cannot post on locked records')
+            else:
+                return "read"
+        return super()._get_mail_message_access(res_ids, operation, model_name=model_name)
+
+```
+
+## File: models\mail_test_lead.py
+
+```python
+from odoo import fields, models, _
+from odoo.tools.mail import parse_contact_from_email
+
+
+class MailTestTLead(models.Model):
+    """ Lead-like model for business flows testing """
+    _name = "mail.test.lead"
+    _description = 'Lead-like model'
+    _inherit = [
+        'mail.thread.blacklist',
+        'mail.thread.cc',
+        'mail.activity.mixin',
+    ]
+    _mail_defaults_to_email = True
+    _primary_email = 'email_from'
+
+    name = fields.Char()
+    company_id = fields.Many2one('res.company')
+    user_id = fields.Many2one('res.users', tracking=1)
+    email_from = fields.Char()
+    customer_name = fields.Char()
+    partner_id = fields.Many2one('res.partner', tracking=2)
+    lang_code = fields.Char()
+    mobile = fields.Char()
+    phone = fields.Char()
+
+    def _creation_message(self):
+        self.ensure_one()
+        return _('A new lead has been created and is assigned to %(user_name)s.', user_name=self.user_id.name or _('nobody'))
+
+    def _get_customer_information(self):
+        email_normalized_to_values = super()._get_customer_information()
+
+        for lead in self:
+            email_key = lead.email_normalized or lead.email
+            values = email_normalized_to_values.setdefault(email_key, {})
+            values['lang'] = values.get('lang') or lead.lang_code
+            values['name'] = values.get('name') or lead.customer_name or parse_contact_from_email(lead.email_from)[0] or lead.email_from
+            values['mobile'] = values.get('mobile') or lead.mobile
+            values['phone'] = values.get('phone') or lead.phone
+        return email_normalized_to_values
+
+    def _message_get_suggested_recipients(self):
+        recipients = super()._message_get_suggested_recipients()
+        # check if that language is correctly installed (and active) before using it
+        lang_code = self.env['res.lang']._get_data(code=self.lang_code).code or None
+        if self.partner_id:
+            self._message_add_suggested_recipient(
+                recipients, partner=self.partner_id, lang=lang_code, reason=_('Customer'))
+        elif self.email_from:
+            self._message_add_suggested_recipient(
+                recipients, email=self.email_from, lang=lang_code, reason=_('Customer Email'))
+        return recipients
+
+    def _message_post_after_hook(self, message, msg_vals):
+        if self.email_from and not self.partner_id:
+            # we consider that posting a message with a specified recipient (not a follower, a specific one)
+            # on a document without customer means that it was created through the chatter using
+            # suggested recipients. This heuristic allows to avoid ugly hacks in JS.
+            new_partner = message.partner_ids.filtered(
+                lambda partner: partner.email == self.email_from or (self.email_normalized and partner.email_normalized == self.email_normalized)
+            )
+            if new_partner:
+                if new_partner[0].email_normalized:
+                    email_domain = ('email_normalized', '=', new_partner[0].email_normalized)
+                else:
+                    email_domain = ('email_from', '=', new_partner[0].email)
+                self.search([('partner_id', '=', False), email_domain]).write({'partner_id': new_partner[0].id})
+        return super()._message_post_after_hook(message, msg_vals)
+
+```
+
+## File: models\test_mail_corner_case_models.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import api, fields, models, _
+
+
+class MailPerformanceThread(models.Model):
+    _name = 'mail.performance.thread'
+    _description = 'Performance: mail.thread'
+    _inherit = ['mail.thread']
+
+    name = fields.Char()
+    value = fields.Integer()
+    value_pc = fields.Float(compute="_value_pc", store=True)
+    track = fields.Char(default='test', tracking=True)
+    partner_id = fields.Many2one('res.partner', string='Customer')
+
+    @api.depends('value')
+    def _value_pc(self):
+        for record in self:
+            record.value_pc = float(record.value) / 100
+
+
+class MailPerformanceTracking(models.Model):
+    _name = 'mail.performance.tracking'
+    _description = 'Performance: multi tracking'
+    _inherit = ['mail.thread']
+
+    name = fields.Char(required=True, tracking=True)
+    field_0 = fields.Char(tracking=True)
+    field_1 = fields.Char(tracking=True)
+    field_2 = fields.Char(tracking=True)
+
+
+class MailTestFieldType(models.Model):
+    """ Test default values, notably type, messing through models during gateway
+    processing (i.e. lead.type versus attachment.type). """
+    _description = 'Test Field Type'
+    _name = 'mail.test.field.type'
+    _inherit = ['mail.thread']
+
+    name = fields.Char()
+    email_from = fields.Char()
+    datetime = fields.Datetime(default=fields.Datetime.now)
+    customer_id = fields.Many2one('res.partner', 'Customer')
+    type = fields.Selection([('first', 'First'), ('second', 'Second')])
+    user_id = fields.Many2one('res.users', 'Responsible', tracking=True)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        # Emulate an addon that alters the creation context, such as `crm`
+        if not self._context.get('default_type'):
+            self = self.with_context(default_type='first')
+        return super(MailTestFieldType, self).create(vals_list)
+
+    def _mail_get_partner_fields(self, introspect_fields=False):
+        return ['customer_id']
+
+
+class MailTestLang(models.Model):
+    """ A simple chatter model with lang-based capabilities, allowing to
+    test translations. """
+    _description = 'Lang Chatter Model'
+    _name = 'mail.test.lang'
+    _inherit = ['mail.thread']
+
+    name = fields.Char()
+    email_from = fields.Char()
+    customer_id = fields.Many2one('res.partner')
+    lang = fields.Char('Lang')
+
+    def _mail_get_partner_fields(self, introspect_fields=False):
+        return ['customer_id']
+
+    def _notify_get_recipients_groups(self, message, model_description, msg_vals=None):
+        groups = super()._notify_get_recipients_groups(
+            message, model_description, msg_vals=msg_vals
+        )
+
+        local_msg_vals = dict(msg_vals or {})
+
+        for group in [g for g in groups if g[0] in('follower', 'customer')]:
+            group_options = group[2]
+            group_options['has_button_access'] = True
+            group_options['actions'] = [
+                {'url': self._notify_get_action_link('controller', controller='/test_mail/do_stuff', **local_msg_vals),
+                 'title': _('NotificationButtonTitle')}
+            ]
+        return groups
+
+# ------------------------------------------------------------
+# TRACKING MODELS
+# ------------------------------------------------------------
+
+class MailTestTrackAllM2M(models.Model):
+    _name = 'mail.test.track.all.m2m'
+    _description = 'Sub-model: pseudo tags for tracking'
+    _inherit = ['mail.thread']
+
+    name = fields.Char('Name')
+
+
+class MailTestTrackAllO2M(models.Model):
+    _name = 'mail.test.track.all.o2m'
+    _description = 'Sub-model: pseudo tags for tracking'
+    _inherit = ['mail.thread']
+
+    name = fields.Char('Name')
+    mail_track_all_id = fields.Many2one('mail.test.track.all')
+
+
+class MailTestTrackAll(models.Model):
+    _name = 'mail.test.track.all'
+    _description = 'Test tracking on all field types'
+    _inherit = ['mail.thread']
+
+    boolean_field = fields.Boolean('Boolean', tracking=1)
+    char_field = fields.Char('Char', tracking=2)
+    company_id = fields.Many2one('res.company')
+    currency_id = fields.Many2one('res.currency', related='company_id.currency_id')
+    date_field = fields.Date('Date', tracking=3)
+    datetime_field = fields.Datetime('Datetime', tracking=4)
+    float_field = fields.Float('Float', tracking=5)
+    html_field = fields.Html('Html', tracking=False)
+    integer_field = fields.Integer('Integer', tracking=7)
+    many2many_field = fields.Many2many(
+        'mail.test.track.all.m2m', string='Many2Many',
+        tracking=8)
+    many2one_field_id = fields.Many2one('res.partner', string='Many2one', tracking=9)
+    monetary_field = fields.Monetary('Monetary', tracking=10)
+    one2many_field = fields.One2many(
+        'mail.test.track.all.o2m', 'mail_track_all_id',
+        string='One2Many',
+        tracking=11)
+    selection_field = fields.Selection(
+        string='Selection',
+        selection=[('first', 'FIRST'), ('second', 'SECOND')],
+        tracking=12)
+    text_field = fields.Text('Text', tracking=13)
+
+    name = fields.Char('Name')
+
+
+class MailTestTrackCompute(models.Model):
+    _name = 'mail.test.track.compute'
+    _description = "Test tracking with computed fields"
+    _inherit = ['mail.thread']
+
+    partner_id = fields.Many2one('res.partner', tracking=True)
+    partner_name = fields.Char(related='partner_id.name', store=True, tracking=True)
+    partner_email = fields.Char(related='partner_id.email', store=True, tracking=True)
+    partner_phone = fields.Char(related='partner_id.phone', tracking=True)
+
+
+class MailTestTrackGroups(models.Model):
+    _name = 'mail.test.track.groups'
+    _description = "Test tracking with groups"
+    _inherit = ['mail.thread']
+
+    name = fields.Char(tracking=1)
+    partner_id = fields.Many2one('res.partner', tracking=2, groups="base.group_user")
+    secret = fields.Char(tracking=3, groups="base.group_user")
+
+
+class MailTestTrackMonetary(models.Model):
+    _name = 'mail.test.track.monetary'
+    _description = 'Test tracking monetary field'
+    _inherit = ['mail.thread']
+
+    company_id = fields.Many2one('res.company')
+    company_currency = fields.Many2one("res.currency", string='Currency', related='company_id.currency_id', readonly=True, tracking=True)
+    revenue = fields.Monetary('Revenue', currency_field='company_currency', tracking=True)
+
+
+class MailTestTrackSelection(models.Model):
+    """ Test tracking for selection fields """
+    _description = 'Test Selection Tracking'
+    _name = 'mail.test.track.selection'
+    _inherit = ['mail.thread']
+
+    name = fields.Char()
+    selection_type = fields.Selection([('first', 'First'), ('second', 'Second')], tracking=True)
+
+
+# ------------------------------------------------------------
+# OTHER
+# ------------------------------------------------------------
+
+class MailTestMultiCompany(models.Model):
+    """ This model can be used in multi company tests, with attachments support
+    for checking record update in MC """
+    _name = 'mail.test.multi.company'
+    _description = "Test Multi Company Mail"
+    _inherit = 'mail.thread.main.attachment'
+
+    name = fields.Char()
+    company_id = fields.Many2one('res.company')
+
+
+class MailTestMultiCompanyRead(models.Model):
+    """ Just mail.test.simple, but multi company and supporting posting
+    even if the user has no write access. """
+    _description = 'Simple Chatter Model '
+    _name = 'mail.test.multi.company.read'
+    _inherit = ['mail.test.multi.company']
+    _mail_post_access = 'read'
+
+
+class MailTestMultiCompanyWithActivity(models.Model):
+    """ This model can be used in multi company tests with activity"""
+    _name = "mail.test.multi.company.with.activity"
+    _description = "Test Multi Company Mail With Activity"
+    _inherit = ["mail.thread", "mail.activity.mixin"]
+
+    name = fields.Char()
+    company_id = fields.Many2one("res.company")
+
+
+class MailTestNotMailThread(models.Model):
+    """ Models not inheriting from mail.thread but using some cross models
+    capabilities of mail. """
+    _name = 'mail.test.nothread'
+    _description = "NoThread Model"
+
+    name = fields.Char()
+    company_id = fields.Many2one('res.company')
+    customer_id = fields.Many2one('res.partner')
+
+```
+
+## File: models\test_mail_feature_models.py
+
+```python
+from odoo import fields, models
+
+# ------------------------------------------------------------
+# PROPERTIES
+# ------------------------------------------------------------
+
+
+class MailTestProperties(models.Model):
+    _description = 'Mail Test Properties'
+    _name = 'mail.test.properties'
+    _inherit = ['mail.thread']
+
+    name = fields.Char('Name')
+    parent_id = fields.Many2one('mail.test.properties', string='Parent')
+    properties = fields.Properties('Properties', definition='parent_id.definition_properties')
+    definition_properties = fields.PropertiesDefinition('Definitions')
+
+```
+
+## File: models\test_mail_models.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+import ast
+
+from odoo import api, fields, models, _
+from odoo.tools import email_normalize
+
+
+class MailTestSimple(models.Model):
+    """ A very simple model only inheriting from mail.thread when only
+    communication history is necessary. """
+    _description = 'Simple Chatter Model'
+    _name = 'mail.test.simple'
+    _inherit = ['mail.thread']
+
+    name = fields.Char()
+    email_from = fields.Char()
+
+    def _message_compute_subject(self):
+        """ To ease mocks """
+        _a = super()._message_compute_subject()
+        return _a
+
+    def _notify_by_email_get_final_mail_values(self, *args, **kwargs):
+        """ To ease mocks """
+        _a = super()._notify_by_email_get_final_mail_values(*args, **kwargs)
+        return _a
+
+    def _notify_by_email_get_headers(self, headers=None):
+        headers = super()._notify_by_email_get_headers(headers=headers)
+        headers['X-Custom'] = 'Done'
+        return headers
+
+class MailTestSimpleUnnamed(models.Model):
+    """ A very simple model only inheriting from mail.thread when only
+    communication history is necessary, and has no 'name' field """
+    _description = 'Simple Chatter Model without "name" field'
+    _name = 'mail.test.simple.unnamed'
+    _inherit = ['mail.thread']
+    _rec_name = "description"
+
+    description = fields.Char()
+
+class MailTestSimpleWithMainAttachment(models.Model):
+    _description = 'Simple Chatter Model With Main Attachment Management'
+    _name = 'mail.test.simple.main.attachment'
+    _inherit = ['mail.test.simple', 'mail.thread.main.attachment']
+
+
+class MailTestSimpleUnfollow(models.Model):
+    """ A very simple model only inheriting from mail.thread when only
+    communication history is necessary with unfollow link enabled in
+    notification emails even for non-internal user. """
+    _description = 'Simple Chatter Model'
+    _name = 'mail.test.simple.unfollow'
+    _inherit = ['mail.thread']
+    _partner_unfollow_enabled = True
+
+    name = fields.Char()
+    company_id = fields.Many2one('res.company')
+    email_from = fields.Char()
+
+
+class MailTestAliasOptional(models.Model):
+    """ A chatter model inheriting from the alias mixin using optional alias_id
+    field, hence no inherits. """
+    _description = 'Chatter Model using Optional Alias Mixin'
+    _name = 'mail.test.alias.optional'
+    _inherit = ['mail.alias.mixin.optional']
+
+    name = fields.Char()
+    company_id = fields.Many2one('res.company', default=lambda self: self.env.company)
+    email_from = fields.Char()
+
+    def _alias_get_creation_values(self):
+        """ Updates itself """
+        values = super()._alias_get_creation_values()
+        values['alias_model_id'] = self.env['ir.model']._get_id('mail.test.alias.optional')
+        if self.id:
+            values['alias_force_thread_id'] = self.id
+            values['alias_defaults'] = {'company_id': self.company_id.id}
+        return values
+
+
+class MailTestGateway(models.Model):
+    """ A very simple model only inheriting from mail.thread to test pure mass
+    mailing features and base performances. """
+    _description = 'Simple Chatter Model for Mail Gateway'
+    _name = 'mail.test.gateway'
+    _inherit = ['mail.thread.blacklist']
+    _primary_email = 'email_from'
+
+    name = fields.Char()
+    email_from = fields.Char()
+    custom_field = fields.Char()
+
+    @api.model
+    def message_new(self, msg_dict, custom_values=None):
+        """ Check override of 'message_new' allowing to update record values
+        base on incoming email. """
+        defaults = {
+            'email_from': msg_dict.get('from'),
+        }
+        defaults.update(custom_values or {})
+        return super().message_new(msg_dict, custom_values=defaults)
+
+
+class MailTestGatewayCompany(models.Model):
+    """ A very simple model only inheriting from mail.thread to test pure mass
+    mailing features and base performances, with a company field. """
+    _description = 'Simple Chatter Model for Mail Gateway with company'
+    _name = 'mail.test.gateway.company'
+    _inherit = ['mail.test.gateway']
+
+    company_id = fields.Many2one('res.company', 'Company')
+
+
+class MailTestGatewayMainAttachment(models.Model):
+    """ A very simple model only inheriting from mail.thread to test pure mass
+    mailing features and base performances, with a company field and main
+    attachment management. """
+    _description = 'Simple Chatter Model for Mail Gateway with company'
+    _name = 'mail.test.gateway.main.attachment'
+    _inherit = ['mail.test.gateway', 'mail.thread.main.attachment']
+
+    company_id = fields.Many2one('res.company', 'Company')
+
+
+class MailTestGatewayGroups(models.Model):
+    """ A model looking like discussion channels / groups (flat thread and
+    alias). Used notably for advanced gatewxay tests. """
+    _description = 'Channel/Group-like Chatter Model for Mail Gateway'
+    _name = 'mail.test.gateway.groups'
+    _inherit = ['mail.thread.blacklist', 'mail.alias.mixin']
+    _mail_flat_thread = False
+    _primary_email = 'email_from'
+
+    name = fields.Char()
+    email_from = fields.Char()
+    custom_field = fields.Char()
+    customer_id = fields.Many2one('res.partner', 'Customer')
+
+    def _alias_get_creation_values(self):
+        values = super(MailTestGatewayGroups, self)._alias_get_creation_values()
+        values['alias_model_id'] = self.env['ir.model']._get('mail.test.gateway.groups').id
+        if self.id:
+            values['alias_force_thread_id'] = self.id
+            values['alias_parent_thread_id'] = self.id
+        return values
+
+    def _mail_get_partner_fields(self, introspect_fields=False):
+        return ['customer_id']
+
+    def _message_get_default_recipients(self):
+        return dict(
+            (record.id, {
+                'email_cc': False,
+                'email_to': record.email_from if not record.customer_id.ids else False,
+                'partner_ids': record.customer_id.ids,
+            })
+            for record in self
+        )
+
+
+class MailTestStandard(models.Model):
+    """ This model can be used in tests when automatic subscription and simple
+    tracking is necessary. Most features are present in a simple way. """
+    _description = 'Standard Chatter Model'
+    _name = 'mail.test.track'
+    _inherit = ['mail.thread']
+
+    name = fields.Char()
+    email_from = fields.Char()
+    user_id = fields.Many2one('res.users', 'Responsible', tracking=True)
+    container_id = fields.Many2one('mail.test.container', tracking=True)
+    company_id = fields.Many2one('res.company')
+    track_fields_tofilter = fields.Char()  # comma-separated list of field names
+    track_enable_default_log = fields.Boolean(default=False)
+
+    def _track_filter_for_display(self, tracking_values):
+        values = super()._track_filter_for_display(tracking_values)
+        filtered_fields = set(self.track_fields_tofilter.split(',') if self.track_fields_tofilter else '')
+        return values.filtered(lambda val: val.field_id.name not in filtered_fields)
+
+    def _track_get_default_log_message(self, changes):
+        filtered_fields = set(self.track_fields_tofilter.split(',') if self.track_fields_tofilter else '')
+        if self.track_enable_default_log and not all(change in filtered_fields for change in changes):
+            return f'There was a change on {self.name} for fields "{",".join(changes)}"'
+        return super()._track_get_default_log_message(changes)
+
+class MailTestActivity(models.Model):
+    """ This model can be used to test activities in addition to simple chatter
+    features. """
+    _description = 'Activity Model'
+    _name = 'mail.test.activity'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    name = fields.Char()
+    date = fields.Date()
+    email_from = fields.Char()
+    active = fields.Boolean(default=True)
+
+    def action_start(self, action_summary):
+        return self.activity_schedule(
+            'test_mail.mail_act_test_todo',
+            summary=action_summary
+        )
+
+    def action_close(self, action_feedback, attachment_ids=None):
+        self.activity_feedback(['test_mail.mail_act_test_todo'],
+                               feedback=action_feedback,
+                               attachment_ids=attachment_ids)
+
+
+class MailTestTicket(models.Model):
+    """ This model can be used in tests when complex chatter features are
+    required like modeling tasks or tickets. """
+    _description = 'Ticket-like model'
+    _name = 'mail.test.ticket'
+    _inherit = ['mail.thread']
+    _primary_email = 'email_from'
+
+    name = fields.Char()
+    email_from = fields.Char(tracking=True)
+    mobile_number = fields.Char()
+    phone_number = fields.Char()
+    count = fields.Integer(default=1)
+    datetime = fields.Datetime(default=fields.Datetime.now)
+    mail_template = fields.Many2one('mail.template', 'Template')
+    customer_id = fields.Many2one('res.partner', 'Customer', tracking=2)
+    user_id = fields.Many2one('res.users', 'Responsible', tracking=1)
+    container_id = fields.Many2one('mail.test.container', tracking=True)
+
+    def _mail_get_partner_fields(self, introspect_fields=False):
+        return ['customer_id']
+
+    def _message_compute_subject(self):
+        self.ensure_one()
+        return f"Ticket for {self.name} on {self.datetime.strftime('%m/%d/%Y, %H:%M:%S')}"
+
+    def _message_get_default_recipients(self):
+        return dict(
+            (record.id, {
+                'email_cc': False,
+                'email_to': record.email_from if not record.customer_id.ids else False,
+                'partner_ids': record.customer_id.ids,
+            })
+            for record in self
+        )
+
+    def _notify_get_recipients_groups(self, message, model_description, msg_vals=None):
+        """ Activate more groups to test query counters notably (and be backward
+        compatible for tests). """
+        local_msg_vals = dict(msg_vals or {})
+        groups = super()._notify_get_recipients_groups(
+            message, model_description, msg_vals=msg_vals
+        )
+        for group_name, _group_method, group_data in groups:
+            if group_name == 'portal':
+                group_data['active'] = True
+            elif group_name == 'customer':
+                group_data['active'] = True
+                group_data['has_button_access'] = True
+                group_data['actions'] = [{
+                    'url': self._notify_get_action_link(
+                        'controller',
+                        controller='/test_mail/do_stuff',
+                        **local_msg_vals
+                    ),
+                    'title': _('NotificationButtonTitle')
+                }]
+
+        return groups
+
+    def _track_template(self, changes):
+        res = super(MailTestTicket, self)._track_template(changes)
+        record = self[0]
+        if 'customer_id' in changes and record.mail_template:
+            res['customer_id'] = (
+                record.mail_template,
+                {
+                    'composition_mode': 'mass_mail',
+                    'subtype_id': self.env['ir.model.data']._xmlid_to_res_id('mail.mt_note'),
+                }
+            )
+        elif 'datetime' in changes:
+            res['datetime'] = (
+                'test_mail.mail_test_ticket_tracking_view',
+                {
+                    'composition_mode': 'mass_mail',
+                    'subtype_id': self.env['ir.model.data']._xmlid_to_res_id('mail.mt_note'),
+                }
+            )
+        return res
+
+    def _creation_subtype(self):
+        if self.container_id:
+            return self.env.ref('test_mail.st_mail_test_ticket_container_upd')
+        return super(MailTestTicket, self)._creation_subtype()
+
+    def _track_subtype(self, init_values):
+        self.ensure_one()
+        if 'container_id' in init_values and self.container_id:
+            return self.env.ref('test_mail.st_mail_test_ticket_container_upd')
+        return super(MailTestTicket, self)._track_subtype(init_values)
+
+    def _get_customer_information(self):
+        email_normalized_to_values = super()._get_customer_information()
+
+        for record in self.filtered('email_from'):
+            email_from_normalized = email_normalize(record.email_from)
+            if not email_from_normalized:  # do not fill Falsy with random data
+                continue
+            values = email_normalized_to_values.setdefault(email_from_normalized, {})
+            if not values.get('mobile'):
+                values['mobile'] = record.mobile_number
+            if not values.get('phone'):
+                values['phone'] = record.phone_number
+        return email_normalized_to_values
+
+    def _message_get_suggested_recipients(self):
+        recipients = super()._message_get_suggested_recipients()
+        if self.customer_id:
+            self.customer_id._message_add_suggested_recipient(
+                recipients,
+                partner=self.customer_id,
+                lang=None,
+                reason=_('Customer'),
+            )
+        elif self.email_from:
+            self._message_add_suggested_recipient(
+                recipients,
+                partner=None,
+                email=self.email_from,
+                lang=None,
+                reason=_('Customer Email'),
+            )
+        return recipients
+
+
+class MailTestTicketEL(models.Model):
+    """ Just mail.test.ticket, but exclusion-list enabled. Kept as different
+    model to avoid messing with existing tests, notably performance, and ease
+    backward comparison. """
+    _description = 'Ticket-like model with exclusion list'
+    _name = 'mail.test.ticket.el'
+    _inherit = [
+        'mail.test.ticket',
+        'mail.thread.blacklist',
+    ]
+    _primary_email = 'email_from'
+
+    email_from = fields.Char(
+        'Email',
+        compute='_compute_email_from', readonly=False, store=True)
+
+    @api.depends('customer_id')
+    def _compute_email_from(self):
+        for ticket in self.filtered(lambda r: r.customer_id and not r.email_from):
+            ticket.email_from = ticket.customer_id.email_formatted
+
+
+class MailTestTicketMC(models.Model):
+    """ Just mail.test.ticket, but multi company. Kept as different model to
+    avoid messing with existing tests, notably performance, and ease backward
+    comparison. """
+    _description = 'Ticket-like model'
+    _name = 'mail.test.ticket.mc'
+    _inherit = ['mail.test.ticket']
+    _primary_email = 'email_from'
+
+    company_id = fields.Many2one('res.company', 'Company', default=lambda self: self.env.company)
+    container_id = fields.Many2one('mail.test.container.mc', tracking=True)
+
+    def _notify_get_reply_to(self, default=None):
+        # Override to use alias of the parent container
+        aliases = self.sudo().mapped('container_id')._notify_get_reply_to(default=default)
+        res = {task.id: aliases.get(task.container_id.id) for task in self}
+        leftover = self.filtered(lambda rec: not rec.container_id)
+        if leftover:
+            res.update(super(MailTestTicketMC, leftover)._notify_get_reply_to(default=default))
+        return res
+
+    def _creation_subtype(self):
+        if self.container_id:
+            return self.env.ref('test_mail.st_mail_test_ticket_container_mc_upd')
+        return super()._creation_subtype()
+
+    def _track_subtype(self, init_values):
+        self.ensure_one()
+        if 'container_id' in init_values and self.container_id:
+            return self.env.ref('test_mail.st_mail_test_ticket_container_mc_upd')
+        return super()._track_subtype(init_values)
+
+
+class MailTestContainer(models.Model):
+    """ This model can be used in tests when container records like projects
+    or teams are required. """
+    _description = 'Project-like model with alias'
+    _name = 'mail.test.container'
+    _mail_post_access = 'read'
+    _inherit = ['mail.thread', 'mail.alias.mixin']
+
+    name = fields.Char()
+    description = fields.Text()
+    customer_id = fields.Many2one('res.partner', 'Customer')
+
+    def _mail_get_partner_fields(self, introspect_fields=False):
+        return ['customer_id']
+
+    def _message_get_default_recipients(self):
+        return dict(
+            (record.id, {
+                'email_cc': False,
+                'email_to': False,
+                'partner_ids': record.customer_id.ids,
+            })
+            for record in self
+        )
+
+    def _notify_get_recipients_groups(self, message, model_description, msg_vals=None):
+        """ Activate more groups to test query counters notably (and be backward
+        compatible for tests). """
+        groups = super()._notify_get_recipients_groups(
+            message, model_description, msg_vals=msg_vals
+        )
+        for group_name, _group_method, group_data in groups:
+            if group_name == 'portal':
+                group_data['active'] = True
+
+        return groups
+
+    def _alias_get_creation_values(self):
+        values = super()._alias_get_creation_values()
+        values['alias_model_id'] = self.env['ir.model']._get('mail.test.ticket').id
+        values['alias_force_thread_id'] = False
+        if self.id:
+            values['alias_defaults'] = defaults = ast.literal_eval(self.alias_defaults or "{}")
+            defaults['container_id'] = self.id
+        return values
+
+
+class MailTestContainerMC(models.Model):
+    """ Just mail.test.container, but multi company. Kept as different model to
+    avoid messing with existing tests, notably performance, and ease backward
+    comparison. """
+    _description = 'Project-like model with alias (MC)'
+    _name = 'mail.test.container.mc'
+    _mail_post_access = 'read'
+    _inherit = ['mail.test.container']
+
+    company_id = fields.Many2one('res.company', 'Company', default=lambda self: self.env.company)
+
+    def _alias_get_creation_values(self):
+        values = super()._alias_get_creation_values()
+        values['alias_model_id'] = self.env['ir.model']._get('mail.test.ticket.mc').id
+        return values
+
+
+class MailTestComposerMixin(models.Model):
+    """ A simple invite-like wizard using the composer mixin, rendering on
+    composer source test model. Purpose is to have a minimal composer which
+    runs on other records and check notably dynamic template support and
+    translations. """
+    _description = 'Invite-like Wizard'
+    _name = 'mail.test.composer.mixin'
+    _inherit = ['mail.composer.mixin']
+
+    name = fields.Char('Name')
+    author_id = fields.Many2one('res.partner')
+    description = fields.Html('Description', render_engine="qweb", render_options={"post_process": True}, sanitize='email_outgoing')
+    source_ids = fields.Many2many('mail.test.composer.source', string='Invite source')
+
+    def _compute_render_model(self):
+        self.render_model = 'mail.test.composer.source'
+
+
+class MailTestComposerSource(models.Model):
+    """ A simple model on which invites are sent. """
+    _description = 'Invite-like Source'
+    _name = 'mail.test.composer.source'
+    _inherit = ['mail.thread.blacklist']
+    _primary_email = 'email_from'
+
+    name = fields.Char('Name')
+    customer_id = fields.Many2one('res.partner', 'Main customer')
+    email_from = fields.Char(
+        'Email',
+        compute='_compute_email_from', readonly=False, store=True)
+
+    @api.depends('customer_id')
+    def _compute_email_from(self):
+        for source in self.filtered(lambda r: r.customer_id and not r.email_from):
+            source.email_from = source.customer_id.email_formatted
+
+    def _mail_get_partner_fields(self, introspect_fields=False):
+        return ['customer_id']
+
+
+class MailTestMailTrackingDuration(models.Model):
+    _description = 'Fake model to test the mixin mail.tracking.duration.mixin'
+    _name = 'mail.test.mail.tracking.duration'
+    _track_duration_field = 'customer_id'
+    _inherit = ['mail.thread', 'mail.tracking.duration.mixin']
+
+    name = fields.Char()
+    customer_id = fields.Many2one('res.partner', 'Customer', tracking=True)
+
+    def _mail_get_partner_fields(self, introspect_fields=False):
+        return ['customer_id']
+
+
+class MailTestPublicThread(models.Model):
+    """A model inheriting from mail.thread with public read and write access
+    to test some public and guest interactions."""
+
+    _description = "Portal Public Thread"
+    _name = "mail.test.public"
+    _inherit = ["mail.thread"]
+
+    name = fields.Char("Name")
+
+```
+
+## File: models\test_mail_thread_models.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import api, fields, models
+
+
+class MailTestCC(models.Model):
+    _name = 'mail.test.cc'
+    _description = "Test Email CC Thread"
+    _inherit = ['mail.thread.cc']
+
+    name = fields.Char()
+
+```
+
+## File: models\__init__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from . import mail_test_access
+from . import mail_test_lead
+from . import test_mail_corner_case_models
+from . import test_mail_feature_models
+from . import test_mail_models
+from . import test_mail_thread_models
+
+```
+
+## File: security\ir.model.access.csv
+
+```csv
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mail_performance_thread,access_mail_performance_thread,model_mail_performance_thread,base.group_user,1,1,1,1
+access_mail_performance_tracking_user,mail.performance.tracking,model_mail_performance_tracking,base.group_user,1,1,1,1
+access_mail_test_access_portal,mail.access.portal.portal,model_mail_test_access,base.group_portal,1,1,0,0
+access_mail_test_access_public,mail.access.portal.public,model_mail_test_access,base.group_public,1,0,0,0
+access_mail_test_access_user,mail.access.portal.user,model_mail_test_access,base.group_user,1,1,1,1
+access_mail_test_access_custo_portal,mail.access.portal.portal,model_mail_test_access_custo,base.group_portal,1,0,0,0
+access_mail_test_access_custo_user,mail.access.portal.user,model_mail_test_access_custo,base.group_user,1,1,1,1
+access_mail_test_alias_optional_portal,mail.test.alias.optional.portal,model_mail_test_alias_optional,base.group_portal,1,0,0,0
+access_mail_test_alias_optional_user,mail.test.alias.optional.user,model_mail_test_alias_optional,base.group_user,1,1,1,1
+access_mail_test_simple_portal,mail.test.simple.portal,model_mail_test_simple,base.group_portal,1,0,0,0
+access_mail_test_simple_user,mail.test.simple.user,model_mail_test_simple,base.group_user,1,1,1,1
+access_mail_test_simple_unnamed_portal,mail.test.simple.unnamed.portal,model_mail_test_simple_unnamed,base.group_portal,1,0,0,0
+access_mail_test_simple_unnamed_user,mail.test.simple.unnamed.user,model_mail_test_simple_unnamed,base.group_user,1,1,1,1
+access_mail_test_simple_unfollow_portal,mail.test.simple.unfollow.portal,model_mail_test_simple_unfollow,base.group_portal,0,0,0,0
+access_mail_test_simple_unfollow_user,mail.test.simple.unfollow.user,model_mail_test_simple_unfollow,base.group_user,1,1,1,1
+access_mail_test_simple_main_attachment_portal,mail.test.simple.main.attachment.portal,model_mail_test_simple_main_attachment,base.group_portal,1,0,0,0
+access_mail_test_simple_main_attachment_user,mail.test.simple.main.attachment.user,model_mail_test_simple_main_attachment,base.group_user,1,1,1,1
+access_mail_test_gateway_portal,mail.test.gateway.portal,model_mail_test_gateway,base.group_portal,1,0,0,0
+access_mail_test_gateway_user,mail.test.gateway.user,model_mail_test_gateway,base.group_user,1,1,1,1
+access_mail_test_gateway_company_user,mail.test.gateway.company.user,model_mail_test_gateway_company,base.group_user,1,1,1,1
+access_mail_test_gateway_main_attachment_user,mail.test.gateway.main.attachment.user,model_mail_test_gateway_main_attachment,base.group_user,1,1,1,1
+access_mail_test_gateway_groups_portal,mail.test.gateway.groups.portal,model_mail_test_gateway_groups,base.group_portal,1,0,0,0
+access_mail_test_gateway_groups_user,mail.test.gateway.groups.user,model_mail_test_gateway_groups,base.group_user,1,1,1,1
+access_mail_test_track_portal,mail.test.track.portal,model_mail_test_track,base.group_portal,0,0,0,0
+access_mail_test_track_user,mail.test.track.user.employee,model_mail_test_track,base.group_user,1,1,1,1
+access_mail_test_activity_portal,mail.test.activity.portal,model_mail_test_activity,base.group_portal,1,0,0,0
+access_mail_test_activity_user,mail.test.activity.user,model_mail_test_activity,base.group_user,1,1,1,1
+access_mail_test_field_type_portal,mail.test.field.type.portal,model_mail_test_field_type,base.group_portal,0,0,0,0
+access_mail_test_field_type_user,mail.test.field.type.user,model_mail_test_field_type,base.group_user,1,1,1,1
+access_mail_test_lead_user,mail.test.lead.user,model_mail_test_lead,base.group_user,1,1,1,1
+access_mail_test_ticket_portal,mail.test.ticket.portal,model_mail_test_ticket,base.group_portal,1,0,0,0
+access_mail_test_ticket_user,mail.test.ticket.user,model_mail_test_ticket,base.group_user,1,1,1,1
+access_mail_test_ticket_el_portal,mail.test.ticket.el.portal,model_mail_test_ticket_el,base.group_portal,1,0,0,0
+access_mail_test_ticket_el_user,mail.test.ticket.el.user,model_mail_test_ticket_el,base.group_user,1,1,1,1
+access_mail_test_ticket_mc_portal,mail.test.ticket.mc.portal,model_mail_test_ticket_mc,base.group_portal,1,0,0,0
+access_mail_test_ticket_mc_user,mail.test.ticket.mc.user,model_mail_test_ticket_mc,base.group_user,1,1,1,1
+access_mail_test_composer_mixin_all,mail.test.composer.mixin.all,model_mail_test_composer_mixin,,0,0,0,0
+access_mail_test_composer_mixin_user,mail.test.composer.mixin.user,model_mail_test_composer_mixin,base.group_user,1,1,1,1
+access_mail_test_composer_source_all,mail.test.composer.source.all,model_mail_test_composer_source,base.group_user,1,0,0,0
+access_mail_test_composer_source_user,mail.test.composer.source.user,model_mail_test_composer_source,base.group_user,1,1,1,1
+access_mail_test_container_portal,mail.test.container_portal,model_mail_test_container,base.group_portal,1,0,0,0
+access_mail_test_container_user,mail.test.container.user,model_mail_test_container,base.group_user,1,1,1,1
+access_mail_test_container_mc_portal,mail.test.container.mc.portal,model_mail_test_container_mc,base.group_portal,1,0,0,0
+access_mail_test_container_mc_user,mail.test.container.mc.user,model_mail_test_container_mc,base.group_user,1,1,1,1
+access_mail_test_cc_portal,mail.test.cc.portal,model_mail_test_cc,base.group_portal,1,0,0,0
+access_mail_test_cc_user,mail.test.cc.user,model_mail_test_cc,base.group_user,1,1,1,1
+access_mail_test_lang_portal,mail.test.lang.portal,model_mail_test_lang,base.group_portal,1,0,0,0
+access_mail_test_lang_user,mail.test.lang.user,model_mail_test_lang,base.group_user,1,1,1,1
+access_mail_test_multi_company_user,mail.test.multi.company.user,model_mail_test_multi_company,base.group_user,1,1,1,1
+access_mail_test_multi_company_portal,mail.test.multi.company.portal,model_mail_test_multi_company,base.group_portal,1,0,0,0
+access_mail_test_multi_company_read_user,mail.test.multi.company.read.user,model_mail_test_multi_company_read,base.group_user,1,1,1,1
+access_mail_test_multi_company_read_portal,mail.test.multi.company.read.portal,model_mail_test_multi_company_read,base.group_portal,1,0,0,0
+access_mail_test_multi_company_with_activity_user,mail.test.multi.company.with.activity.user,model_mail_test_multi_company_with_activity,base.group_user,1,1,1,1
+access_mail_test_multi_company_with_activity_portal,mail.test.multi.company.with.activity.portal,model_mail_test_multi_company_with_activity,base.group_portal,1,0,0,0
+access_mail_test_nothread_user,mail.test.nothread.user,model_mail_test_nothread,base.group_user,1,1,1,1
+access_mail_test_nothread_portal,mail.test.nothread.portal,model_mail_test_nothread,base.group_portal,1,0,0,0
+access_mail_test_track_all,mail.test.track.all,model_mail_test_track_all,base.group_user,1,1,1,1
+access_mail_test_track_all_m2m,mail.test.track.all.m2m,model_mail_test_track_all_m2m,base.group_user,1,1,1,1
+access_mail_test_track_all_o2m,mail.test.track.all.o2m,model_mail_test_track_all_o2m,base.group_user,1,1,1,1
+access_mail_test_track_compute,mail.test.track.compute,model_mail_test_track_compute,base.group_user,1,1,1,1
+access_mail_test_track_groups,mail.test.track.groups,model_mail_test_track_groups,base.group_user,1,1,1,1
+access_mail_test_track_monetary,mail.test.track.monetary,model_mail_test_track_monetary,base.group_user,1,1,1,1
+access_mail_test_track_selection_portal,mail.test.track.selection.portal,model_mail_test_track_selection,base.group_portal,0,0,0,0
+access_mail_test_track_selection_user,mail.test.track.selection.user,model_mail_test_track_selection,base.group_user,1,1,1,1
+access_mail_test_properties_user,mail.test.properties.user,model_mail_test_properties,base.group_user,1,1,1,1
+access_mail_test_mail_tracking_duration,mail.test.mail.tracking.duration,model_mail_test_mail_tracking_duration,base.group_user,1,1,1,1
+access_mail_test_public_user,mail.test.public.user,model_mail_test_public,base.group_user,1,1,1,1
+access_mail_test_public_public,mail.test.public.public,model_mail_test_public,base.group_public,1,1,0,0
+
+```
+
+## File: security\test_mail_security.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="ir_rule_mail_test_access_public" model="ir.rule">
+        <field name="name">Public: public only</field>
+        <field name="model_id" ref="test_mail.model_mail_test_access"/>
+        <field name="domain_force">[('access', '=', 'public')]</field>
+        <field name="groups" eval="[(4, ref('base.group_public'))]"/>
+    </record>
+    <record id="ir_rule_mail_test_access_portal" model="ir.rule">
+        <field name="name">Portal: public/logged/logged readonly only</field>
+        <field name="model_id" ref="test_mail.model_mail_test_access"/>
+        <field name="domain_force">[
+            '|', ('access', 'in', ('public', 'logged', 'logged_ro')),
+            '&amp;', ('access', '=', 'followers'), ('message_partner_ids', 'in', [user.partner_id.id])]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    <record id="ir_rule_mail_test_access_portal_update" model="ir.rule">
+        <field name="name">Portal: update logged only</field>
+        <field name="model_id" ref="test_mail.model_mail_test_access"/>
+        <field name="domain_force">[
+            '|', ('access', '=', 'logged'),
+            '&amp;', ('access', '=', 'followers'), ('message_partner_ids', 'in', [user.partner_id.id])]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_write" eval="True"/>
+    </record>
+    <record id="ir_rule_mail_test_access_internal" model="ir.rule">
+        <field name="name">Internal: read not admin</field>
+        <field name="model_id" ref="test_mail.model_mail_test_access"/>
+        <field name="domain_force">[('access', '!=', 'admin')]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    <record id="ir_rule_mail_test_access_internal_update" model="ir.rule">
+        <field name="name">Internal: update not admin and not readonly</field>
+        <field name="model_id" ref="test_mail.model_mail_test_access"/>
+        <field name="domain_force">[('access', 'not in', ('internal_ro', 'admin'))]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    <record id="ir_rule_mail_test_access_admin" model="ir.rule">
+        <field name="name">Admin: all</field>
+        <field name="model_id" ref="test_mail.model_mail_test_access"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+    </record>
+
+
+    <record id="mail_test_multi_company_rule" model="ir.rule">
+        <field name="name">Mail Test Multi Company</field>
+        <field name="model_id" ref="test_mail.model_mail_test_multi_company"/>
+        <field eval="True" name="global"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="mail_test_multi_company_rule" model="ir.rule">
+        <field name="name">Mail Test Multi Company</field>
+        <field name="model_id" ref="test_mail.model_mail_test_multi_company"/>
+        <field eval="True" name="global"/>
+        <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+    </record>
+
+    <record id="mail_test_multi_company_read_rule" model="ir.rule">
+        <field name="name">MC Readonly Rule</field>
+        <field name="model_id" ref="test_mail.model_mail_test_multi_company_read"/>
+        <field name="perm_read" eval="False"/>
+        <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+        <field name="global" eval="True"/>
+    </record>
+
+    <record id="mail_test_multi_company_with_activity_rule" model="ir.rule">
+        <field name="name">Mail Test Multi Company With Activity</field>
+        <field name="model_id" ref="test_mail.model_mail_test_multi_company_with_activity"/>
+        <field eval="True" name="global"/>
+        <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+    </record>
+
+    <!-- TICKET-LIKE -->
+    <record id="mail_test_ticket_rule_portal" model="ir.rule">
+        <field name="name">Portal Mail Test Ticket</field>
+        <field name="model_id" ref="test_mail.model_mail_test_ticket"/>
+        <field name="domain_force">[('message_partner_ids', 'in', [user.partner_id.id])]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+    </record>
+
+    <!-- MULTI COMPANY TICKET LIKE -->
+    <record id="mail_test_ticket_mc_rule" model="ir.rule">
+        <field name="name">Mail Test Ticket Multi Company</field>
+        <field name="model_id" ref="test_mail.model_mail_test_ticket_mc"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+    </record>
+    <record id="mail_test_ticket_mc_rule_portal" model="ir.rule">
+        <field name="name">Portal Mail Test Ticket Multi Company</field>
+        <field name="model_id" ref="test_mail.model_mail_test_ticket_mc"/>
+        <field name="domain_force">[('message_partner_ids', 'in', [user.partner_id.id])]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+    </record>
+
+    <!-- PROJECT-LIKE -->
+    <record id="mail_test_container_rule_portal" model="ir.rule">
+        <field name="name">Portal Mail Test Container</field>
+        <field name="model_id" ref="test_mail.model_mail_test_container"/>
+        <field name="domain_force">[('message_partner_ids', 'in', [user.partner_id.id])]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+    </record>
+
+    <!-- MULTI COMPANY PROJECT LIKE -->
+    <record id="mail_test_container_mc_rule" model="ir.rule">
+        <field name="name">Mail Test Container Multi Company</field>
+        <field name="model_id" ref="test_mail.model_mail_test_container_mc"/>
+        <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+        <field name="global" eval="True"/>
+    </record>
+    <record id="mail_test_container_mc_rule_portal" model="ir.rule">
+        <field name="name">Portal Mail Test Container Multi Company</field>
+        <field name="model_id" ref="test_mail.model_mail_test_container_mc"/>
+        <field name="domain_force">[('message_partner_ids', 'in', [user.partner_id.id])]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+    </record>
+
+</odoo>
+
+```
+

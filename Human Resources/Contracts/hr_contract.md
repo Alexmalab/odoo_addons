@@ -1,0 +1,2495 @@
+# Odoo Module: hr_contract
+
+Category: Human Resources/Contracts
+
+This file contains the source code of the Odoo module.
+
+## File: __init__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from . import models
+from . import report
+from . import wizard
+
+```
+
+## File: __manifest__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+{
+    'name': 'Employee Contracts',
+    'version': '1.0',
+    'category': 'Human Resources/Contracts',
+    'sequence': 335,
+    'description': """
+Add all information on the employee form to manage contracts.
+=============================================================
+
+    * Contract
+    * Place of Birth,
+    * Medical Examination Date
+    * Company Vehicle
+
+You can assign several contracts per employee.
+    """,
+    'website': 'https://www.odoo.com/app/employees',
+    'depends': ['hr'],
+    'data': [
+        'security/security.xml',
+        'security/ir.model.access.csv',
+        'data/hr_contract_data.xml',
+        'report/hr_contract_history_report_views.xml',
+        'views/hr_contract_views.xml',
+        'views/hr_employee_views.xml',
+        'views/resource_calendar_views.xml',
+        'views/res_config_settings_views.xml',
+        'wizard/hr_departure_wizard_views.xml',
+    ],
+    'demo': ['data/hr_contract_demo.xml'],
+    'installable': True,
+    'application': True,
+    'assets': {
+        'web.assets_backend': [
+            'hr_contract/static/src/**/*',
+        ],
+    },
+    'license': 'LGPL-3',
+}
+
+```
+
+## File: data\hr_contract_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Structure Type -->
+        <record id="structure_type_employee" model="hr.payroll.structure.type">
+            <field name="name">Employee</field>
+            <field name="country_id" eval="False"/>
+        </record>
+        <record id="structure_type_worker" model="hr.payroll.structure.type">
+            <field name="name">Worker</field>
+            <field name="country_id" eval="False"/>
+        </record>
+
+        <record id="structure_type_employee_cp200_pfi" model="hr.payroll.structure.type">
+            <field name="name">CP200 PFI: Belgian Employee</field>
+            <field name="default_resource_calendar_id" ref="resource.resource_calendar_std"/>
+            <field name="country_id" ref="base.be"/>
+        </record>
+        <record id="structure_type_employee_cp200" model="hr.payroll.structure.type">
+            <field name="name">CP200: Belgian Employee</field>
+            <field name="default_resource_calendar_id" ref="resource.resource_calendar_std"/>
+            <field name="country_id" ref="base.be"/>
+        </record>
+
+        <!-- Contract-related subtypes for messaging / Chatter -->
+        <record id="mt_contract_pending" model="mail.message.subtype">
+            <field name="name">To Renew</field>
+            <field name="res_model">hr.contract</field>
+            <field name="default" eval="True"/>
+            <field name="description">Contract about to expire</field>
+        </record>
+        <record id="mt_contract_close" model="mail.message.subtype">
+            <field name="name">Expired</field>
+            <field name="res_model">hr.contract</field>
+            <field name="default" eval="False"/>
+            <field name="description">Contract expired</field>
+        </record>
+        <!-- Department-related (parent) subtypes for messaging / Chatter -->
+        <record id="mt_department_contract_pending" model="mail.message.subtype">
+            <field name="name">Contract to Renew</field>
+            <field name="res_model">hr.department</field>
+            <field name="default" eval="False"/>
+            <field name="parent_id" ref="mt_contract_pending"/>
+            <field name="relation_field">department_id</field>
+            <field name="description">Contract about to expire</field>
+        </record>
+
+        <!-- Expired Soon -->
+        <record id="ir_cron_data_contract_update_state" model="ir.cron">
+            <field name="name">HR Contract: update state</field>
+            <field name="model_id" ref="model_hr_contract"/>
+            <field name="state">code</field>
+            <field name="code">model.with_context(from_cron=True).update_state()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+        </record>
+    </data>
+</odoo>
+
+```
+
+## File: data\hr_contract_demo.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="structure_type_employee_cp200_pfi" model="hr.payroll.structure.type">
+        <field name="default_resource_calendar_id" ref="resource.resource_calendar_std_38h"/>
+    </record>
+
+    <record id="structure_type_employee_cp200" model="hr.payroll.structure.type">
+        <field name="default_resource_calendar_id" ref="resource.resource_calendar_std_38h"/>
+    </record>
+
+    <data noupdate="1">
+        <record id="base.user_demo" model="res.users">
+            <field name="groups_id" eval="[
+                (3, ref('hr_contract.group_hr_contract_manager')),
+                (3, ref('hr_contract.group_hr_contract_employee_manager'))]"/>
+        </record>
+    </data>
+
+    <record id="hr_contract_admin" model="hr.contract">
+        <field name="name">Mitchell Admin Contract</field>
+        <field name="date_start" eval="time.strftime('%Y')+'-1-1'"/>
+        <field name="date_end" eval="time.strftime('%Y-%m-15')"/>
+        <field name="employee_id" ref="hr.employee_admin"/>
+        <field name="job_id" model="hr.job"
+            eval="obj().env.ref('hr.employee_admin').job_id.id"/>
+        <field name="department_id" model="hr.department"
+            eval="obj().env.ref('hr.employee_admin').department_id.id"/>
+        <field eval="7540.0" name="wage"/>
+        <field name="state">close</field>
+        <field name="kanban_state">normal</field>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std_38h"/>
+        <field name="hr_responsible_id" ref="base.user_admin"/>
+    </record>
+
+    <record id="hr_contract_admin_new" model="hr.contract">
+        <field name="name">Contract For Mitchell Admin</field>
+        <field name="date_start" eval="time.strftime('%Y-%m-16')"/>
+        <field name="date_end" eval="time.strftime('%Y')+'-12-31'"/>
+        <field name="structure_type_id" ref="hr_contract.structure_type_employee"/>
+        <field name="employee_id" ref="hr.employee_admin"/>
+        <field name="notes">This is Mitchell Admin's contract</field>
+        <field eval="5500.0" name="wage"/>
+        <field name="state">open</field>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="hr_responsible_id" ref="base.user_admin"/>
+    </record>
+
+    <record id="hr_contract_al" model="hr.contract">
+        <field name="name">Ronnie Hart Contract</field>
+        <field name="date_start" eval="time.strftime('%Y')+'-1-1'"/>
+        <field name="employee_id" ref="hr.employee_al"/>
+        <field name="job_id" model="hr.job"
+            eval="obj().env.ref('hr.employee_al').job_id.id"/>
+        <field name="department_id" model="hr.department"
+            eval="obj().env.ref('hr.employee_al').department_id.id"/>
+        <field eval="4000.0" name="wage"/>
+        <field name="state">open</field>
+        <field name="kanban_state">normal</field>
+        <field name="hr_responsible_id" ref="base.user_admin"/>
+    </record>
+
+    <record id="hr_contract_mit" model="hr.contract">
+        <field name="name">R&amp;D Dev Contract</field>
+        <field name="date_start" eval="time.strftime('%Y')+'-3-1'"/>
+        <field name="employee_id" ref="hr.employee_mit"/>
+        <field name="job_id" model="hr.job"
+            eval="obj().env.ref('hr.employee_mit').job_id.id"/>
+        <field name="department_id" model="hr.department"
+            eval="obj().env.ref('hr.employee_mit').department_id.id"/>
+        <field eval="4500.0" name="wage"/>
+        <field name="state">open</field>
+        <field name="kanban_state">normal</field>
+        <field name="hr_responsible_id" ref="base.user_admin"/>
+    </record>
+
+    <record id="hr_contract_stw" model="hr.contract">
+        <field name="name">Randall Lewis Contract</field>
+        <field name="date_start" eval="time.strftime('%Y')+'-2-1'"/>
+        <field name="date_end" eval="time.strftime('%Y')+'-12-1'"/>
+        <field name="employee_id" ref="hr.employee_stw"/>
+        <field name="job_id" model="hr.job"
+            eval="obj().env.ref('hr.employee_stw').job_id.id"/>
+        <field name="department_id" model="hr.department"
+            eval="obj().env.ref('hr.employee_stw').department_id.id"/>
+        <field eval="4500.0" name="wage"/>
+        <field name="state">open</field>
+        <field name="kanban_state">normal</field>
+        <field name="hr_responsible_id" ref="base.user_admin"/>
+    </record>
+
+    <record id="hr_contract_qdp" model="hr.contract">
+        <field name="name">Demo Contract</field>
+        <field name="date_start" eval="(DateTime.today() + relativedelta(years=-1, month=9))"/>
+        <field name="employee_id" ref="hr.employee_qdp"/>
+        <field name="job_id" model="hr.job"
+            eval="obj().env.ref('hr.employee_qdp').job_id.id"/>
+        <field name="department_id" model="hr.department"
+            eval="obj().env.ref('hr.employee_qdp').department_id.id"/>
+        <field eval="3750.0" name="wage"/>
+        <field name="state">draft</field>
+        <field name="kanban_state">normal</field>
+        <field name="hr_responsible_id" ref="base.user_admin"/>
+    </record>
+
+    <record id="hr.employee_qdp" model="hr.employee">
+        <field name="contract_id" ref="hr_contract.hr_contract_qdp"/>
+    </record>
+
+    <record id="hr_contract_han" model="hr.contract">
+        <field name="name">Walter Horton Contract</field>
+        <field name="date_start" eval="time.strftime('%Y')+'-3-1'"/>
+        <field name="employee_id" ref="hr.employee_han"/>
+        <field name="job_id" model="hr.job"
+            eval="obj().env.ref('hr.employee_han').job_id.id"/>
+        <field name="department_id" model="hr.department"
+            eval="obj().env.ref('hr.employee_han').department_id.id"/>
+        <field eval="4600.0" name="wage"/>
+        <field name="state">open</field>
+        <field name="kanban_state">normal</field>
+        <field name="hr_responsible_id" ref="base.user_admin"/>
+    </record>
+
+    <record id="hr_contract_niv" model="hr.contract">
+        <field name="name">Sharlene Rhodes Contract</field>
+        <field name="date_start" eval="(DateTime.today() - relativedelta(months=2)).strftime('%Y-%m')+'-1'"/>
+        <field name="date_end" eval="time.strftime('%Y')+'-12-1'"/>
+        <field name="employee_id" ref="hr.employee_niv"/>
+        <field name="job_id" model="hr.job"
+            eval="obj().env.ref('hr.employee_niv').job_id.id"/>
+        <field name="department_id" model="hr.department"
+            eval="obj().env.ref('hr.employee_niv').department_id.id"/>
+        <field eval="4000.0" name="wage"/>
+        <field name="state">draft</field>
+        <field name="kanban_state">normal</field>
+        <field name="hr_responsible_id" ref="base.user_admin"/>
+    </record>
+
+    <record id="hr_contract_jth" model="hr.contract">
+        <field name="name">Toni Jimenez</field>
+        <field name="date_start" eval="(DateTime.today() - relativedelta(months=2)).strftime('%Y-%m')+'-1'"/>
+        <field name="date_end" eval="time.strftime('%Y')+'-12-1'"/>
+        <field name="employee_id" ref="hr.employee_jth"/>
+        <field name="job_id" model="hr.job"
+            eval="obj().env.ref('hr.employee_jth').job_id.id"/>
+        <field name="department_id" model="hr.department"
+            eval="obj().env.ref('hr.employee_jth').department_id.id"/>
+        <field eval="4200.0" name="wage"/>
+        <field name="state">draft</field>
+        <field name="kanban_state">normal</field>
+        <field name="hr_responsible_id" ref="base.user_admin"/>
+    </record>
+
+    <record id="hr_contract_chs" model="hr.contract">
+        <field name="name">Jennie Fletcher Contract</field>
+        <field name="date_start" eval="(DateTime.today() - relativedelta(months=2)).strftime('%Y-%m')+'-1'"/>
+        <field name="employee_id" ref="hr.employee_chs"/>
+        <field name="job_id" model="hr.job"
+            eval="obj().env.ref('hr.employee_chs').job_id.id"/>
+        <field name="department_id" model="hr.department"
+            eval="obj().env.ref('hr.employee_chs').department_id.id"/>
+        <field eval="3750.0" name="wage"/>
+        <field name="state">cancel</field>
+        <field name="kanban_state">normal</field>
+        <field name="hr_responsible_id" ref="base.user_admin"/>
+    </record>
+
+    <record id="hr_contract_jve" model="hr.contract">
+        <field name="name">Paul Williams Contract</field>
+        <field name="date_start" eval="(DateTime.today() - relativedelta(months=2)).strftime('%Y-%m')+'-1'"/>
+        <field name="employee_id" ref="hr.employee_jve"/>
+        <field name="job_id" model="hr.job"
+            eval="obj().env.ref('hr.employee_jve').job_id.id"/>
+        <field name="department_id" model="hr.department"
+            eval="obj().env.ref('hr.employee_jve').department_id.id"/>
+        <field eval="3950.0" name="wage"/>
+        <field name="state">cancel</field>
+        <field name="kanban_state">normal</field>
+        <field name="hr_responsible_id" ref="base.user_admin"/>
+    </record>
+
+    <record id="hr_contract_fme" model="hr.contract">
+        <field name="name">Keith Byrd Contract</field>
+        <field name="date_start" eval="'2015-1-1'"/>
+        <field name="date_end" eval="time.strftime('%Y-%m-%d')"/>
+        <field name="employee_id" ref="hr.employee_fme"/>
+        <field name="job_id" model="hr.job"
+            eval="obj().env.ref('hr.employee_fme').job_id.id"/>
+        <field name="department_id" model="hr.department"
+            eval="obj().env.ref('hr.employee_fme').department_id.id"/>
+        <field eval="3650.0" name="wage"/>
+        <field name="state">open</field>
+        <field name="kanban_state">blocked</field>
+        <field name="hr_responsible_id" ref="base.user_admin"/>
+    </record>
+
+    <record id="hr_contract_fpi_previous" model="hr.contract">
+        <field name="name">Audrey Peterson Contract</field>
+        <field name="date_start" eval="'2014-1-1'"/>
+        <field name="date_end" eval="'2014-12-31'"/>
+        <field name="employee_id" ref="hr.employee_fpi"/>
+        <field name="job_id" model="hr.job"
+            eval="obj().env.ref('hr.employee_fpi').job_id.id"/>
+        <field name="department_id" model="hr.department"
+            eval="obj().env.ref('hr.employee_fpi').department_id.id"/>
+        <field eval="3700.0" name="wage"/>
+        <field name="state">close</field>
+        <field name="kanban_state">normal</field>
+        <field name="hr_responsible_id" ref="base.user_admin"/>
+    </record>
+
+    <record id="hr_contract_fpi" model="hr.contract">
+        <field name="name">Audrey Peterson Contract</field>
+        <field name="date_start" eval="'2015-1-1'"/>
+        <field name="date_end" eval="'2017-12-1'"/>
+        <field name="employee_id" ref="hr.employee_fpi"/>
+        <field name="job_id" model="hr.job"
+            eval="obj().env.ref('hr.employee_fpi').job_id.id"/>
+        <field name="department_id" model="hr.department"
+            eval="obj().env.ref('hr.employee_fpi').department_id.id"/>
+        <field eval="3750.0" name="wage"/>
+        <field name="state">close</field>
+        <field name="kanban_state">normal</field>
+        <field name="hr_responsible_id" ref="base.user_admin"/>
+    </record>
+
+    <record id="hr_contract_vad" model="hr.contract">
+        <field name="name">Tina Williamson Contract</field>
+        <field name="date_start" eval="'2015-1-1'"/>
+        <field name="date_end" eval="'2018-2-1'"/>
+        <field name="employee_id" ref="hr.employee_vad"/>
+        <field name="job_id" model="hr.job"
+            eval="obj().env.ref('hr.employee_vad').job_id.id"/>
+        <field name="department_id" model="hr.department"
+            eval="obj().env.ref('hr.employee_vad').department_id.id"/>
+        <field eval="3750.0" name="wage"/>
+        <field name="state">close</field>
+        <field name="kanban_state">normal</field>
+        <field name="hr_responsible_id" ref="base.user_admin"/>
+    </record>
+
+</odoo>
+
+```
+
+## File: models\hr_contract.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+import threading
+
+from datetime import date
+from dateutil.relativedelta import relativedelta
+
+from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
+
+from odoo.osv import expression
+
+import logging
+_logger = logging.getLogger(__name__)
+
+
+class Contract(models.Model):
+    _name = 'hr.contract'
+    _description = 'Contract'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _mail_post_access = 'read'
+
+    name = fields.Char('Contract Reference', required=True)
+    active = fields.Boolean(default=True)
+    structure_type_id = fields.Many2one('hr.payroll.structure.type', string="Salary Structure Type", compute="_compute_structure_type_id", readonly=False, store=True, tracking=True)
+    employee_id = fields.Many2one('hr.employee', string='Employee', tracking=True, domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]", index=True)
+    active_employee = fields.Boolean(related="employee_id.active", string="Active Employee")
+    department_id = fields.Many2one('hr.department', compute='_compute_employee_contract', store=True, readonly=False,
+        domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]", string="Department")
+    job_id = fields.Many2one('hr.job', compute='_compute_employee_contract', store=True, readonly=False,
+        domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]", string='Job Position')
+    date_start = fields.Date('Start Date', required=True, default=fields.Date.today, tracking=True, index=True)
+    date_end = fields.Date('End Date', tracking=True,
+        help="End date of the contract (if it's a fixed-term contract).")
+    trial_date_end = fields.Date('End of Trial Period',
+        help="End date of the trial period (if there is one).")
+    resource_calendar_id = fields.Many2one(
+        'resource.calendar', 'Working Schedule', compute='_compute_employee_contract', store=True, readonly=False,
+        default=lambda self: self.env.company.resource_calendar_id.id, copy=False, index=True, tracking=True,
+        domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
+    wage = fields.Monetary('Wage', required=True, tracking=True, help="Employee's monthly gross wage.", aggregator="avg")
+    contract_wage = fields.Monetary('Contract Wage', compute='_compute_contract_wage')
+    notes = fields.Html('Notes')
+    state = fields.Selection([
+        ('draft', 'New'),
+        ('open', 'Running'),
+        ('close', 'Expired'),
+        ('cancel', 'Cancelled')
+    ], string='Status', group_expand=True, copy=False,
+        tracking=True, help='Status of the contract', default='draft')
+    company_id = fields.Many2one('res.company', compute='_compute_employee_contract', store=True, readonly=False,
+        default=lambda self: self.env.company, required=True)
+    company_country_id = fields.Many2one('res.country', string="Company country", related='company_id.country_id', readonly=True)
+    country_code = fields.Char(related='company_country_id.code', depends=['company_country_id'], readonly=True)
+    contract_type_id = fields.Many2one('hr.contract.type', "Contract Type", tracking=True)
+    contracts_count = fields.Integer(related='employee_id.contracts_count', groups="hr_contract.group_hr_contract_employee_manager")
+
+    """
+        kanban_state:
+            * draft + green = "Incoming" state (will be set as Open once the contract has started)
+            * open + red = "Pending" state (will be set as Closed once the contract has ended)
+            * red = Shows a warning on the employees kanban view
+    """
+    kanban_state = fields.Selection([
+        ('normal', 'Ongoing'),
+        ('done', 'Ready'),
+        ('blocked', 'Warning')
+    ], string='Kanban State', default='normal', tracking=True, copy=False)
+    currency_id = fields.Many2one(string="Currency", related='company_id.currency_id', readonly=True)
+    permit_no = fields.Char('Work Permit No', related="employee_id.permit_no", readonly=False)
+    visa_no = fields.Char('Visa No', related="employee_id.visa_no", readonly=False)
+
+    def _get_hr_responsible_domain(self):
+        return "[('share', '=', False), ('company_ids', 'in', company_id), ('groups_id', 'in', %s)]" % self.env.ref('hr.group_hr_user').id
+
+    hr_responsible_id = fields.Many2one('res.users', 'HR Responsible', tracking=True,
+        help='Person responsible for validating the employee\'s contracts.', domain=_get_hr_responsible_domain)
+    calendar_mismatch = fields.Boolean(compute='_compute_calendar_mismatch', compute_sudo=True)
+    first_contract_date = fields.Date(related='employee_id.first_contract_date')
+
+    @api.depends('employee_id.resource_calendar_id', 'resource_calendar_id')
+    def _compute_calendar_mismatch(self):
+        for contract in self:
+            contract.calendar_mismatch = contract.resource_calendar_id != contract.employee_id.resource_calendar_id
+
+    def _get_salary_costs_factor(self):
+        self.ensure_one()
+        return 12.0
+
+    @api.depends('employee_id')
+    def _compute_employee_contract(self):
+        for contract in self.filtered('employee_id'):
+            contract.job_id = contract.employee_id.job_id
+            contract.department_id = contract.employee_id.department_id
+            contract.resource_calendar_id = contract.employee_id.resource_calendar_id
+            contract.company_id = contract.employee_id.company_id
+
+    @api.depends('company_id')
+    def _compute_structure_type_id(self):
+
+        default_structure_by_country = {}
+
+        def _default_salary_structure(country_id):
+            default_structure = default_structure_by_country.get(country_id)
+            if default_structure is None:
+                default_structure = default_structure_by_country[country_id] = (
+                    self.env['hr.payroll.structure.type'].search([('country_id', '=', country_id)], limit=1)
+                    or self.env['hr.payroll.structure.type'].search([('country_id', '=', False)], limit=1)
+                )
+            return default_structure
+
+        for contract in self:
+            if not contract.structure_type_id or (contract.structure_type_id.country_id and contract.structure_type_id.country_id != contract.company_id.country_id):
+                contract.structure_type_id = _default_salary_structure(contract.company_id.country_id.id)
+
+    @api.onchange('structure_type_id')
+    def _onchange_structure_type_id(self):
+        default_calendar = self.structure_type_id.default_resource_calendar_id
+        if default_calendar and default_calendar.company_id == self.company_id:
+            # If the form was opened from the action_open_contract action,
+            # suggest current employee's calendar for the new contract instead of the default_calendar.
+            if self.env.context.get('from_action_open_contract'):
+                return
+            self.resource_calendar_id = default_calendar
+
+    @api.constrains('employee_id', 'state', 'kanban_state', 'date_start', 'date_end')
+    def _check_current_contract(self):
+        """ Two contracts in state [incoming | open | close] cannot overlap """
+        for contract in self.filtered(lambda c: (c.state not in ['draft', 'cancel'] or c.state == 'draft' and c.kanban_state == 'done') and c.employee_id):
+            domain = [
+                ('id', '!=', contract.id),
+                ('employee_id', '=', contract.employee_id.id),
+                ('company_id', '=', contract.company_id.id),
+                '|',
+                    ('state', 'in', ['open', 'close']),
+                    '&',
+                        ('state', '=', 'draft'),
+                        ('kanban_state', '=', 'done') # replaces incoming
+            ]
+
+            if not contract.date_end:
+                start_domain = []
+                end_domain = ['|', ('date_end', '>=', contract.date_start), ('date_end', '=', False)]
+            else:
+                start_domain = [('date_start', '<=', contract.date_end)]
+                end_domain = ['|', ('date_end', '>', contract.date_start), ('date_end', '=', False)]
+
+            domain = expression.AND([domain, start_domain, end_domain])
+            if self.search_count(domain):
+                raise ValidationError(
+                    _(
+                        'An employee can only have one contract at the same time. (Excluding Draft and Cancelled contracts).\n\nEmployee: %(employee_name)s',
+                        employee_name=contract.employee_id.name
+                    )
+                )
+
+    @api.constrains('date_start', 'date_end')
+    def _check_dates(self):
+        for contract in self:
+            if contract.date_end and contract.date_start > contract.date_end:
+                raise ValidationError(_(
+                    'Contract %(contract)s: start date (%(start)s) must be earlier than contract end date (%(end)s).',
+                    contract=contract.name, start=contract.date_start, end=contract.date_end,
+                ))
+
+    @api.model
+    def update_state(self):
+        from_cron = 'from_cron' in self.env.context
+        companies = self.env['res.company'].search([])
+        contracts = self.env['hr.contract']
+        work_permit_contracts = self.env['hr.contract']
+        for company in companies:
+            contracts += self.search([
+                ('state', '=', 'open'), ('kanban_state', '!=', 'blocked'), ('company_id', '=', company.id),
+                '&',
+                ('date_end', '<=', fields.date.today() + relativedelta(days=company.contract_expiration_notice_period)),
+                ('date_end', '>=', fields.date.today() + relativedelta(days=1)),
+            ])
+
+            work_permit_contracts += self.search([
+                ('state', '=', 'open'), ('kanban_state', '!=', 'blocked'), ('company_id', '=', company.id),
+                '&',
+                ('employee_id.work_permit_expiration_date', '<=', fields.date.today() + relativedelta(days=company.work_permit_expiration_notice_period)),
+                ('employee_id.work_permit_expiration_date', '>=', fields.date.today() + relativedelta(days=1)),
+            ])
+
+        for contract in contracts:
+            contract.with_context(mail_activity_quick_update=True).activity_schedule(
+                'mail.mail_activity_data_todo', contract.date_end,
+                _("The contract of %s is about to expire.", contract.employee_id.name),
+                user_id=contract.hr_responsible_id.id or self.env.uid)
+            contract.message_post(
+                body=_(
+                    "According to the contract's end date, this contract has been put in red on the %s. Please advise and correct.",
+                    fields.Date.today()
+                )
+            )
+
+        for contract in work_permit_contracts:
+            contract.with_context(mail_activity_quick_update=True).activity_schedule(
+                'mail.mail_activity_data_todo', contract.date_end,
+                _("The work permit of %s is about to expire.", contract.employee_id.name),
+                user_id=contract.hr_responsible_id.id or self.env.uid)
+            contract.message_post(
+                body=_(
+                    "According to Employee's Working Permit Expiration Date, this contract has been put in red on the %s. Please advise and correct.",
+                    fields.Date.today()
+                )
+            )
+
+        if contracts:
+            contracts._safe_write_for_cron({'kanban_state': 'blocked'}, from_cron)
+        if work_permit_contracts:
+            work_permit_contracts._safe_write_for_cron({'kanban_state': 'blocked'}, from_cron)
+
+        contracts_to_close = self.search([
+            ('state', '=', 'open'),
+            '|',
+            ('date_end', '<=', fields.Date.to_string(date.today())),
+            ('employee_id.work_permit_expiration_date', '<=', fields.Date.to_string(date.today())),
+        ])
+
+        if contracts_to_close:
+            contracts_to_close._safe_write_for_cron({'state': 'close'}, from_cron)
+
+        contracts_to_open = self.search([('state', '=', 'draft'), ('kanban_state', '=', 'done'), ('date_start', '<=', fields.Date.to_string(date.today())),])
+
+        if contracts_to_open:
+            contracts_to_open._safe_write_for_cron({'state': 'open'}, from_cron)
+
+        contract_ids = self.search([('date_end', '=', False), ('state', '=', 'close'), ('employee_id', '!=', False)])
+        # Ensure all closed contract followed by a new contract have a end date.
+        # If closed contract has no closed date, the work entries will be generated for an unlimited period.
+        for contract in contract_ids:
+            next_contract = self.search([
+                ('employee_id', '=', contract.employee_id.id),
+                ('state', 'not in', ['cancel', 'draft']),
+                ('date_start', '>', contract.date_start)
+            ], order="date_start asc", limit=1)
+            if next_contract:
+                contract._safe_write_for_cron({'date_end': next_contract.date_start - relativedelta(days=1)}, from_cron)
+                continue
+            next_contract = self.search([
+                ('employee_id', '=', contract.employee_id.id),
+                ('date_start', '>', contract.date_start)
+            ], order="date_start asc", limit=1)
+            if next_contract:
+                contract._safe_write_for_cron({'date_end': next_contract.date_start - relativedelta(days=1)}, from_cron)
+
+        return True
+
+    def _safe_write_for_cron(self, vals, from_cron=False):
+        if from_cron:
+            auto_commit = not getattr(threading.current_thread(), 'testing', False)
+            for contract in self:
+                try:
+                    with self.env.cr.savepoint():
+                        contract.write(vals)
+                except ValidationError as e:
+                    _logger.warning(e)
+                else:
+                    if auto_commit:
+                        self.env.cr.commit()
+        else:
+            self.write(vals)
+
+    def _get_employee_vals_to_update(self):
+        self.ensure_one()
+        vals = {'contract_id': self.id}
+        if self.job_id and self.job_id != self.employee_id.job_id:
+            vals['job_id'] = self.job_id.id
+        if self.department_id:
+            vals['department_id'] = self.department_id.id
+        return vals
+
+    def _assign_open_contract(self):
+        for contract in self:
+            vals = contract._get_employee_vals_to_update()
+            contract.employee_id.sudo().write(vals)
+
+    @api.depends('wage')
+    def _compute_contract_wage(self):
+        for contract in self:
+            contract.contract_wage = contract._get_contract_wage()
+
+    def _get_contract_wage(self):
+        if not self:
+            return 0
+        self.ensure_one()
+        return self[self._get_contract_wage_field()]
+
+    def _get_contract_wage_field(self):
+        self.ensure_one()
+        return 'wage'
+
+    def _is_fully_flexible(self):
+        """ return True if contract has a fully flexible working calendar """
+        self.ensure_one()
+        return not self.resource_calendar_id
+
+    def write(self, vals):
+        old_state = {c.id: c.state for c in self}
+        res = super(Contract, self).write(vals)
+        new_state = {c.id: c.state for c in self}
+        if vals.get('state') == 'open':
+            self._assign_open_contract()
+        today = fields.Date.today()
+        for contract in self:
+            if contract == contract.sudo().employee_id.contract_id \
+                and old_state[contract.id] == 'open' \
+                and new_state[contract.id] != 'open':
+                running_contract = self.env['hr.contract'].search([
+                    ('employee_id', '=', contract.employee_id.id),
+                    ('company_id', '=', contract.company_id.id),
+                    ('state', '=', 'open'),
+                ]).filtered(lambda c: c.date_start <= today and (not c.date_end or c.date_end >= today))
+                if running_contract:
+                    contract.employee_id.sudo().contract_id = running_contract[0]
+        if vals.get('state') == 'close':
+            for contract in self.filtered(lambda c: not c.date_end):
+                contract.date_end = max(date.today(), contract.date_start)
+        date_end = vals.get('date_end')
+        if self.env.context.get('close_contract', True) and date_end and fields.Date.from_string(date_end) < fields.Date.context_today(self):
+            for contract in self.filtered(lambda c: c.state == 'open'):
+                contract.state = 'close'
+
+        if 'resource_calendar_id' in vals:
+            calendar = vals['resource_calendar_id']
+            self.filtered(
+                lambda c: c.state == 'open' or (c.state == 'draft' and c.kanban_state == 'done' and c.employee_id.contracts_count == 1)
+            ).employee_id.resource_calendar_id = calendar
+
+        if 'state' in vals and 'kanban_state' not in vals:
+            self.write({'kanban_state': 'normal'})
+
+        return res
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        contracts = super().create(vals_list)
+        contracts.filtered(lambda c: c.state == 'open')._assign_open_contract()
+        open_contracts = contracts.filtered(
+            lambda c: c.state == 'open' or (c.state == 'draft' and c.kanban_state == 'done' and c.employee_id.contracts_count == 1)
+        )
+        # sync contract calendar -> calendar employee
+        for contract in open_contracts.filtered(lambda c: c.employee_id):
+            contract.employee_id.resource_calendar_id = contract.resource_calendar_id
+        return contracts
+
+    def _track_subtype(self, init_values):
+        self.ensure_one()
+        if 'state' in init_values and self.state == 'open' and 'kanban_state' in init_values and self.kanban_state == 'blocked':
+            return self.env.ref('hr_contract.mt_contract_pending')
+        elif 'state' in init_values and self.state == 'close':
+            return self.env.ref('hr_contract.mt_contract_close')
+        return super(Contract, self)._track_subtype(init_values)
+
+    def _is_struct_from_country(self, country_code):
+        self.ensure_one()
+        self_sudo = self.sudo()
+        return self_sudo.structure_type_id and self_sudo.structure_type_id.country_id.code == country_code
+
+    def action_open_contract_form(self):
+        self.ensure_one()
+        action = self.env['ir.actions.actions']._for_xml_id('hr_contract.action_hr_contract')
+        action.update({
+            'view_mode': 'form',
+            'view_id': self.env.ref('hr_contract.hr_contract_view_form').id,
+            'views': [(self.env.ref('hr_contract.hr_contract_view_form').id, 'form')],
+            'res_id': self.id,
+        })
+        return action
+
+    def action_open_contract_history(self):
+        self.ensure_one()
+        action = self.env["ir.actions.actions"]._for_xml_id('hr_contract.hr_contract_history_view_form_action')
+        action['res_id'] = self.employee_id.id
+        return action
+
+    def action_open_contract_list(self):
+        self.ensure_one()
+        action = self.env["ir.actions.actions"]._for_xml_id('hr_contract.action_hr_contract')
+        action.update({'domain': [('employee_id', '=', self.employee_id.id)],
+                      'views':  [[False, 'list'], [False, 'kanban'], [False, 'activity'], [False, 'form']],
+                       'context': {'default_employee_id': self.employee_id.id}})
+        return action
+
+```
+
+## File: models\hr_employee.py
+
+```python
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from collections import defaultdict
+from pytz import timezone, UTC
+from datetime import date, datetime, time
+from dateutil.relativedelta import relativedelta
+
+from odoo import _, api, fields, models
+from odoo.osv import expression
+from odoo.addons.resource.models.utils import Intervals
+from odoo.exceptions import UserError
+
+
+class EmployeePublic(models.Model):
+    _inherit = 'hr.employee.public'
+
+    first_contract_date = fields.Date(compute='_compute_manager_only_fields', search='_search_first_contract_date')
+
+    def _get_manager_only_fields(self):
+        return super()._get_manager_only_fields() + ['first_contract_date']
+
+    def _search_first_contract_date(self, operator, value):
+        employees = self.env['hr.employee'].sudo().search([('id', 'child_of', self.env.user.employee_id.ids), ('first_contract_date', operator, value)])
+        return [('id', 'in', employees.ids)]
+
+
+class EmployeeBase(models.AbstractModel):
+    _inherit = "hr.employee.base"
+
+    @api.model
+    def _get_new_hire_field(self):
+        return 'first_contract_date'
+
+
+class Employee(models.Model):
+    _inherit = "hr.employee"
+
+    legal_name = fields.Char(compute='_compute_legal_name', store=True, readonly=False, groups="hr.group_hr_user")
+    vehicle = fields.Char(string='Company Vehicle', groups="hr.group_hr_user")
+    contract_ids = fields.One2many('hr.contract', 'employee_id', string='Employee Contracts', groups="hr.group_hr_user")
+    contract_id = fields.Many2one(
+        'hr.contract', string='Current Contract', groups="hr.group_hr_user",
+        domain="[('company_id', '=', company_id), ('employee_id', '=', id)]", help='Current contract of the employee', copy=False)
+    calendar_mismatch = fields.Boolean(related='contract_id.calendar_mismatch', groups="base.group_system,hr.group_hr_user")
+    contracts_count = fields.Integer(compute='_compute_contracts_count', string='Contract Count', groups="hr.group_hr_user")
+    contract_warning = fields.Boolean(string='Contract Warning', store=True, compute='_compute_contract_warning', groups="hr.group_hr_user")
+    first_contract_date = fields.Date(compute='_compute_first_contract_date', groups="hr.group_hr_user", store=True)
+
+    @api.depends('name')
+    def _compute_legal_name(self):
+        for employee in self:
+            if not employee.legal_name:
+                employee.legal_name = employee.name
+
+    def _get_first_contracts(self):
+        self.ensure_one()
+        contracts = self.sudo().contract_ids.filtered(lambda c: c.state != 'cancel')
+        if self.env.context.get('before_date'):
+            contracts = contracts.filtered(lambda c: c.date_start <= self.env.context['before_date'])
+        return contracts
+
+    def _get_first_contract_date(self, no_gap=True):
+        self.ensure_one()
+
+        def remove_gap(contracts):
+            # We do not consider a gap of more than 4 days to be a same occupation
+            # contracts are considered to be ordered correctly
+            if not contracts:
+                return self.env['hr.contract']
+            if len(contracts) == 1:
+                return contracts
+            current_contract = contracts[0]
+            older_contracts = contracts[1:]
+            current_date = current_contract.date_start
+            for i, other_contract in enumerate(older_contracts):
+                # Consider current_contract.date_end being false as an error and cut the loop
+                gap = (current_date - (other_contract.date_end or date(2100, 1, 1))).days
+                current_date = other_contract.date_start
+                if gap >= 4:
+                    return older_contracts[0:i] + current_contract
+            return older_contracts + current_contract
+
+        contracts = self._get_first_contracts().sorted('date_start', reverse=True)
+        if no_gap:
+            contracts = remove_gap(contracts)
+        return min(contracts.mapped('date_start')) if contracts else False
+
+    @api.depends('contract_ids.state', 'contract_ids.date_start', 'contract_ids.active')
+    def _compute_first_contract_date(self):
+        for employee in self:
+            employee.first_contract_date = employee._get_first_contract_date()
+
+    @api.depends('contract_id', 'contract_id.state', 'contract_id.kanban_state')
+    def _compute_contract_warning(self):
+        for employee in self:
+            employee.contract_warning = not employee.contract_id or employee.contract_id.kanban_state == 'blocked' or employee.contract_id.state != 'open'
+
+    def _compute_contracts_count(self):
+        # read_group as sudo, since contract count is displayed on form view
+        contract_histories = self.env['hr.contract.history'].sudo().search([('employee_id', 'in', self.ids)])
+        for employee in self:
+            contract_history = contract_histories.filtered(lambda ch: ch.employee_id == employee)
+            employee.contracts_count = contract_history.contract_count
+
+    def _get_contracts(self, date_from, date_to, states=['open'], kanban_state=False):
+        """
+        Returns the contracts of the employee between date_from and date_to
+        """
+        state_domain = [('state', 'in', states)]
+        if kanban_state:
+            state_domain = expression.AND([state_domain, [('kanban_state', 'in', kanban_state)]])
+
+        return self.env['hr.contract'].search(
+            expression.AND([[('employee_id', 'in', self.ids)],
+            state_domain,
+            [('date_start', '<=', date_to),
+                '|',
+                    ('date_end', '=', False),
+                    ('date_end', '>=', date_from)]]))
+
+    def _get_incoming_contracts(self, date_from, date_to):
+        return self._get_contracts(date_from, date_to, states=['draft'], kanban_state=['done'])
+
+    def _get_calendars(self, date_from=None):
+        res = super()._get_calendars(date_from=date_from)
+        if not date_from:
+            return res
+        contracts = self.env['hr.contract'].sudo().search([
+            '|',
+                ('state', 'in', ['open', 'close']),
+                '&',
+                    ('state', '=', 'draft'),
+                    ('kanban_state', '=', 'done'),
+            ('employee_id', 'in', self.ids),
+            ('date_start', '<=', date_from),
+            '|',
+                ('date_end', '=', False),
+                ('date_end', '>=', date_from)
+        ])
+        contracts_by_employee = defaultdict(lambda: self.env['hr.contract'])
+        for contract in contracts:
+            contracts_by_employee[contract.employee_id] += contract
+        for employee in self:
+            employee_contracts = contracts_by_employee[employee.id]
+            if employee_contracts:
+                res[employee.id] = contracts[0].resource_calendar_id.sudo(False)
+        return res
+
+    def _get_calendar_periods(self, start, stop):
+        """
+        :param datetime start: the start of the period
+        :param datetime stop: the stop of the period
+        """
+        calendar_periods_by_employee = defaultdict(list)
+        contracts_by_employee = self.env['hr.contract'].sudo()._read_group(domain=[
+            '|',
+                ('state', 'in', ['open', 'close']),
+                '&',
+                    ('state', '=', 'draft'),
+                    ('kanban_state', '=', 'done'),
+            ('date_start', '<=', stop),
+            '|',
+                ('date_end', '=', False),
+                ('date_end', '>=', start),
+            ('employee_id', 'in', self.ids),
+        ], groupby=['employee_id'], aggregates=['id:recordset'])
+        for employee, contracts in contracts_by_employee:
+            for contract in contracts:
+                # if employee is under fully flexible contract, use timezone of the employee
+                calendar_tz = timezone(contract.resource_calendar_id.tz) if contract.resource_calendar_id else timezone(employee.resource_id.tz)
+                utc = timezone('UTC')
+                date_start = datetime.combine(
+                    contract.date_start,
+                    time(0, 0, 0)
+                ).replace(tzinfo=calendar_tz).astimezone(utc)
+                if contract.date_end:
+                    date_end = datetime.combine(
+                        contract.date_end + relativedelta(days=1),
+                        time(0, 0, 0)
+                    ).replace(tzinfo=calendar_tz).astimezone(utc)
+                else:
+                    date_end = stop
+                calendar_periods_by_employee[employee].append(
+                    (max(date_start, start), min(date_end, stop), contract.resource_calendar_id)
+                )
+        return calendar_periods_by_employee
+
+    @api.model
+    def _get_all_contracts(self, date_from, date_to, states=['open']):
+        """
+        Returns the contracts of all employees between date_from and date_to
+        """
+        return self.search(['|', ('active', '=', True), ('active', '=', False)])._get_contracts(date_from, date_to, states=states)
+
+    def _get_unusual_days(self, date_from, date_to=None):
+        employee_contracts = self.env['hr.contract'].sudo().search([
+            ('state', '!=', 'cancel'),
+            ('employee_id', '=', self.id),
+            ('date_start', '<=', date_to),
+            '|',
+            ('date_end', '=', False),
+            ('date_end', '>=', date_from),
+        ])
+        if not employee_contracts:
+            return super()._get_unusual_days(date_from, date_to)
+        unusual_days = {}
+        date_from_date = datetime.strptime(date_from, '%Y-%m-%d %H:%M:%S').date()
+        date_to_date = datetime.strptime(date_to, '%Y-%m-%d %H:%M:%S').date() if date_to else None
+        for contract in employee_contracts:
+            tmp_date_from = max(date_from_date, contract.date_start)
+            tmp_date_to = min(date_to_date, contract.date_end) if contract.date_end else date_to_date
+            unusual_days.update(contract.resource_calendar_id.sudo(False)._get_unusual_days(
+                datetime.combine(fields.Date.from_string(tmp_date_from), time.min).replace(tzinfo=UTC),
+                datetime.combine(fields.Date.from_string(tmp_date_to), time.max).replace(tzinfo=UTC),
+                self.company_id,
+            ))
+        return unusual_days
+
+    def _employee_attendance_intervals(self, start, stop, lunch=False):
+        self.ensure_one()
+        if not lunch:
+            return self._get_expected_attendances(start, stop)
+        else:
+            valid_contracts = self.sudo()._get_contracts(start, stop, states=['open', 'close'])
+            if not valid_contracts:
+                return super()._employee_attendance_intervals(start, stop, lunch)
+            employee_tz = timezone(self.tz) if self.tz else None
+            duration_data = Intervals()
+            for contract in valid_contracts:
+                contract_start = datetime.combine(contract.date_start, time.min, employee_tz)
+                contract_end = datetime.combine(contract.date_end or date.max, time.max, employee_tz)
+                calendar = contract.resource_calendar_id or contract.company_id.resource_calendar_id
+                lunch_intervals = calendar._attendance_intervals_batch(
+                    max(start, contract_start),
+                    min(stop, contract_end),
+                    resources=self.resource_id,
+                    lunch=True)[self.resource_id.id]
+                duration_data = duration_data | lunch_intervals
+            return duration_data
+
+    def _get_expected_attendances(self, date_from, date_to):
+        self.ensure_one()
+        valid_contracts = self.sudo()._get_contracts(date_from, date_to, states=['open', 'close'])
+        if not valid_contracts:
+            return super()._get_expected_attendances(date_from, date_to)
+        employee_tz = timezone(self.tz) if self.tz else None
+        duration_data = Intervals()
+        for contract in valid_contracts:
+            contract_start = datetime.combine(contract.date_start, time.min, employee_tz)
+            contract_end = datetime.combine(contract.date_end or date.max, time.max, employee_tz)
+            calendar = contract.resource_calendar_id or contract.company_id.resource_calendar_id
+            contract_intervals = calendar._work_intervals_batch(
+                                    max(date_from, contract_start),
+                                    min(date_to, contract_end),
+                                    tz=employee_tz,
+                                    resources=self.resource_id,
+                                    compute_leaves=True)[self.resource_id.id]
+            duration_data = duration_data | contract_intervals
+        return duration_data
+
+    def _get_calendar_attendances(self, date_from, date_to):
+        self.ensure_one()
+        valid_contracts = self.sudo()._get_contracts(date_from, date_to, states=['open', 'close'])
+        if not valid_contracts:
+            return super()._get_calendar_attendances(date_from, date_to)
+        employee_tz = timezone(self.tz) if self.tz else None
+        duration_data = {'days': 0, 'hours': 0}
+        for contract in valid_contracts:
+            contract_start = datetime.combine(contract.date_start, time.min, employee_tz)
+            contract_end = datetime.combine(contract.date_end or date.max, time.max, employee_tz)
+            calendar = contract.resource_calendar_id or contract.company_id.resource_calendar_id
+            contract_duration_data = calendar\
+                .with_context(employee_timezone=employee_tz)\
+                .get_work_duration_data(
+                    max(date_from, contract_start),
+                    min(date_to, contract_end),
+                    domain=[('company_id', 'in', [False, contract.company_id.id])])
+            duration_data['days'] += contract_duration_data['days']
+            duration_data['hours'] += contract_duration_data['hours']
+        return duration_data
+
+    def write(self, vals):
+        res = super().write(vals)
+        if vals.get('contract_id'):
+            for employee in self:
+                employee.resource_calendar_id.transfer_leaves_to(employee.contract_id.resource_calendar_id, employee.resource_id)
+                employee.resource_calendar_id = employee.contract_id.resource_calendar_id
+        return res
+
+    @api.ondelete(at_uninstall=False)
+    def _unlink_except_open_contract(self):
+        if any(contract.state == 'open' for contract in self.contract_ids):
+            raise UserError(_('You cannot delete an employee with a running contract.'))
+
+    def action_open_contract(self):
+        self.ensure_one()
+        action = self.env["ir.actions.actions"]._for_xml_id('hr_contract.action_hr_contract')
+        action['views'] = [(False, 'form')]
+        if not self.contract_ids:
+            action['context'] = {
+                'default_employee_id': self.id,
+                # display current resource_calendar_id as the default one if it exists (if False, fully flexible calendar)
+                'default_resource_calendar_id': self.resource_calendar_id.id or False,
+                'from_action_open_contract': True,
+            }
+            action['target'] = 'current'
+            return action
+
+        target_contract = self.contract_id
+        if target_contract:
+            action['res_id'] = target_contract.id
+            return action
+
+        target_contract = self.contract_ids.filtered(lambda c: c.state == 'draft')
+        if target_contract:
+            action['res_id'] = target_contract[0].id
+            return action
+
+        action['res_id'] = self.contract_ids[0].id
+        return action
+
+```
+
+## File: models\hr_payroll_structure_type.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import fields, models
+
+
+class HrPayrollStructureType(models.Model):
+    _name = 'hr.payroll.structure.type'
+    _description = 'Salary Structure Type'
+
+    name = fields.Char('Salary Structure Type')
+    default_resource_calendar_id = fields.Many2one(
+        'resource.calendar', 'Default Working Hours',
+        default=lambda self: self.env.company.resource_calendar_id)
+    country_id = fields.Many2one('res.country', string='Country', default=lambda self: self.env.company.country_id)
+    country_code = fields.Char(related="country_id.code")
+
+```
+
+## File: models\ir_ui_menu.py
+
+```python
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+
+from odoo import models
+
+
+class IrUiMenu(models.Model):
+    _inherit = 'ir.ui.menu'
+
+    def _load_menus_blacklist(self):
+        res = super()._load_menus_blacklist()
+        is_contract_employee_manager = self.env.user.has_group('hr_contract.group_hr_contract_employee_manager')
+        is_employee_officer = self.env.user.has_group('hr.group_hr_user')
+        if not is_contract_employee_manager or is_employee_officer:
+            res.append(self.env.ref('hr_contract.menu_hr_employee_contracts').id)
+        return res
+
+```
+
+## File: models\resource.py
+
+```python
+# -*- coding:utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+from datetime import datetime
+
+from odoo import fields, models
+from odoo.osv.expression import AND
+
+
+class ResourceCalendar(models.Model):
+    _inherit = 'resource.calendar'
+
+    contracts_count = fields.Integer("# Contracts using it", compute='_compute_contracts_count', groups="hr_contract.group_hr_contract_manager")
+
+    def transfer_leaves_to(self, other_calendar, resources=None, from_date=None):
+        """
+            Transfer some resource.calendar.leaves from 'self' to another calendar 'other_calendar'.
+            Transfered leaves linked to `resources` (or all if `resources` is None) and starting
+            after 'from_date' (or today if None).
+        """
+        from_date = from_date or fields.Datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        domain = [
+            ('calendar_id', 'in', self.ids),
+            ('date_from', '>=', from_date),
+        ]
+        domain = AND([domain, [('resource_id', 'in', resources.ids)]]) if resources else domain
+
+        self.env['resource.calendar.leaves'].search(domain).write({
+            'calendar_id': other_calendar.id,
+        })
+
+    def _compute_contracts_count(self):
+        count_data = self.env['hr.contract']._read_group(
+            [('resource_calendar_id', 'in', self.ids), ('employee_id', '!=', False)],
+            ['resource_calendar_id'],
+            ['__count'])
+        mapped_counts = {resource_calendar.id: count for resource_calendar, count in count_data}
+        for calendar in self:
+            calendar.contracts_count = mapped_counts.get(calendar.id, 0)
+
+    def action_open_contracts(self):
+        self.ensure_one()
+        action = self.env["ir.actions.actions"]._for_xml_id("hr_contract.action_hr_contract")
+        action.update({'domain': [('resource_calendar_id', '=', self.id), ('employee_id', '!=', False)]})
+        return action
+
+```
+
+## File: models\resource_calendar_leaves.py
+
+```python
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from datetime import datetime
+from pytz import timezone, utc
+
+from odoo import models
+
+
+class ResourceCalendarLeaves(models.Model):
+    _inherit = 'resource.calendar.leaves'
+
+    def _compute_calendar_id(self):
+        def date2datetime(date, tz):
+            dt = datetime.fromordinal(date.toordinal())
+            return tz.localize(dt).astimezone(utc).replace(tzinfo=None)
+
+        leaves_by_contract = self.grouped(lambda leave: leave.resource_id.employee_id.contract_id)
+        # set aside leaves without contract_id for super
+        remaining = leaves_by_contract.pop(
+            self.env['hr.contract'],
+            self.env['resource.calendar.leaves'],
+        )
+        for contract, leaves in leaves_by_contract.items():
+            tz = timezone(contract.resource_calendar_id.tz or 'UTC')
+            start_dt = date2datetime(contract.date_start, tz)
+            end_dt = date2datetime(contract.date_end, tz) if contract.date_end else datetime.max
+            # only modify leaves that fall under the active contract
+            leaves.filtered(
+                lambda leave: start_dt <= leave.date_from < end_dt
+            ).calendar_id = contract.resource_calendar_id
+
+        super(ResourceCalendarLeaves, remaining)._compute_calendar_id()
+
+```
+
+## File: models\resource_resource.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+from collections import defaultdict
+from datetime import datetime
+from pytz import timezone
+
+from odoo import models
+from odoo.addons.resource.models.utils import Intervals
+
+class ResourceResource(models.Model):
+    _inherit = 'resource.resource'
+
+    def _get_calendars_validity_within_period(self, start, end, default_company=None):
+        assert start.tzinfo and end.tzinfo
+        if not self:
+            return super()._get_calendars_validity_within_period(start, end, default_company=default_company)
+        calendars_within_period_per_resource = defaultdict(lambda: defaultdict(Intervals))  # keys are [resource id:integer][calendar:self.env['resource.calendar']]
+        # Employees that have ever had an active contract
+        employee_ids_with_active_contracts = {
+            employee.id for [employee] in
+            self.env['hr.contract']._read_group(
+                domain=[
+                    ('employee_id', 'in', self.employee_id.ids),
+                    '|', ('state', '=', 'open'),
+                    '|', ('state', '=', 'close'),
+                         '&', ('state', '=', 'draft'), ('kanban_state', '=', 'done')
+                ],
+                groupby=['employee_id'],
+            )
+        }
+        resource_without_contract = self.filtered(
+            lambda r: not r.employee_id\
+                   or not r.employee_id.id in employee_ids_with_active_contracts\
+                   or r.employee_id.employee_type not in ['employee', 'student']
+        )
+        if resource_without_contract:
+            calendars_within_period_per_resource.update(
+                super(ResourceResource, resource_without_contract)._get_calendars_validity_within_period(start, end, default_company=default_company)
+            )
+        resource_with_contract = self - resource_without_contract
+        if not resource_with_contract:
+            return calendars_within_period_per_resource
+        timezones = {resource.tz for resource in resource_with_contract}
+        date_start = min(start.astimezone(timezone(tz)).date() for tz in timezones)
+        date_end = max(end.astimezone(timezone(tz)).date() for tz in timezones)
+        contracts = resource_with_contract.employee_id._get_contracts(
+            date_start, date_end, states=['open', 'draft', 'close']
+        ).filtered(lambda c: c.state in ['open', 'close'] or c.kanban_state == 'done')
+        for contract in contracts:
+            tz = timezone(contract.employee_id.tz)
+            calendars_within_period_per_resource[contract.employee_id.resource_id.id][contract.resource_calendar_id] |= Intervals([(
+                tz.localize(datetime.combine(contract.date_start, datetime.min.time())) if contract.date_start > start.astimezone(tz).date() else start,
+                tz.localize(datetime.combine(contract.date_end, datetime.max.time())) if contract.date_end and contract.date_end < end.astimezone(tz).date() else end,
+                self.env['resource.calendar.attendance']
+            )])
+        return calendars_within_period_per_resource
+
+```
+
+## File: models\res_company.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import fields, models
+
+
+class ResCompany(models.Model):
+    _inherit = "res.company"
+
+    contract_expiration_notice_period = fields.Integer("Contract Expiry Notice Period", default=7)
+    work_permit_expiration_notice_period = fields.Integer("Work Permit Expiry Notice Period", default=60)
+
+```
+
+## File: models\res_config_settings.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import fields, models
+
+
+class ResConfigSettings(models.TransientModel):
+    _inherit = 'res.config.settings'
+
+    contract_expiration_notice_period = fields.Integer(string="Contract Expiry Notice Period", related='company_id.contract_expiration_notice_period', readonly=False)
+    work_permit_expiration_notice_period = fields.Integer(string="Work Permit Expiry Notice Period", related='company_id.work_permit_expiration_notice_period', readonly=False)
+
+```
+
+## File: models\res_users.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import models, fields, api, _
+
+
+class User(models.Model):
+    _inherit = ['res.users']
+
+    vehicle = fields.Char(related="employee_id.vehicle")
+    bank_account_id = fields.Many2one(related="employee_id.bank_account_id")
+
+    @property
+    def SELF_READABLE_FIELDS(self):
+        return super().SELF_READABLE_FIELDS + ['vehicle', 'bank_account_id']
+
+```
+
+## File: models\__init__.py
+
+```python
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from . import hr_contract
+from . import hr_employee
+from . import hr_payroll_structure_type
+from . import ir_ui_menu
+from . import res_company
+from . import res_config_settings
+from . import res_users
+from . import resource
+from . import resource_calendar_leaves
+from . import resource_resource
+
+```
+
+## File: report\hr_contract_history.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import api, fields, models, tools, _
+from odoo.tools.sql import SQL
+from collections import defaultdict
+
+
+class ContractHistory(models.Model):
+    _name = 'hr.contract.history'
+    _description = 'Contract history'
+    _auto = False
+    _order = 'is_under_contract'
+
+    # Even though it would have been obvious to use the reference contract's id as the id of the
+    # hr.contract.history model, it turned out it was a bad idea as this id could change (for instance if a
+    # new contract is created with a later start date). The hr.contract.history is instead closely linked
+    # to the employee. That's why we will use this id (employee_id) as the id of the hr.contract.history.
+    contract_id = fields.Many2one('hr.contract', readonly=True)
+
+    name = fields.Char('Contract Name', readonly=True)
+    date_hired = fields.Date('Hire Date', readonly=True)
+    date_start = fields.Date('Start Date', readonly=True)
+    date_end = fields.Date('End Date', readonly=True)
+    employee_id = fields.Many2one('hr.employee', string='Employee', readonly=True)
+    active_employee = fields.Boolean('Active Employee', readonly=True)
+    is_under_contract = fields.Boolean('Is Currently Under Contract', readonly=True)
+    department_id = fields.Many2one('hr.department', string='Department', readonly=True)
+    structure_type_id = fields.Many2one('hr.payroll.structure.type', string='Salary Structure Type', readonly=True)
+    hr_responsible_id = fields.Many2one('res.users', string='HR Responsible', readonly=True)
+    job_id = fields.Many2one('hr.job', string='Job Position', readonly=True)
+    state = fields.Selection([
+        ('draft', 'New'),
+        ('open', 'Running'),
+        ('close', 'Expired'),
+        ('cancel', 'Cancelled')
+    ], string='Status', readonly=True)
+    resource_calendar_id = fields.Many2one('resource.calendar', string="Working Schedule", readonly=True)
+    wage = fields.Monetary('Wage', help="Employee's monthly gross wage.", readonly=True, aggregator="avg")
+    company_id = fields.Many2one('res.company', string='Company', readonly=True)
+    company_country_id = fields.Many2one('res.country', string="Company country", related='company_id.country_id', readonly=True)
+    country_code = fields.Char(related='company_country_id.code', depends=['company_country_id'], readonly=True)
+    currency_id = fields.Many2one(string='Currency', related='company_id.currency_id', readonly=True)
+    contract_type_id = fields.Many2one('hr.contract.type', 'Contract Type', readonly=True)
+    contract_ids = fields.One2many('hr.contract', string='Contracts', compute='_compute_contract_ids', readonly=True, compute_sudo=True)
+    contract_count = fields.Integer(compute='_compute_contract_count', string="# Contracts")
+    under_contract_state = fields.Selection([
+        ('done', 'Under Contract'),
+        ('blocked', 'Not Under Contract')
+    ], string='Contractual Status', compute='_compute_under_contract_state')
+    activity_state = fields.Selection(related='contract_id.activity_state')
+
+    @api.depends('contract_ids')
+    def _compute_contract_count(self):
+        for history in self:
+            history.contract_count = len(history.contract_ids)
+
+    @api.depends('is_under_contract')
+    def _compute_under_contract_state(self):
+        for history in self:
+            history.under_contract_state = 'done' if history.is_under_contract else 'blocked'
+
+    @api.depends('employee_id.name')
+    def _compute_display_name(self):
+        for history in self:
+            history.display_name = _("%s's Contracts History", history.employee_id.name)
+
+    @api.model
+    def _get_fields(self):
+        return ','.join('contract.%s' % name for name, field in self._fields.items()
+                        if field.store 
+                        and field.type not in ['many2many', 'one2many', 'related']
+                        and field.name not in ['id', 'contract_id', 'employee_id', 'date_hired', 'is_under_contract', 'active_employee'])
+
+    def _read_group_groupby(self, groupby_spec, query):
+        if groupby_spec != 'activity_state':
+            return super()._read_group_groupby(groupby_spec, query)
+
+        Contract = self.env['hr.contract']
+        # we use Contract._table as the JOIN alias, because that's the one used
+        # by the call to Contract._read_group_groupby() below
+        query.add_join('LEFT JOIN', Contract._table, Contract._table, SQL(
+            "%s = %s",
+            self._field_to_sql(self._table, 'contract_id', query),
+            SQL.identifier(Contract._table, 'id'),
+        ))
+        activity_state_sql = Contract._read_group_groupby(groupby_spec, query)
+        # Change the kind of JOIN -> JOIN LEFT because
+        # LEFT JOIN follow by JOIN doesn't have the same semantic
+        __, table, condition = query._joins['hr_contract__last_activity_state']
+        query._joins['hr_contract__last_activity_state'] = (SQL('LEFT JOIN'), table, condition)
+        return activity_state_sql
+
+    def init(self):
+        tools.drop_view_if_exists(self.env.cr, self._table)
+        # Reference contract is the one with the latest start_date.
+        self.env.cr.execute("""CREATE or REPLACE VIEW %s AS (
+            WITH contract_information AS (
+                SELECT DISTINCT employee_id,
+                                company_id,
+                                FIRST_VALUE(id) OVER w_partition AS id,
+                                MAX(CASE
+                                    WHEN state='open' THEN 1
+                                    WHEN state='draft' AND kanban_state='done' THEN 1
+                                    ELSE 0 END) OVER w_partition AS is_under_contract
+                FROM   hr_contract AS contract
+                WHERE  contract.active = true
+                WINDOW w_partition AS (
+                    PARTITION BY contract.employee_id, contract.company_id
+                    ORDER BY
+                        CASE
+                            WHEN contract.state = 'open' THEN 0
+                            WHEN contract.state = 'draft' THEN 1
+                            WHEN contract.state = 'close' THEN 2
+                            WHEN contract.state = 'cancel' THEN 3
+                            ELSE 4 END,
+                        contract.date_start DESC
+                    RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+                )
+            )
+            SELECT DISTINCT employee.id AS id,
+                            employee.id AS employee_id,
+                            employee.active AS active_employee,
+                            contract.id AS contract_id,
+                            contract_information.is_under_contract::bool AS is_under_contract,
+                            employee.first_contract_date AS date_hired,
+                            %s
+            FROM       hr_contract AS contract
+            INNER JOIN contract_information ON contract.id = contract_information.id
+            RIGHT JOIN hr_employee AS employee
+                ON  contract_information.employee_id = employee.id
+                AND contract.company_id = employee.company_id
+            WHERE   employee.employee_type IN ('employee', 'student', 'trainee')
+        )""" % (self._table, self._get_fields()))
+
+    @api.depends('employee_id.contract_ids')
+    def _compute_contract_ids(self):
+        sorted_contracts = self.mapped('employee_id.contract_ids').sorted('date_start', reverse=True)
+
+        mapped_employee_contracts = defaultdict(lambda: self.env['hr.contract'])
+        for contract in sorted_contracts:
+            mapped_employee_contracts[contract.employee_id] |= contract
+
+        for history in self:
+            history.contract_ids = mapped_employee_contracts[history.employee_id]
+
+    def hr_contract_view_form_new_action(self):
+        self.ensure_one()
+        action = self.env['ir.actions.actions']._for_xml_id('hr_contract.action_hr_contract')
+        action.update({
+            'context': {'default_employee_id': self.employee_id.id},
+            'view_mode': 'form',
+            'view_id': self.env.ref('hr_contract.hr_contract_view_form').id,
+            'views': [(self.env.ref('hr_contract.hr_contract_view_form').id, 'form')],
+        })
+        return action
+
+```
+
+## File: report\hr_contract_history_report_views.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_contract_history_view_search" model="ir.ui.view">
+        <field name="name">hr.contract.history.search</field>
+        <field name="model">hr.contract.history</field>
+        <field name="arch" type="xml">
+            <search string="Search Reference Contracts">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="job_id"/>
+                <field name="department_id" operator="child_of"/>
+                <field name="resource_calendar_id"/>
+                <field name="state"/>
+                <field name="is_under_contract"/>
+                <filter string="Running Contracts" name="open_contracts" domain="[('state', '=', 'open')]"/>
+                <filter string="Contracts to Review" name="contract_to_review" domain="['|', ('state', 'in', ['draft', 'close', 'cancel']), ('is_under_contract', '!=', True)]"/>
+                <filter string="No Contracts" name="no_contracts" domain="[('contract_id', '=', False)]"/>
+                <filter string="Currently Under Contract" name="currently_under_contract" domain="[('is_under_contract', '=', True)]"/>
+                <filter string="Active Employees" name="active_employees" domain="[('active_employee', '=', True)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Job Position" name="job" domain="[]" context="{'group_by': 'job_id'}"/>
+                    <filter string="Status" name='group_by_state' domain="[]" context="{'group_by': 'state'}"/>
+                    <filter string="Reference Working Time" name="group_by_resource_calendar_id" domain="[]" context="{'group_by': 'resource_calendar_id'}"/>
+                    <filter string="Salary Structure Type" name="group_by_structure_type_id" domain="[]" context="{'group_by': 'structure_type_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="hr_contract_history_view_form_action" model="ir.actions.act_window">
+        <field name="name">Contracts</field>
+        <field name="res_model">hr.contract.history</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'search_default_active_employees': 1}</field>
+    </record>
+    <record id="hr_contract_history_view_form" model="ir.ui.view">
+        <field name="name">hr.contract.history.form</field>
+        <field name="model">hr.contract.history</field>
+        <field name="arch" type="xml">
+            <form string="Contract History"
+                  create="false"
+                  edit="false"
+                  delete="false"
+                  duplicate="false"
+                  import="false">
+                <header>
+                    <button name="hr_contract_view_form_new_action" string="Create" type="object" groups="hr_contract.group_hr_contract_manager" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box"/>
+                    <h1>
+                        <div class="d-flex justify-content-start">
+                            <div>
+                                <field name="display_name"/>
+                            </div>
+                            <div class="ps-3">
+                                <field name="under_contract_state" widget="state_selection" readonly="1"/>
+                            </div>
+                        </div>
+                    </h1>
+                    <h2>
+                        <field name="employee_id" widget="many2one_avatar_user"/>
+                    </h2>
+                    <group>
+                        <group>
+                            <field name="contract_id" invisible="1"/>
+                            <field name="company_country_id" invisible="1"/>
+                            <field name="country_code" invisible="1"/>
+                            <field name="structure_type_id"/>
+                            <field name="resource_calendar_id"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="wage" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="department_id"/>
+                            <field name="job_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Contract History" name="contract_history">
+                            <field name="contract_ids" widget="one2many" readonly="0">
+                                <list string="Current Contracts"
+                                      decoration-primary="state == 'open'"
+                                      decoration-muted="state == 'close'"
+                                      decoration-bf="id == parent.contract_id"
+                                      default_order = "date_start desc, state desc"
+                                      editable="bottom"
+                                      no_open="1"
+                                      create="0" delete="0">
+                                    <button name="action_open_contract_form" type="object" icon="fa-external-link" title="Open Contract"/>
+                                    <field name="id" column_invisible="True"/>
+                                    <field name="name" string="Contract Name"/>
+                                    <field name="date_start"/>
+                                    <field name="date_end"/>
+                                    <field name="resource_calendar_id"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                    <field name="wage" string="Monthly Wage"/>
+                                    <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'close'" decoration-success="state == 'open'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Employee Information" name="contract_others">
+                            <group>
+                                <field name="date_hired"/>
+                                <field name="hr_responsible_id" widget="many2one_avatar_user"/>
+                                <field name="company_id"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="hr_contract_history_view_list_action" model="ir.actions.act_window">
+        <field name="name">Employees</field>
+        <field name="res_model">hr.contract.history</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="hr_contract_history_view_search"/>
+        <field name="context">
+            {
+                'search_default_active_employees': 1,
+                'search_default_group_by_state': 1
+            }
+        </field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                No data to display
+            </p>
+        </field>
+    </record>
+    <record id="hr_contract_history_to_review_view_list_action" model="ir.actions.act_window">
+        <field name="name">Contracts to Review</field>
+        <field name="res_model">hr.contract.history</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="hr_contract_history_view_search"/>
+        <field name="context">
+            {
+                'search_default_to_review': 1,
+                'search_default_active_employees': 1
+            }
+        </field>
+    </record>
+    <record id="hr_contract_history_view_list" model="ir.ui.view">
+        <field name="name">hr.contract.history.list</field>
+        <field name="model">hr.contract.history</field>
+        <field name="arch" type="xml">
+            <list string="Contracts"
+                  default_order = 'is_under_contract, date_start desc'
+                  edit="false"
+                  delete="false"
+                  duplicate="false"
+                  import="false"
+                  create="false">
+                <field name="employee_id" widget="many2one_avatar_employee"/>
+                <field name="date_hired"/>
+                <field name="is_under_contract" column_invisible="True"/>
+                <field name="name"/>
+                <field name="date_start"/>
+                <field string="Reference Working Time" name="resource_calendar_id" optional="hide"/>
+                <field name="under_contract_state" widget="state_selection" optional="hide"
+                    options="{'hide_label': False}"/>
+                <field name="structure_type_id" optional="hide"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="wage" optional="hide"/>
+                <field name="state"
+                       widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'close'"
+                       decoration-success="state == 'open'"/>
+                <field name="contract_count"/>
+            </list>
+        </field>
+    </record>
+    <record id="hr_contract_history_view_kanban" model="ir.ui.view">
+        <field name="name">hr.contract.history.view.kanban</field>
+        <field name="model">hr.contract.history</field>
+        <field name="arch" type="xml">
+            <kanban default_order="date_end" sample="1" create="0">
+                <progressbar field="activity_state" colors='{"planned": "success", "today": "warning", "overdue": "danger"}'/>
+                <templates>
+                    <t t-name="card">
+                        <field class="fw-bold fs-5" name="display_name"/>
+                        <field class="text-muted" name="job_id"/>
+                        <field class="ms-auto" name="employee_id" widget="many2one_avatar_employee"/>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+</odoo>
+
+```
+
+## File: report\__init__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from . import hr_contract_history
+
+```
+
+## File: security\ir.model.access.csv
+
+```csv
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_resource_manager,hr.employee.resource.manager,resource.model_resource_resource,hr.group_hr_manager,1,1,1,1
+access_hr_resource_calendar_user,hr.employee.resource.calendar.user,resource.model_resource_calendar,hr.group_hr_user,1,1,1,1
+access_hr_resource_calendar_attendance_user,hr.employee.resource.calendar.attendance.user,resource.model_resource_calendar_attendance,hr.group_hr_user,1,1,1,1
+access_hr_contract_manager,hr.contract.manager,model_hr_contract,hr_contract.group_hr_contract_manager,1,1,1,1
+access_hr_contract_history_manager,hr.contract.history.manager,model_hr_contract_history,hr_contract.group_hr_contract_manager,1,0,0,0
+access_hr_payroll_structure_type_hr_contract_manager,hr.payroll.structure.type.contract.manager,model_hr_payroll_structure_type,hr_contract.group_hr_contract_manager,1,1,1,1
+access_hr_contract_hr_employee_manager,hr.contract.hr.employee.manager,model_hr_contract,hr_contract.group_hr_contract_employee_manager,1,0,0,0
+
+```
+
+## File: security\security.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record model="ir.module.category" id="base.module_category_human_resources_contracts">
+            <field name="description">Enable the user to see and manage the contracts from Employee application.</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="hr_contract.group_hr_contract_employee_manager" model="res.groups">
+            <field name="name">Employee Manager</field>
+            <field name="category_id" ref="base.module_category_human_resources_contracts"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="hr_contract.group_hr_contract_manager" model="res.groups">
+            <field name="name">Administrator</field>
+            <field name="category_id" ref="base.module_category_human_resources_contracts"/>
+            <field name="implied_ids" eval="[(4, ref('hr_contract.group_hr_contract_employee_manager')), (4, ref('hr.group_hr_user'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+        <record id="base.default_user" model="res.users">
+            <field name="groups_id" eval="[(4,ref('hr_contract.group_hr_contract_manager'))]"/>
+        </record>
+
+        <record id="ir_rule_hr_contract_history_multi_company" model="ir.rule">
+            <field name="name">HR Contract History: Multi Company</field>
+            <field name="model_id" ref="model_hr_contract_history"/>
+            <field name="domain_force">['|', ('employee_id.company_id', '=', False), ('employee_id.company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="ir_rule_hr_contract_employee_manager" model="ir.rule">
+            <field name="name">HR Contract: Employee Manager</field>
+            <field name="model_id" ref="model_hr_contract"/>
+            <field name="groups" eval="[(4, ref('hr_contract.group_hr_contract_employee_manager'))]"/>
+            <field name="domain_force">['|', ('employee_id.parent_id.user_id', '=', user.id), ('employee_id.user_id', '=', user.id)]</field>
+        </record>
+
+        <record id="ir_rule_hr_contract_manager" model="ir.rule">
+            <field name="name">HR Contract: Contract Manager</field>
+            <field name="model_id" ref="model_hr_contract"/>
+            <field name="groups" eval="[(4, ref('hr_contract.group_hr_contract_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="ir_rule_hr_contract_multi_company" model="ir.rule">
+            <field name="name">HR Contract: Multi Company</field>
+            <field name="model_id" ref="model_hr_contract"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="ir_rule_hr_payroll_structure_type_multi_company" model="ir.rule">
+            <field name="name">HR Payroll Structure Type: Multi Company</field>
+            <field name="model_id" ref="model_hr_payroll_structure_type"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">['|', ('country_id', '=', False), ('country_id', 'in', user.env.companies.mapped('country_id').ids)]</field>
+        </record>
+
+    </data>
+</odoo>
+
+```
+
+## File: static\description\icon.svg
+
+```svg
+<svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg"><path d="M34 17a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" fill="#985184"/><path d="M12 24a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" fill="#2EBCFA"/><path d="M46 24a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM0 34a4 4 0 0 1 4-4h42a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4v-4Z" fill="#FC868B"/><path d="M25 30H4a4 4 0 0 0-4 4v4a4 4 0 0 0 4 4h21V30Z" fill="#2EBCFA"/><path d="M12 30h14c6.627 0 12 5.373 12 12H24c-6.627 0-12-5.373-12-12Z" fill="#985184"/></svg>
+
+```
+
+## File: static\src\widgets\tooltip_warning_widget.js
+
+```javascript
+/** @odoo-module **/
+
+import { registry } from "@web/core/registry";
+import { _t } from "@web/core/l10n/translation";
+import { Component } from "@odoo/owl";
+import { standardWidgetProps } from "@web/views/widgets/standard_widget_props";
+
+export class ContractWarningTooltip extends Component {
+    static template = "hr_contract.ContractWarningTooltip";
+    static props = { ...standardWidgetProps };
+    get tooltipInfo() {
+        return JSON.stringify({
+            "text" : _t("Calendar Mismatch: The employee's calendar does not match this contract's calendar. This could lead to unexpected behaviors."),
+        })
+    }
+}
+
+export const contractWarningTooltip = {
+    component: ContractWarningTooltip,
+};
+registry.category("view_widgets").add("contract_warning_tooltip", contractWarningTooltip);
+
+```
+
+## File: static\src\widgets\tooltip_warning_widget.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="hr_contract.ContractWarningTooltip">
+        <span
+            class="fa fa-exclamation-triangle text-danger o_calendar_warning"
+            data-tooltip-template="hr_contract.CalendarMismatch"
+            t-att-data-tooltip-info='tooltipInfo'/>
+    </t>
+</templates>
+
+```
+
+## File: static\src\xml\hr_contract_templates.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="hr_contract.CalendarMismatch">
+        <p class="o-tooltip--help" t-esc="text"/>
+    </t>
+</templates>
+
+```
+
+## File: views\hr_contract_views.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+        <record id="hr_hr_employee_view_form2" model="ir.ui.view">
+            <field name="name">hr.hr.employee.view.form2</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="priority" eval="10"/>
+            <field name="arch" type="xml">
+                <data>
+                    <xpath expr="//sheet" position="inside">
+                        <field name="contract_warning" invisible="1"/>
+                    </xpath>
+                    <xpath expr="//page[@name='hr_settings']//field[@name='employee_type']" position="after">
+                        <field name="first_contract_date" invisible="1"/>
+                    </xpath>
+                    <xpath expr="//field[@name='resource_calendar_id']" position="replace">
+                        <field name="calendar_mismatch" invisible="1"/>
+                        <label for="resource_calendar_id"/>
+                        <div class="d-flex align-items-center">
+                            <field name="resource_calendar_id" help="The default working hours are set in configuration." placeholder="Fully Flexible"/>
+                            <widget name="contract_warning_tooltip"
+                                invisible="not calendar_mismatch"/>
+                        </div>
+                    </xpath>
+                </data>
+            </field>
+        </record>
+
+        <!-- This part of the view is defined separately as we want to give priority to the smartbutton. -->
+        <record id="hr_hr_employee_view_form3" model="ir.ui.view">
+            <field name="name">hr.hr.employee.view.form3</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="priority" eval="2" />
+            <field name="arch" type="xml">
+                <data>
+                    <div name="button_box" position="inside">
+                        <button name="action_open_contract"
+                            class="oe_stat_button"
+                            icon="fa-book"
+                            type="object"
+                            groups="hr_contract.group_hr_contract_manager"
+                            context="{
+                                'default_employee_id': id,
+                                'default_resource_calendar_id': resource_calendar_id.id or False,
+                                'from_action_open_contract': True,
+                            }"
+                            invisible="employee_type not in ['employee', 'student', 'trainee']">
+                            <div invisible="not first_contract_date" class="o_stat_info">
+                                <span class="o_stat_text text-success" invisible="contract_warning" title="In Contract Since"> In Contract Since</span>
+                                <span class="o_stat_value text-success" invisible="contract_warning">
+                                    <field name="first_contract_date" readonly="1"/>
+                                </span>
+                                <span class="o_stat_text text-danger" invisible="not contract_warning" title="In Contract Since">
+                                    In Contract Since
+                                </span>
+                                <span class="o_stat_value text-danger" invisible="not contract_warning">
+                                    <field name="first_contract_date" readonly="1"/>
+                                </span>
+                            </div>
+                            <div invisible="first_contract_date" class="o_stat_info">
+                                <span class="o_stat_value text-danger">
+                                    <field name="contracts_count"/>
+                                </span>
+                                <span invisible="contracts_count != 1" class="o_stat_text text-danger" >
+                                    Contract
+                                </span>
+                                <span invisible="contracts_count == 1" class="o_stat_text text-danger">
+                                    Contracts
+                                </span>
+                            </div>
+                        </button>
+                    </div>
+                </data>
+            </field>
+        </record>
+
+        <record id="hr_employee_view_search" model="ir.ui.view">
+            <field name="name">hr.employee.view.search</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_filter"/>
+            <field name="arch" type="xml">
+                <data>
+                    <xpath expr="//filter[@name='inactive']" position="before">
+                        <separator/>
+                        <filter string="Contract Warning" name="with_contract_warning" domain="[('contract_warning', '=', True)]"/>
+                        <separator/>
+                    </xpath>
+                </data>
+            </field>
+        </record>
+
+        <record id="hr_user_view_form" model="ir.ui.view">
+            <field name="name">hr.user.preferences.view.form.contract.inherit</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="hr.res_users_view_form_profile"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='employee_bank_account_id']" position="replace">
+                    <field name="employee_bank_account_id" context="{'display_partner':True}" readonly="not can_edit"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="hr_contract_view_search" model="ir.ui.view">
+            <field name="name">hr.contract.search</field>
+            <field name="model">hr.contract</field>
+            <field name="arch" type="xml">
+                <search string="Search Contract">
+                    <field name="name" string="Contract"/>
+                    <field name="date_start"/>
+                    <field name="date_end"/>
+                    <field name="employee_id"/>
+                    <field name="job_id"/>
+                    <field name="department_id" operator="child_of"/>
+                    <field name="resource_calendar_id"/>
+                    <filter string="Running Contracts" name="running" domain="[('state', '=', 'open')]"/>
+                    <filter string="Contracts to review" name="not_running" domain="[('state', 'in', ['draft', 'close'])]"/>
+                    <separator />
+                    <filter string="Start Date" name="start_date" date="date_start"/>
+                    <filter string="End Date" name="end_date" date="date_end"/>
+                    <separator/>
+                    <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                    <separator/>
+                    <filter string="Late Activities" name="activities_overdue"
+                        domain="[('my_activity_date_deadline', '&lt;', context_today().strftime('%Y-%m-%d'))]"
+                        help="Show all records which have a next action date before today"/>
+                    <filter string="Today Activities" name="activities_today"
+                        domain="[('my_activity_date_deadline', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                    <filter string="Future Activities" name="activities_upcoming_all"
+                        domain="[('my_activity_date_deadline', '&gt;', context_today().strftime('%Y-%m-%d'))]"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Status" name="group_by_state" domain="[]" context="{'group_by': 'state'}"/>
+                        <filter string="Employee" name="group_by_employee" domain="[]" context="{'group_by': 'employee_id'}"/>
+                        <filter string="Start Date" name="group_by_date_start" domain="[]" context="{'group_by': 'date_start'}"/>
+                        <filter string="Job Position" name="group_by_job" domain="[]" context="{'group_by': 'job_id'}"/>
+                        <filter string="Department" name="group_by_department" domain="[]" context="{'group_by': 'department_id'}"/>
+                        <filter string="Working Schedule" name="group_by_resource_calendar_id" domain="[]" context="{'group_by': 'resource_calendar_id'}"/>
+                        <filter string="Salary Structure Type" name="group_by_structure_type_id" domain="[]" context="{'group_by': 'structure_type_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="hr_contract_view_form" model="ir.ui.view">
+            <field name="name">hr.contract.form</field>
+            <field name="model">hr.contract</field>
+            <field name="arch" type="xml">
+                <form string="Current Contract">
+                    <field name="contracts_count" invisible="1"/>
+                    <header invisible="not id">
+                        <field name="state" groups="!hr_contract.group_hr_contract_manager" widget="statusbar"/>
+                        <field name="state" groups="hr_contract.group_hr_contract_manager" widget="statusbar" options="{'clickable': '1'}"/>
+                    </header>
+                    <sheet>
+                        <field name="state" invisible="1"/>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_open_contract_list"
+                                class="oe_stat_button"
+                                icon="fa-book"
+                                type="object"
+                                invisible="contracts_count == 0"
+                                groups="hr_contract.group_hr_contract_employee_manager">
+                                <div class="o_stat_info">
+                                    <span class="o_stat_value">
+                                        <field name="contracts_count"/>
+                                    </span>
+                                    <span invisible="contracts_count == 1" class="o_stat_text" >
+                                        Contracts
+                                    </span>
+                                    <span invisible="contracts_count &gt; 1" class="o_stat_text">
+                                        Contract
+                                    </span>
+                                </div>
+                            </button>
+                        </div>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <div class="oe_title pe-0 w-100 mw-100" name="title">
+                            <h1 class="d-flex flex-row justify-content-between">
+                                <field name="name" class="text-truncate" placeholder="Contract Reference"/>
+                                <field name="kanban_state"
+                                    class="d-flex align-items-center"
+                                    groups="!hr_contract.group_hr_contract_manager"
+                                    widget="state_selection" readonly="1"/>
+                                <field name="kanban_state"
+                                    class="d-flex align-items-center"
+                                    groups="hr_contract.group_hr_contract_manager"
+                                    widget="state_selection" readonly="0"/>
+                            </h1>
+                            <h2>
+                                <field name="company_id" groups="base.group_multi_company" invisible="1"/>
+                            </h2>
+                        </div>
+                        <group name="top_info">
+                            <group name="top_info_left">
+                                <field name="active" invisible="1"/>
+                                <!-- employee_id = fields.Many2one('hr.employee', string='Employee', tracking=True, domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]") -->
+                                <field name="company_id" invisible="1"/>
+                                <field name="employee_id" widget="many2one_avatar_employee"/>
+                                <field name="active_employee" invisible="1"/>
+                                <field name="date_start" string="Contract Start Date"/>
+                                <field name="date_end" string="Contract End Date"/>
+                                <field name="company_country_id" invisible="1"/>
+                                <field name="country_code" invisible="1"/>
+                                <field name="calendar_mismatch" invisible="1"/>
+                                <label for="resource_calendar_id"/>
+                                <div id="resource_calendar_warning" class="d-flex align-items-center">
+                                        <field name="resource_calendar_id"
+                                            groups="!hr_contract.group_hr_contract_manager"
+                                            placeholder="Fully Flexible"
+                                            options="{'no_open': True, 'no_create': True}"/>
+                                        <field name="resource_calendar_id"
+                                            groups="hr_contract.group_hr_contract_manager"
+                                            placeholder="Fully Flexible"/>
+                                        <widget
+                                            name="contract_warning_tooltip"
+                                            invisible="not calendar_mismatch or state != 'open'"/>
+                                </div>
+                            </group>
+                            <group name="top_info_right">
+                                <field name="structure_type_id" groups="!hr_contract.group_hr_contract_manager" domain="['|', ('country_id', '=', False), ('country_id', '=', company_country_id)]" options="{'no_open': True, 'no_create': True}"/>
+                                <field name="structure_type_id" groups="hr_contract.group_hr_contract_manager" domain="['|', ('country_id', '=', False), ('country_id', '=', company_country_id)]"/>
+                                <field name="department_id" groups="!hr_contract.group_hr_contract_manager" options="{'no_open': True, 'no_create': True}"/>
+                                <field name="department_id" groups="hr_contract.group_hr_contract_manager"/>
+                                <field name="job_id" groups="!hr_contract.group_hr_contract_manager" options="{'no_open': True, 'no_create': True}"/>
+                                <field name="job_id" groups="hr_contract.group_hr_contract_manager"/>
+                                <field name="contract_type_id" groups="!hr_contract.group_hr_contract_manager" options="{'no_open': True, 'no_create': True}"/>
+                                <field name="contract_type_id" groups="hr_contract.group_hr_contract_manager"/>
+                                <field name="hr_responsible_id" widget="many2one_avatar_user" invisible="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Salary Information" name="information" class="o_hr_contract_salary_information">
+                                <group name="salary_info">
+                                    <group name="salary">
+                                        <label for="wage"/>
+                                        <div class="o_row mw-50" name="wage">
+                                            <field name="wage" class="oe_inline o_hr_narrow_field" nolabel="1"/>
+                                            <div class="mb-3" name="wage_period_label">/ month</div>
+                                        </div>
+                                    </group>
+                                    <group name="yearly_benefits"/>
+                                </group>
+                            </page>
+                            <page string="Details" name="other" groups="hr_contract.group_hr_contract_manager">
+                                <group name="contract_details_0"/>
+                                <group name="contract_details" col="2"/>
+                                <group name="contract_details_2"/>
+                                <group name="notes_group" string="Notes">
+                                    <field name="notes" nolabel="1" placeholder="Type in notes about this contract..."/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter groups="hr_contract.group_hr_contract_manager"/>
+                </form>
+            </field>
+        </record>
+
+        <record id="hr_contract_view_tree" model="ir.ui.view">
+            <field name="name">hr.contract.list</field>
+            <field name="model">hr.contract</field>
+            <field name="arch" type="xml">
+                <list string="Contracts" multi_edit="1" sample="1" default_order='date_start DESC'>
+                    <field name="company_id" column_invisible="True"/>
+                    <field name="employee_id" readonly="1" widget="many2one_avatar_employee"/>
+                    <field name="name" readonly="1"/>
+                    <field name="department_id" readonly="1" optional="show"/>
+                    <field name="job_id" optional="show"/>
+                    <field name="date_start" readonly="1"/>
+                    <field name="date_end" readonly="1"/>
+                    <field name="contract_type_id" optional="show"/>
+                    <field name="wage" widget="monetary" readonly="1" optional="hidden"/>
+                    <field name="resource_calendar_id" optional="show"/>
+                    <field name="structure_type_id" optional="hidden"/>
+                    <field name="kanban_state" widget="state_selection" nolabel="1"/>
+                    <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'close'" decoration-success="state == 'open'"/>
+                    <field name="company_id" groups="base.group_multi_company" readonly="1" optional="hidden"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="hr_contract_view_kanban" model="ir.ui.view">
+            <field name="name">hr.contract.kanban</field>
+            <field name="model">hr.contract</field>
+            <field name="arch" type="xml">
+                <kanban default_order="date_end" sample="1">
+                    <field name="activity_state"/>
+                    <progressbar field="activity_state" colors='{"planned": "success", "today": "warning", "overdue": "danger"}'/>
+                    <templates>
+                    <t t-name="menu" groups="hr_contract.group_hr_contract_manager">
+                        <t t-if="widget.editable"><a role="menuitem" type="open" class="dropdown-item">Edit Contract</a></t>
+                        <t t-if="widget.deletable"><a role="menuitem" type="delete" class="dropdown-item">Delete</a></t>
+                    </t>
+                    <t t-name="card">
+                        <field class="fw-bold fs-5" name="name"/>
+                        <field class="text-muted" name="job_id"/>
+                        <field class="text-muted" name="department_id"/>
+                        <div class="text-muted" name="div_date_id">
+                            From <field name="date_start"/>
+                            <t t-if="record.date_end.raw_value">
+                                To <field name="date_end"/>
+                            </t>
+                        </div>
+                        <footer>
+                            <field name="activity_ids" widget="kanban_activity"/>
+                            <div class="d-flex ms-auto">
+                                <field class="mr4" name="kanban_state" widget="state_selection"/>
+                                <field name="employee_id" widget="many2one_avatar_employee"/>
+                            </div>
+                        </footer>
+                    </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record id="hr_contract_view_activity" model="ir.ui.view">
+            <field name="name">hr.contract.activity</field>
+            <field name="model">hr.contract</field>
+            <field name="arch" type="xml">
+                <activity string="Contracts">
+                    <field name="employee_id"/>
+                    <templates>
+                        <div t-name="activity-box">
+                            <img class="rounded" t-att-src="activity_image('hr.employee', 'avatar_128', record.employee_id.raw_value)" t-att-title="record.employee_id.value" t-att-alt="record.employee_id.value"/>
+                            <div class="ms-2">
+                                <field name="name" display="full" class="o_text_block"/>
+                                <field name="job_id" muted="1" display="full" class="o_text_block"/>
+                            </div>
+                        </div>
+                    </templates>
+                </activity>
+            </field>
+        </record>
+
+        <record id="action_hr_contract" model="ir.actions.act_window">
+            <field name="name">Contracts</field>
+            <field name="res_model">hr.contract</field>
+            <field name="path">employee-contracts</field>
+            <field name="view_mode">list,kanban,form,activity</field>
+            <field name="domain">[('employee_id', '!=', False)]</field>
+            <field name="context">{'search_default_group_by_state': 1}</field>
+            <field name="search_view_id" ref="hr_contract_view_search"/>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new contract
+              </p>
+            </field>
+        </record>
+
+        <menuitem
+            id="menu_human_resources_configuration_contract"
+            name="Contracts"
+            parent="hr.menu_human_resources_configuration"
+            sequence="25"/>
+
+        <menuitem
+            id="hr_menu_contract"
+            name="Contracts"
+            action="hr_contract.action_hr_contract"
+            parent="hr.menu_hr_employee_payroll"
+            sequence="6"
+            groups="hr_contract.group_hr_contract_manager"/>
+
+        <menuitem
+            id="menu_hr_employee_contracts"
+            name="Contracts"
+            action="hr_contract.action_hr_contract"
+            parent="hr.menu_hr_root"
+            sequence="5"/>
+
+        <record id="hr.menu_resource_calendar_view" model="ir.ui.menu">
+            <field name="parent_id" ref="menu_human_resources_configuration_contract"/>
+        </record>
+</odoo>
+
+```
+
+## File: views\hr_employee_views.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_employee_view_search" model="ir.ui.view">
+        <field name="name">hr.employee.view.search.inherit.contract</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='parent_id']" position="after">
+                <field name="first_contract_date"/>
+            </xpath>
+            <xpath expr="//filter[@name='group_start']" position="attributes">
+                <attribute name="context">{'group_by': 'first_contract_date'}</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_employee_tree" model="ir.ui.view">
+        <field name="name">hr.employee.list</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_tree"></field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='work_email']" position="after">
+                <field name="first_contract_date" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="hr_employee_view_graph_inherit_hr_contract" model="ir.ui.view">
+        <field name="name">hr.employee.view.graph</field>
+        <field name="inherit_id" ref="hr.hr_employee_view_graph"/>
+        <field name="model">hr.employee</field>
+        <field name="priority">0</field>
+        <field name="arch" type="xml">
+            <field name="create_date" position="replace">
+                <field name="first_contract_date" interval="month"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="hr_employee_view_pivot_inherit_hr_contract" model="ir.ui.view">
+        <field name="name">hr.employee.view.pivot</field>
+        <field name="inherit_id" ref="hr.hr_employee_view_pivot"/>
+        <field name="model">hr.employee</field>
+        <field name="priority">0</field>
+        <field name="arch" type="xml">
+            <field name="create_date" position="replace">
+                <field name="first_contract_date" interval="month" type="row"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_employee_public_form" model="ir.ui.view">
+        <field name="model">hr.employee.public</field>
+        <field name="inherit_id" ref="hr.hr_employee_public_view_form"></field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='work_email']" position="after">
+                <field name="is_manager" invisible="1"/>
+                <field name="first_contract_date" invisible="not is_manager"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+
+```
+
+## File: views\resource_calendar_views.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="resource_calendar_view_tree" model="ir.ui.view">
+        <field name="name">resource.calendar.view.list.inherit.hr.contract</field>
+        <field name="model">resource.calendar</field>
+        <field name="inherit_id" ref="resource.view_resource_calendar_tree"/>
+        <field name="arch" type="xml">
+            <field name="company_id" position="after">
+                <field name="contracts_count"/>
+                <field name="full_time_required_hours" widget="float_time" optional="hide"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="resource_calendar_view_form" model="ir.ui.view">
+        <field name="name">resource.calendar.view.form.inherit.hr.contract</field>
+        <field name="model">resource.calendar</field>
+        <field name="inherit_id" ref="resource.resource_calendar_form"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button class="oe_stat_button" name="action_open_contracts"
+                        type="object" icon="fa-book" groups="hr_contract.group_hr_contract_manager">
+                    <field name="contracts_count" string="Contracts" widget="statinfo"/>
+                </button>
+            </div>
+        </field>
+    </record>
+</odoo>
+
+```
+
+## File: views\res_config_settings_views.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.hr.contract</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="hr.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='employee_rights_setting_container']" position="after">
+                <block title="Contract" id="hr_contract">
+                    <setting string="Contract Expiration Notice Period" id="contract_notice_period"
+                        title="Number of days prior to the contract end date that a contract expiration warning is triggered.">
+                        <field name="contract_expiration_notice_period" class="w-25"/><span>Days</span>
+                    </setting>
+                    <setting string="Work Permit Expiration Notice Period" id="work_permit_notice_period"
+                        title="Number of days prior to the work permit expiration date that a warning is triggered.">
+                        <field name="work_permit_expiration_notice_period" class="w-25"/><span>Days</span>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
+
+```
+
+## File: wizard\hr_departure_wizard.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import fields, models, _
+from odoo.exceptions import UserError
+
+
+class HrDepartureWizard(models.TransientModel):
+    _inherit = 'hr.departure.wizard'
+
+    def _get_employee_departure_date(self):
+        employee = self.env['hr.employee'].browse(self.env.context['active_id'])
+        if employee.contract_id.state == "open":
+            return False
+        expired_contract = self.env['hr.contract'].search([('employee_id', '=', employee.id), ('state', '=', 'close')], limit=1, order='date_end desc')
+        if expired_contract:
+            return expired_contract.date_end
+        return super()._get_employee_departure_date()
+
+    set_date_end = fields.Boolean(string="Set Contract End Date", default=lambda self: self.env.user.has_group('hr_contract.group_hr_contract_manager'),
+        help="Set the end date on the current contract.")
+
+    def action_register_departure(self):
+        """If set_date_end is checked, set the departure date as the end date to current running contract,
+        and cancel all draft contracts"""
+        current_contract = self.sudo().employee_id.contract_id
+        if current_contract and current_contract.date_start > self.departure_date:
+            raise UserError(_("Departure date can't be earlier than the start date of current contract."))
+
+        super(HrDepartureWizard, self).action_register_departure()
+        if self.set_date_end:
+            self.sudo().employee_id.contract_ids.filtered(lambda c: c.state == 'draft').write({'state': 'cancel'})
+            if current_contract and current_contract.state in ['open', 'draft']:
+                self.sudo().employee_id.contract_id.write({'date_end': self.departure_date})
+            if current_contract.state == 'open':
+                current_contract.state = 'close'
+
+```
+
+## File: wizard\hr_departure_wizard_views.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_departure_wizard_view_form" model="ir.ui.view">
+        <field name="name">hr.departure.wizard.view.form.extend</field>
+        <field name="model">hr.departure.wizard</field>
+        <field name="inherit_id" ref="hr.hr_departure_wizard_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='activities_label']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath expr="//div[@id='activities']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath expr="//field[@name='departure_date']" position="attributes">
+                <attribute name="string">Contract End Date</attribute>
+            </xpath>
+            <xpath expr="//div[@id='activities']" position="inside">
+                <div><field name="set_date_end"/><label for="set_date_end" string="Contract"/></div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+
+```
+
+## File: wizard\mail_activity_schedule.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import fields, models
+from dateutil.relativedelta import relativedelta
+
+
+class MailActivitySchedule(models.TransientModel):
+    _inherit = 'mail.activity.schedule'
+
+    def _compute_plan_date(self):
+        todo = self.filtered(lambda s: s.res_model == 'hr.employee')
+        for scheduler in todo:
+            selected_employees = scheduler._get_applied_on_records()
+            start_dates = selected_employees.filtered('first_contract_date').mapped('first_contract_date')
+            if start_dates:
+                today = fields.Date.today()
+                planned_due_date = min(start_dates)
+                if planned_due_date < today or (planned_due_date - today).days < 30:
+                    scheduler.plan_date = today + relativedelta(days=+30)
+                else:
+                    scheduler.plan_date = planned_due_date
+        super(MailActivitySchedule, self - todo)._compute_plan_date()
+
+```
+
+## File: wizard\__init__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from . import hr_departure_wizard
+from . import mail_activity_schedule
+
+```
+
