@@ -1,0 +1,3435 @@
+# Odoo Module: l10n_sa
+
+Category: Accounting/Localizations/Account Charts
+
+This file contains the source code of the Odoo module.
+
+## File: __init__.py
+
+```python
+# -*- encoding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import api, SUPERUSER_ID
+from . import models
+
+
+def load_translations(cr, registry):
+    env = api.Environment(cr, SUPERUSER_ID, {})
+    env.ref('l10n_sa.sa_chart_template_standard').process_coa_translations()
+
+```
+
+## File: __manifest__.py
+
+```python
+# -*- encoding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+{
+    'name': 'Saudi Arabia - Accounting',
+    'version': '2.0',
+    'author': 'Odoo S.A., DVIT.ME',
+    'category': 'Accounting/Localizations/Account Charts',
+    'website': 'https://www.odoo.com/documentation/16.0/applications/finance/fiscal_localizations/saudi_arabia.html',
+    'description': """
+Saudi Arabia Accounting Module
+===========================================================
+Saudi Arabia Accounting Basic Charts and Localization
+
+Activates:
+
+- Chart of Accounts
+- Taxes
+- Vat Filling Report
+- Withholding Tax Report
+- Fiscal Positions
+""",
+    'depends': [
+        'l10n_multilang',
+        'l10n_gcc_invoice',
+    ],
+    'data': [
+        'data/account_data.xml',
+        'data/account_chart_template_data.xml',
+        'data/account.account.template.csv',
+        'data/account_tax_group.xml',
+        'data/l10n_sa_chart_data.xml',
+        'data/account_tax_report_data.xml',
+        'data/account_tax_template_data.xml',
+        'data/account_fiscal_position_template_data.xml',
+        'data/account_chart_template_configure_data.xml',
+        'data/report_paperformat_data.xml',
+        'views/view_move_form.xml',
+        'views/report_invoice.xml',
+    ],
+    'demo': [
+        'demo/demo_company.xml',
+    ],
+    'post_init_hook': 'load_translations',
+    'license': 'LGPL-3',
+}
+
+```
+
+## File: data\account.account.template.csv
+
+```csv
+id,name,code,account_type,chart_template_id/id,reconcile
+sa_account_100101,Right of use Asset (IFRS 16),100101,asset_fixed,l10n_sa.sa_chart_template_standard,False
+sa_account_100102,Accumulated Depreciation right use asset (IFRS 16),100102,asset_fixed,l10n_sa.sa_chart_template_standard,False
+sa_account_100103,VAT Receivable,100103,asset_non_current,l10n_sa.sa_chart_template_standard,False
+sa_account_101005,Main Safe,101005,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_101006,Main Safe - Foreign Currency,101006,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_101007,Visa & Master Credit Cards,101007,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_101008,Gateway Credit Cards,101008,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_101009,Manual Visa & Master Cards,101009,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_101010,PayPal Account,101010,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_101060,VAT Paid to Customs,101060,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_102011,Accounts Receivable,102011,asset_receivable,l10n_sa.sa_chart_template_standard,True
+sa_account_102012,Accounts Receivable (PoS),102012,asset_receivable,l10n_sa.sa_chart_template_standard,True
+sa_account_102013,Post Dated Cheques Received,102013,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_102014,Other Receivable,102014,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_102015,Other Debtors,102015,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_103016,Shipment Insurance,103016,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_103017,Shipments Documentation Charges,103017,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_103018,Shipment Other Charges,103018,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_103019,Handling Difference in Inventory,103019,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_103020,Items Delivered to Customs on temprary Base,103020,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104021,Prepaid Medical Insurance,104021,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104022,Prepaid Life Insurance,104022,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104023,Prepaid Office Rent,104023,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104024,Prepaid Other Insurance,104024,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104025,Prepaid License Fees,104025,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104026,Prepaid Maintenance,104026,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104027,Prepaid Site Hosting Fees,104027,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104028,Prepaid Employees Housing,104028,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104029,Prepaid Schooling Fees,104029,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104030,Prepaid Consultancy Fees,104030,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104031,Prepaid Legal Fees,104031,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104032,Prepaid Sponsorship Fees,104032,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104033,PrePaid Advertisement Expenses,104033,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104034,Prepaid Bank Guarantee,104034,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104035,Other Prepayments,104035,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104036,Prepaid Finance charge for Loans,104036,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104037,Deposit - Office Rent,104037,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104038,Deposits - Customs,104038,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104039,Deposit to Immigration (Visa),104039,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104040,Deposit Others,104040,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_104041,VAT Input,104041,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_106001,Leasehold Improvement,106001,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_106002,Furniture and Equipment,106002,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_106003,Computer Hardware & Software,106003,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_106004,Motor Vehicles,106004,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_106005,Work In Progress,106005,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_106006,Amortisation on Leasehold Improvement,106006,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_106007,Acc.Deprn.of Furniture & Office Equipment,106007,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_106008,Acc. Deprn.Computer Hardware & Software,106008,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_106009,Acc. Depreciation of Motor Vehicles,106009,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_106010,Registration of Trademarks,106010,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_106011,Computer Card Renewal,106011,asset_current,l10n_sa.sa_chart_template_standard,False
+sa_account_201002,Payables,201002,liability_payable,l10n_sa.sa_chart_template_standard,True
+sa_account_201003,Credit Notes to Customers,201003,liability_current,l10n_sa.sa_chart_template_standard,False
+sa_account_201004,Accrued - Salaries,201004,liability_current,l10n_sa.sa_chart_template_standard,False
+sa_account_201005,Leave Tickets Provision,201005,liability_current,l10n_sa.sa_chart_template_standard,False
+sa_account_201006,Leave Days Provision,201006,liability_current,l10n_sa.sa_chart_template_standard,False
+sa_account_201007,Accrued - Commissions,201007,liability_current,l10n_sa.sa_chart_template_standard,False
+sa_account_201008,Accrued Salaries Increment,201008,liability_current,l10n_sa.sa_chart_template_standard,False
+sa_account_201009,Accrued-Staff Bonus,201009,liability_current,l10n_sa.sa_chart_template_standard,False
+sa_account_201010,Accrued Other Personnel Cost,201010,liability_current,l10n_sa.sa_chart_template_standard,False
+sa_account_201011,Accrued - Utilities,201011,liability_current,l10n_sa.sa_chart_template_standard,False
+sa_account_201012,Accrued - Telephone,201012,liability_current,l10n_sa.sa_chart_template_standard,False
+sa_account_201013,Accrued - Sponsorship,201013,liability_current,l10n_sa.sa_chart_template_standard,False
+sa_account_201014,Accrued - Audit Fees,201014,liability_current,l10n_sa.sa_chart_template_standard,False
+sa_account_201015,Accrued - Office Rent,201015,liability_current,l10n_sa.sa_chart_template_standard,False
+sa_account_201016,Accrued Others,201016,liability_current,l10n_sa.sa_chart_template_standard,False
+sa_account_201017,VAT Output,201017,liability_current,l10n_sa.sa_chart_template_standard,False
+sa_account_201018,Deferred income,201018,liability_current,l10n_sa.sa_chart_template_standard,False
+sa_account_201019,Zakat Provision,201019,liability_current,l10n_sa.sa_chart_template_standard,False
+sa_account_201020,Withholding Tax Payable,201020,liability_current,l10n_sa.sa_chart_template_standard,False
+sa_account_202001,End of Service Provision,202001,liability_non_current,l10n_sa.sa_chart_template_standard,False
+sa_account_202002,Reservations,202002,liability_non_current,l10n_sa.sa_chart_template_standard,False
+sa_account_202003,VAT Payable,202003,liability_non_current,l10n_sa.sa_chart_template_standard,False
+sa_account_400001,Cost of Goods Sold in Trading,400001,expense_direct_cost,l10n_sa.sa_chart_template_standard,False
+sa_account_400002,Cost Of Goods Sold I/C Sales,400002,expense_direct_cost,l10n_sa.sa_chart_template_standard,False
+sa_account_400003,Basic Salary,400003,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400004,Housing Allowance,400004,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400005,Transportation Allowance,400005,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400006,Leave Ticket,400006,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400007,Leave Salary,400007,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400008,End Of Service Indemnity,400008,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400009,Medical Insurance,400009,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400010,Life Insurance,400010,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400011,Sales Commission,400011,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400012,Staff Other Allowances,400012,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400013,Uniform,400013,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400014,Visa Expenses,400014,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400015,Personnel Cost Others,400015,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400016,Office Rent,400016,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400017,Warehouse Rent,400017,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400018,Water & Electricity,400018,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400019,Other Utility Cahrges,400019,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400020,Telephone,400020,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400021,Courrier,400021,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400022,Web Site Hosting Fees,400022,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400023,Others - Communication,400023,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400024,Air tickets,400024,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400025,Hotel,400025,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400026,Meals,400026,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400027,Per Diem,400027,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400028,Others,400028,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400029,Audit Fees,400029,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400030,Sponsorship Fees,400030,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400031,Legal fees,400031,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400032,Trade License Fees,400032,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400033,Others - Professional Fees,400033,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400034,Other - Advertising Expenses,400034,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400035,Write Off Receivables & Payables,400035,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400036,Write Off Inventory,400036,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400037,Amortisation of Preoperating Expenses,400037,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400038,Cash Shortage,400038,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400039,Others - Provision & Write off,400039,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400040,Insurance,400040,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400041,Training,400041,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400042,Maintenance,400042,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400043,Security & Guard,400043,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400044,Cleaning,400044,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400045,Subscriptions,400045,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400046,Gifts & Donations,400046,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400047,Kitchen and Buffet Expenses,400047,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400048,Vehicle Expenses,400048,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400049,Convoyance Expenses,400049,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400050,Others - Office Various Expenses,400050,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400051,Other Bank Charges,400051,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400052,Loss On Fixed Assets Disposal,400052,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400053,Loss on Difference on Exchange,400053,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400054,Disposal of Business Branch,400054,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400055,Income Tax,400055,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400056,Previous Year Adjustments Account,400056,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400057,Other Non Operating Expenses,400057,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400058,Credit Card Charges,400058,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400059,Bank Finance & Loan Charges,400059,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400060,Air Miles Card Charges,400060,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400062,PayPal Charges,400062,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400063,Amortization on Leasehold Improvement,400063,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400064,Depreciation Of Furniture & Office Equipment,400064,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400065,Depreciation Of Computer Hard & Soft,400065,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400066,Depreciation Of Motor Vehicles,400066,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400067,Consultancy Fees,400067,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400068,Provision for Doubtful Debts,400068,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400069,Closing Account,400069,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400070,Depreciation on right of use asset (IFRS 16),400070,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400072,Zakat Expense,400072,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_400073,Withholding Tax Expense,400073,expense,l10n_sa.sa_chart_template_standard,False
+sa_account_500001,Sales Account,500001,income,l10n_sa.sa_chart_template_standard,False
+sa_account_500002,Sales of I/C,500002,income,l10n_sa.sa_chart_template_standard,False
+sa_account_500003,Management Consultancy Fees,500003,income,l10n_sa.sa_chart_template_standard,False
+sa_account_500004,Sales from Other Region,500004,income,l10n_sa.sa_chart_template_standard,False
+sa_account_500005,Advertising Income,500005,income,l10n_sa.sa_chart_template_standard,False
+sa_account_500006,Branding Income,500006,income,l10n_sa.sa_chart_template_standard,False
+sa_account_500007,Space Rental Income,500007,income,l10n_sa.sa_chart_template_standard,False
+sa_account_500008,Service Income,500008,income,l10n_sa.sa_chart_template_standard,False
+sa_account_500009,Interest Revenue,500009,income,l10n_sa.sa_chart_template_standard,False
+sa_account_500010,Capital Gain,500010,income,l10n_sa.sa_chart_template_standard,False
+sa_account_500011,Gain On Difference Of Exchange,500011,income,l10n_sa.sa_chart_template_standard,False
+sa_account_500013,Other Income,500013,income,l10n_sa.sa_chart_template_standard,False
+sa_account_999999,Undistributed Profits/Losses,999999,equity_unaffected,l10n_sa.sa_chart_template_standard,False
+
+```
+
+## File: data\account_chart_template_configure_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <function model="account.chart.template" name="try_loading">
+            <value eval="[ref('l10n_sa.sa_chart_template_standard')]"/>
+        </function>
+    </data>
+</odoo>
+
+```
+
+## File: data\account_chart_template_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="sa_chart_template_standard" model="account.chart.template">
+            <field name="name">Saudi Arabia Chart of Accounts - Standard</field>
+            <field name="bank_account_code_prefix">101</field>
+            <field name="cash_account_code_prefix">105</field>
+            <field name="transfer_account_code_prefix">100</field>
+            <field name="code_digits">6</field>
+            <field name="currency_id" ref="base.SAR"/>
+            <field name="country_id" ref="base.sa"/>
+            <field name="spoken_languages" eval="'en_US;ar_001;'"/>
+        </record>
+</odoo>
+
+```
+
+## File: data\account_data.xml
+
+```xml
+<odoo>
+    <data noupdate="1">
+        <!-- set VAT label to show on invoice report -->
+        <record id="base.sa" model="res.country">
+            <field name="vat_label">VAT Number</field>
+        </record>
+    </data>
+</odoo>
+
+```
+
+## File: data\account_fiscal_position_template_data.xml
+
+```xml
+<odoo>
+    <data noupdate="1">
+        <record id="l10n_sa_account_fiscal_position_ksa" model="account.fiscal.position.template">
+            <field name="name">KSA</field>
+            <field name="auto_apply" eval="True"/>
+            <field name="sequence">16</field>
+            <field name="country_id" ref="base.sa"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+        </record>
+        <record id="l10n_sa_account_fiscal_position_gcc" model="account.fiscal.position.template">
+            <field name="name">GCC</field>
+            <field name="auto_apply" eval="True"/>
+            <field name="sequence">16</field>
+            <field name="country_group_id" ref="base.gulf_cooperation_council"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+        </record>
+        <record id="l10n_sa_account_fiscal_position_non_gcc" model="account.fiscal.position.template">
+            <field name="name">Non-GCC</field>
+            <field name="sequence">16</field>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+        </record>
+    </data>
+</odoo>
+
+```
+
+## File: data\account_tax_group.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Account Tax Group -->
+        <record id="sa_tax_group_taxes_15" model="account.tax.group">
+            <field name="name">VAT Taxes</field>
+            <field name="property_tax_payable_account_id" ref="sa_account_202003"/>
+            <field name="property_tax_receivable_account_id" ref="sa_account_100103"/>
+             <field name="country_id" ref="base.sa"/>
+        </record>
+        <record id="sa_tax_group_taxes_other" model="account.tax.group">
+            <field name="name">Other Taxes</field>
+             <field name="country_id" ref="base.sa"/>
+        </record>
+        <record id="sa_tax_group_taxes_withholding" model="account.tax.group">
+            <field name="name">Withholding Tax</field>
+            <field name="country_id" ref="base.sa"/>
+        </record>
+    </data>
+</odoo>
+
+```
+
+## File: data\account_tax_report_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="tax_report_vat_filing" model="account.report">
+        <field name="name">VAT Filing Report</field>
+        <field name="root_report_id" ref="account.generic_tax_report"/>
+        <field name="country_id" ref="base.sa"/>
+        <field name="filter_fiscal_position" eval="True"/>
+        <field name="availability_condition">country</field>
+        <field name="column_ids">
+            <record id="tax_report_vat_filing_balance" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="expression_label">balance</field>
+            </record>
+        </field>
+        <field name="line_ids">
+            <record id="tax_report_line_vat_all_sales_base" model="account.report.line">
+                <field name="name">VAT on Sales and all other Outputs (Base)</field>
+                <field name="aggregation_formula">SA_STD_SALE_B.balance + SA_SPCL_SALE_B.balance + SA_ZERO_SALE_B.balance + SA_EXP_SALE_B.balance + SA_EXM_SALE_B.balance</field>
+                <field name="children_ids">
+                    <record id="tax_report_line_standard_rated_15_base" model="account.report.line">
+                        <field name="name">1. Standard Rated 15% (Base)</field>
+                        <field name="code">SA_STD_SALE_B</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_standard_rated_15_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">1. Standard Rates 15% (Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_special_sales_to_locals_base" model="account.report.line">
+                        <field name="name">2. Special Sales to Locals (Base)</field>
+                        <field name="code">SA_SPCL_SALE_B</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_special_sales_to_locals_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">2. Special Sales to Locals (Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_local_sales_subject_to_0_base" model="account.report.line">
+                        <field name="name">3. Local Sales Subject to 0% (Base)</field>
+                        <field name="code">SA_ZERO_SALE_B</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_local_sales_subject_to_0_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">3. Local Sales Subject to 0% (Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_export_sales_base" model="account.report.line">
+                        <field name="name">4. Export Sales (Base)</field>
+                        <field name="code">SA_EXP_SALE_B</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_export_sales_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">4. Export Sales (Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_exempt_sales_base" model="account.report.line">
+                        <field name="name">5. Exempt Sales (Base)</field>
+                        <field name="code">SA_EXM_SALE_B</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_exempt_sales_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">5. Exempt Sales (Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_net_sales_base" model="account.report.line">
+                        <field name="name">6. Net Sales (Base)</field>
+                        <field name="aggregation_formula">SA_STD_SALE_B.balance + SA_SPCL_SALE_B.balance + SA_ZERO_SALE_B.balance + SA_EXP_SALE_B.balance + SA_EXM_SALE_B.balance</field>
+                    </record>
+                </field>
+            </record>
+            <record id="tax_report_line_vat_all_sales_tax" model="account.report.line">
+                <field name="name">VAT on Sales and all other Outputs (Tax)</field>
+                <field name="aggregation_formula">SA_STD_SALE_T.balance + SA_SPCL_SALE_T.balance + SA_ZERO_SALE_T.balance + SA_EXP_SALE_T.balance + SA_EXM_SALE_T.balance</field>
+                <field name="children_ids">
+                    <record id="tax_report_line_standard_rated_15_tax" model="account.report.line">
+                        <field name="name">1. Standard Rated 15% (Tax)</field>
+                        <field name="code">SA_STD_SALE_T</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_standard_rated_15_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">1. Standard Rates 15% (Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_special_sales_to_locals_tax" model="account.report.line">
+                        <field name="name">2. Special Sales to Locals (Tax)</field>
+                        <field name="code">SA_SPCL_SALE_T</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_special_sales_to_locals_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">2. Special Sales to Locals (Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_local_sales_subject_to_0_tax" model="account.report.line">
+                        <field name="name">3. Local Sales Subject to 0% (Tax)</field>
+                        <field name="code">SA_ZERO_SALE_T</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_local_sales_subject_to_0_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">3. Local Sales Subject to 0% (Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_export_sales_tax" model="account.report.line">
+                        <field name="name">4. Export Sales (Tax)</field>
+                        <field name="code">SA_EXP_SALE_T</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_export_sales_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">4. Export Sales (Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_exempt_sales_tax" model="account.report.line">
+                        <field name="name">5. Exempt Sales (Tax)</field>
+                        <field name="code">SA_EXM_SALE_T</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_exempt_sales_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">5. Exempt Sales (Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_net_sales_tax" model="account.report.line">
+                        <field name="name">6. Net Sales (Tax)</field>
+                        <field name="aggregation_formula">SA_STD_SALE_T.balance + SA_SPCL_SALE_T.balance + SA_ZERO_SALE_T.balance + SA_EXP_SALE_T.balance + SA_EXM_SALE_T.balance</field>
+                    </record>
+                </field>
+            </record>
+            <record id="tax_report_line_vat_all_expenses_base" model="account.report.line">
+                <field name="name">VAT on Expenses and all other Inputs (Base)</field>
+                <field name="aggregation_formula">SA_STD_PUR_B.balance + SA_CUST_PUR_B.balance + SA_RCM_PUR_B.balance + SA_ZER_PUR_B.balance + SA_EXM_PUR_B.balance</field>
+                <field name="children_ids">
+                    <record id="tax_report_line_standard_rated_15_purchases_base" model="account.report.line">
+                        <field name="name">7. Standard rated 15% Purchases (Base)</field>
+                        <field name="code">SA_STD_PUR_B</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_standard_rated_15_purchases_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">7. Standard rated 15% Purchases (Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_taxable_imports_15_paid_to_customs_base" model="account.report.line">
+                        <field name="name">8. Taxable Imports 15% Paid to Customs (Base)</field>
+                        <field name="code">SA_CUST_PUR_B</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_taxable_imports_15_paid_to_customs_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">8. Taxable Imports 15% Paid to Customs (Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_imports_subject_tp_reverse_charge_mechanism_base" model="account.report.line">
+                        <field name="name">9. Imports subject to reverse charge mechanism (Base)</field>
+                        <field name="code">SA_RCM_PUR_B</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_imports_subject_tp_reverse_charge_mechanism_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">9. Imports subject to reverse charge mechanism (Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_zero_rated_purchases_base" model="account.report.line">
+                        <field name="name">10. Zero Rated Purchases (Base)</field>
+                        <field name="code">SA_ZER_PUR_B</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_zero_rated_purchases_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">10. Zero Rated Purchases (Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_exempt_purchases_base" model="account.report.line">
+                        <field name="name">11. Exempt Purchases (Base)</field>
+                        <field name="code">SA_EXM_PUR_B</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_exempt_purchases_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">11. Exempt Purchases (Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_net_purchases_base" model="account.report.line">
+                        <field name="name">12. Net Purchases (Base)</field>
+                        <field name="aggregation_formula">SA_STD_PUR_B.balance + SA_CUST_PUR_B.balance + SA_RCM_PUR_B.balance + SA_ZER_PUR_B.balance + SA_EXM_PUR_B.balance</field>
+                    </record>
+                </field>
+            </record>
+            <record id="tax_report_line_vat_all_expenses_tax" model="account.report.line">
+                <field name="name">VAT on Expenses and all other Inputs (Tax)</field>
+                <field name="aggregation_formula">SA_STD_PUR_T.balance + SA_CUST_PUR_T.balance + SA_RCM_PUR_T.balance + SA_ZER_PUR_T.balance + SA_EXM_PUR_T.balance</field>
+                <field name="children_ids">
+                    <record id="tax_report_line_standard_rated_15_purchases_tax" model="account.report.line">
+                        <field name="name">7. Standard rated 15% Purchases (Tax)</field>
+                        <field name="code">SA_STD_PUR_T</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_standard_rated_15_purchases_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">7. Standard rated 15% Purchases (Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_taxable_imports_15_paid_to_customs_tax" model="account.report.line">
+                        <field name="name">8. Taxable Imports 15% Paid to Customs (Tax)</field>
+                        <field name="code">SA_CUST_PUR_T</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_taxable_imports_15_paid_to_customs_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">8. Taxable Imports 15% Paid to Customs (Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_imports_subject_tp_reverse_charge_mechanism_tax" model="account.report.line">
+                        <field name="name">9. Imports subject to reverse charge mechanism (Tax)</field>
+                        <field name="code">SA_RCM_PUR_T</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_imports_subject_tp_reverse_charge_mechanism_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">9. Imports subject to reverse charge mechanism (Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_zero_rated_purchases_tax" model="account.report.line">
+                        <field name="name">10. Zero Rated Purchases (Tax)</field>
+                        <field name="code">SA_ZER_PUR_T</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_zero_rated_purchases_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">10. Zero Rated Purchases (Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_exempt_purchases_tax" model="account.report.line">
+                        <field name="name">11. Exempt Purchases (Tax)</field>
+                        <field name="code">SA_EXM_PUR_T</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_exempt_purchases_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">11. Exempt Purchases (Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_net_purchases_tax" model="account.report.line">
+                        <field name="name">12. Net Purchases (Tax)</field>
+                        <field name="aggregation_formula">SA_STD_PUR_T.balance + SA_CUST_PUR_T.balance + SA_RCM_PUR_T.balance + SA_ZER_PUR_T.balance + SA_EXM_PUR_T.balance</field>
+                    </record>
+                </field>
+            </record>
+            <record id="tax_report_line_net_vat_due" model="account.report.line">
+                <field name="name">Net VAT Due</field>
+                <field name="expression_ids">
+                    <record id="tax_report_line_net_vat_due_formula" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">external</field>
+                        <field name="formula">sum</field>
+                        <field name="subformula">editable;rounding=2</field>
+                    </record>
+                </field>
+                <field name="children_ids">
+                    <record id="tax_report_line_total_value_of_due_tax_for_the_period" model="account.report.line">
+                        <field name="name">Total value of due tax for the period</field>
+                        <field name="aggregation_formula">SA_STD_SALE_T.balance + SA_SPCL_SALE_T.balance + SA_ZERO_SALE_T.balance + SA_EXP_SALE_T.balance + SA_EXM_SALE_T.balance</field>
+                    </record>
+                    <record id="tax_report_line_total_value_of_recoverable_tax_for_the_period" model="account.report.line">
+                        <field name="name">Total value of recoverable tax for the period</field>
+                        <field name="aggregation_formula">SA_STD_PUR_T.balance + SA_CUST_PUR_T.balance + SA_RCM_PUR_T.balance + SA_ZER_PUR_T.balance + SA_EXM_PUR_T.balance</field>
+                    </record>
+                    <record id="tax_report_line_net_vat_due_or_reclaimed_for_the_period" model="account.report.line">
+                        <field name="name">Net VAT due (or reclaimed) for the period</field>
+                        <field name="aggregation_formula">SA_STD_SALE_T.balance + SA_SPCL_SALE_T.balance + SA_ZERO_SALE_T.balance + SA_EXP_SALE_T.balance + SA_EXM_SALE_T.balance - (SA_STD_PUR_T.balance + SA_CUST_PUR_T.balance + SA_RCM_PUR_T.balance + SA_ZER_PUR_T.balance + SA_EXM_PUR_T.balance)</field>
+                    </record>
+                </field>
+            </record>
+        </field>
+    </record>
+    <record id="tax_report_withholding_tax" model="account.report">
+        <field name="name">Withholding Tax Report</field>
+        <field name="root_report_id" ref="account.generic_tax_report"/>
+        <field name="country_id" ref="base.sa"/>
+        <field name="filter_fiscal_position" eval="True"/>
+        <field name="availability_condition">country</field>
+        <field name="column_ids">
+            <record id="tax_report_withholding_tax_balance" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="expression_label">balance</field>
+            </record>
+        </field>
+        <field name="line_ids">
+            <record id="tax_report_line_withholding_tax_on_purchased_services_base" model="account.report.line">
+                <field name="name">Withholding Tax on Purchased Services (Base)</field>
+                <field name="aggregation_formula">SA_RENTB.balance + SA_AIRB.balance + SA_SEAB.balance + SA_TELEB.balance + SA_DIVB.balance + SA_CONB.balance + SA_ROLB.balance + SA_INSB.balance + SA_ROYB.balance + SA_MAIB.balance + SA_BRAB.balance + SA_OTHB.balance + SA_MAGB.balance</field>
+                <field name="children_ids">
+                    <record id="tax_report_line_withholding_tax_5_rental_base" model="account.report.line">
+                        <field name="name">Withholding Tax 5% (Rental) (Base)</field>
+                        <field name="code">SA_RENTB</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_5_rental_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 5% (Rental) (Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_5_tickets_or_air_freight_base" model="account.report.line">
+                        <field name="name">Withholding Tax 5% (Tickets or Air Freight) (Base)</field>
+                        <field name="code">SA_AIRB</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_5_tickets_or_air_freight_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 5% (Tickets or Air Freight) (Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_5_tickets_or_sea_freight_base" model="account.report.line">
+                        <field name="name">Withholding Tax 5% (Tickets or Sea Freight)(Base)</field>
+                        <field name="code">SA_SEAB</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_5_tickets_or_sea_freight_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 5% (Tickets or Sea Freight)(Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_5_international_telecommunication_base" model="account.report.line">
+                        <field name="name">Withholding Tax 5% (International Telecommunication)(Base)</field>
+                        <field name="code">SA_TELEB</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_5_international_telecommunication_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 5% (International Telecommunication)(Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_5_distributed_profits_base" model="account.report.line">
+                        <field name="name">Withholding Tax 5% (Distributed Profits) (Base)</field>
+                        <field name="code">SA_DIVB</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_5_distributed_profits_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 5% (Distributed Profits) (Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_5_consulting_and_technical_base" model="account.report.line">
+                        <field name="name">Withholding Tax 5% (Consulting and Technical) (Base)</field>
+                        <field name="code">SA_CONB</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_5_consulting_and_technical_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 5% (Consulting and Technical) (Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_5_return_from_loans_base" model="account.report.line">
+                        <field name="name">Withholding Tax 5% (Return from Loans) (Base)</field>
+                        <field name="code">SA_ROLB</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_5_return_from_loans_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 5% (Return from Loans) (Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_5_insurance_and_reinsurance_base" model="account.report.line">
+                        <field name="name">Withholding Tax 5% (Insurance &amp; Reinsurance) (Base)</field>
+                        <field name="code">SA_INSB</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_5_insurance_and_reinsurance_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 5% (Insurance &amp; Reinsurance) (Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_15_royalties_base" model="account.report.line">
+                        <field name="name">Withholding Tax 15% (Royalties)(Base)</field>
+                        <field name="code">SA_ROYB</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_15_royalties_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 15% (Royalties)(Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_15_paid_services_from_main_branch_base" model="account.report.line">
+                        <field name="name">Withholding Tax 15% (Paid Services from Main Branch)(Base)</field>
+                        <field name="code">SA_MAIB</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_15_paid_services_from_main_branch_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 15% (Paid Services from Main Branch)(Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_15_paid_services_from_another_branch_base" model="account.report.line">
+                        <field name="name">Withholding Tax 15% (Paid Services from another branch)(Base)</field>
+                        <field name="code">SA_BRAB</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_15_paid_services_from_another_branch_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 15% (Paid Services from another branch)(Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_15_others_base" model="account.report.line">
+                        <field name="name">Withholding Tax 15% (Others)(Base)</field>
+                        <field name="code">SA_OTHB</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_15_others_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 15% (Others)(Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_20_managerial_base" model="account.report.line">
+                        <field name="name">Withholding Tax 20% (Managerial)(Base)</field>
+                        <field name="code">SA_MAGB</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_20_managerial_base_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 20% (Managerial)(Base)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_total_base" model="account.report.line">
+                        <field name="name">Withholding Tax Total (Base)</field>
+                        <field name="aggregation_formula">SA_RENTB.balance+SA_AIRB.balance+SA_SEAB.balance+SA_TELEB.balance+SA_DIVB.balance+SA_CONB.balance+SA_ROLB.balance+SA_INSB.balance+SA_ROYB.balance+SA_MAIB.balance+SA_BRAB.balance+SA_OTHB.balance+SA_MAGB.balance</field>
+                    </record>
+                </field>
+            </record>
+            <record id="tax_report_line_withholding_tax_on_purchased_services_tax" model="account.report.line">
+                <field name="name">Withholding Tax on Purchased Services (Tax)</field>
+                <field name="aggregation_formula">SA_RENTT.balance + SA_AIRT.balance + SA_SEAT.balance + SA_TELET.balance + SA_DIVT.balance + SA_CONT.balance + SA_ROLT.balance + SA_INST.balance + SA_ROYT.balance + SA_MAIT.balance + SA_BRAT.balance + SA_OTHT.balance + SA_MAGT.balance</field>
+                <field name="children_ids">
+                    <record id="tax_report_line_withholding_tax_5_rental_tax" model="account.report.line">
+                        <field name="name">Withholding Tax 5% (Rental) (Tax)</field>
+                        <field name="code">SA_RENTT</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_5_rental_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 5% (Rental) (Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_5_tickets_or_air_freight_tax" model="account.report.line">
+                        <field name="name">Withholding Tax 5% (Tickets or Air Freight) (Tax)</field>
+                        <field name="code">SA_AIRT</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_5_tickets_or_air_freight_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 5% (Tickets or Air Freight) (Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_5_tickets_or_sea_freight_tax" model="account.report.line">
+                        <field name="name">Withholding Tax 5% (Tickets or Sea Freight)(Tax)</field>
+                        <field name="code">SA_SEAT</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_5_tickets_or_sea_freight_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 5% (Tickets or Sea Freight)(Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_5_international_telecommunication_tax" model="account.report.line">
+                        <field name="name">Withholding Tax 5% (International Telecommunication)(Tax)</field>
+                        <field name="code">SA_TELET</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_5_international_telecommunication_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 5% (International Telecommunication)(Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_5_distributed_profits_tax" model="account.report.line">
+                        <field name="name">Withholding Tax 5% (Distributed Profits) (Tax)</field>
+                        <field name="code">SA_DIVT</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_5_distributed_profits_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 5% (Distributed Profits) (Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_5_consulting_and_technical_tax" model="account.report.line">
+                        <field name="name">Withholding Tax 5% (Consulting and Technical) (Tax)</field>
+                        <field name="code">SA_CONT</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_5_consulting_and_technical_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 5% (Consulting and Technical) (Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_5_return_from_loans_tax" model="account.report.line">
+                        <field name="name">Withholding Tax 5% (Return from Loans) (Tax)</field>
+                        <field name="code">SA_ROLT</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_5_return_from_loans_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 5% (Return from Loans) (Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_5_insurance_and_reinsurance_tax" model="account.report.line">
+                        <field name="name">Withholding Tax 5% (Insurance &amp; Reinsurance) (Tax)</field>
+                        <field name="code">SA_INST</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_5_insurance_and_reinsurance_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 5% (Insurance &amp; Reinsurance) (Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_15_royalties_tax" model="account.report.line">
+                        <field name="name">Withholding Tax 15% (Royalties)(Tax)</field>
+                        <field name="code">SA_ROYT</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_15_royalties_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 15% (Royalties)(Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_15_paid_services_from_main_branch_tax" model="account.report.line">
+                        <field name="name">Withholding Tax 15% (Paid Services from Main Branch)(Tax)</field>
+                        <field name="code">SA_MAIT</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_15_paid_services_from_main_branch_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 15% (Paid Services from Main Branch)(Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_15_paid_services_from_another_branch_tax" model="account.report.line">
+                        <field name="name">Withholding Tax 15% (Paid Services from another branch)(Tax)</field>
+                        <field name="code">SA_BRAT</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_15_paid_services_from_another_branch_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 15% (Paid Services from another branch)(Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_15_others_tax" model="account.report.line">
+                        <field name="name">Withholding Tax 15% (Others)(Tax)</field>
+                        <field name="code">SA_OTHT</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_15_others_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 15% (Others)(Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_20_managerial_tax" model="account.report.line">
+                        <field name="name">Withholding Tax 20% (Managerial)(Tax)</field>
+                        <field name="code">SA_MAGT</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_line_withholding_tax_20_managerial_tax_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">Withholding Tax 20% (Managerial)(Tax)</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_line_withholding_tax_total_tax" model="account.report.line">
+                        <field name="name">Withholding Tax Total (Tax)</field>
+                        <field name="aggregation_formula">SA_RENTT.balance+SA_AIRT.balance+SA_SEAT.balance+SA_TELET.balance+SA_DIVT.balance+SA_CONT.balance+SA_ROLT.balance+SA_INST.balance+SA_ROYT.balance+SA_MAIT.balance+SA_BRAT.balance+SA_OTHT.balance+SA_MAGT.balance</field>
+                    </record>
+                </field>
+            </record>
+        </field>
+    </record>
+</odoo>
+
+```
+
+## File: data\account_tax_template_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="sa_sales_tax_15" model="account.tax.template">
+            <field name="name">Sales Tax 15%</field>
+            <field name="type_tax_use">sale</field>
+            <field name="amount">15</field>
+            <field name="amount_type">percent</field>
+            <field name="description">Sales Tax 15%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_15"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_standard_rated_15_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_201017'),
+                'plus_report_expression_ids': [ref('tax_report_line_standard_rated_15_tax_tag')],
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_standard_rated_15_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_201017'),
+                'minus_report_expression_ids': [ref('tax_report_line_standard_rated_15_tax_tag')],
+            }),
+        ]"/>
+        </record>
+        <record id="sa_local_sales_tax_0" model="account.tax.template">
+            <field name="name">Local Sales 0%</field>
+            <field name="type_tax_use">sale</field>
+            <field name="amount">0</field>
+            <field name="amount_type">percent</field>
+            <field name="description">Local Sales 0%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_other"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_local_sales_subject_to_0_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'plus_report_expression_ids': [ref('tax_report_line_local_sales_subject_to_0_tax_tag')],
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_local_sales_subject_to_0_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'minus_report_expression_ids': [ref('tax_report_line_local_sales_subject_to_0_tax_tag')],
+            }),
+        ]"/>
+        </record>
+        <record id="sa_export_sales_tax_0" model="account.tax.template">
+            <field name="name">Export Sales 0%</field>
+            <field name="type_tax_use">sale</field>
+            <field name="amount">0</field>
+            <field name="amount_type">percent</field>
+            <field name="description">Export Sales 0%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_other"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_export_sales_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'plus_report_expression_ids': [ref('tax_report_line_export_sales_tax_tag')],
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_export_sales_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'minus_report_expression_ids': [ref('tax_report_line_export_sales_tax_tag')],
+            }),
+        ]"/>
+        </record>
+        <record id="sa_exempt_sales_tax_0" model="account.tax.template">
+            <field name="name">Exempt Sales Tax 0%</field>
+            <field name="type_tax_use">sale</field>
+            <field name="amount">0</field>
+            <field name="amount_type">percent</field>
+            <field name="description">Exempt Sales Tax 0%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_other"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_exempt_sales_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'plus_report_expression_ids': [ref('tax_report_line_exempt_sales_tax_tag')],
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_exempt_sales_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'minus_report_expression_ids': [ref('tax_report_line_exempt_sales_tax_tag')],
+            }),
+        ]"/>
+        </record>
+        <record id="sa_purchase_tax_15" model="account.tax.template">
+            <field name="name">Purchase Tax 15%</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">15</field>
+            <field name="amount_type">percent</field>
+            <field name="description">Purchase Tax 15%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_15"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_standard_rated_15_purchases_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_104041'),
+                'plus_report_expression_ids': [ref('tax_report_line_standard_rated_15_purchases_tax_tag')],
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_standard_rated_15_purchases_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_104041'),
+                'minus_report_expression_ids': [ref('tax_report_line_standard_rated_15_purchases_tax_tag')],
+            }),
+        ]"/>
+        </record>
+        <record id="sa_rcp_tax_15" model="account.tax.template">
+            <field name="name">Reverse charge provision Tax 15%</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">15</field>
+            <field name="amount_type">percent</field>
+            <field name="tax_scope">service</field>
+            <field name="description">Reverse charge provision Tax 15%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_15"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_imports_subject_tp_reverse_charge_mechanism_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_104041'),
+                'plus_report_expression_ids': [ref('tax_report_line_imports_subject_tp_reverse_charge_mechanism_tax_tag')],
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_imports_subject_tp_reverse_charge_mechanism_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_104041'),
+                'minus_report_expression_ids': [ref('tax_report_line_imports_subject_tp_reverse_charge_mechanism_tax_tag')],
+            }),
+        ]"/>
+        </record>
+        <record id="sa_import_tax_paid_15_paid_to_customs" model="account.tax.template">
+            <field name="name">Import tax 15% Paid to customs</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">15</field>
+            <field name="amount_type">percent</field>
+            <field name="description">Import tax 15% Paid to customs</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_other"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_taxable_imports_15_paid_to_customs_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_101060'),
+                'plus_report_expression_ids': [ref('tax_report_line_taxable_imports_15_paid_to_customs_tax_tag')],
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_taxable_imports_15_paid_to_customs_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_101060'),
+                'minus_report_expression_ids': [ref('tax_report_line_taxable_imports_15_paid_to_customs_tax_tag')],
+            }),
+        ]"/>
+        </record>
+        <record id="sa_purchases_tax_0" model="account.tax.template">
+            <field name="name">Purchases 0%</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">0</field>
+            <field name="amount_type">percent</field>
+            <field name="description">Purchases 0%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_other"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_zero_rated_purchases_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'plus_report_expression_ids': [ref('tax_report_line_zero_rated_purchases_tax_tag')],
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_zero_rated_purchases_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'minus_report_expression_ids': [ref('tax_report_line_zero_rated_purchases_tax_tag')],
+            }),
+        ]"/>
+        </record>
+        <record id="sa_exempt_purchases_tax" model="account.tax.template">
+            <field name="name">Exempt Purchases</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">0</field>
+            <field name="amount_type">percent</field>
+            <field name="description">Exempt Purchases</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_other"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_exempt_purchases_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'plus_report_expression_ids': [ref('tax_report_line_exempt_purchases_tax_tag')],
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_exempt_purchases_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'minus_report_expression_ids': [ref('tax_report_line_exempt_purchases_tax_tag')],
+            }),
+        ]"/>
+        </record>
+        <record id="sa_withholding_tax_5_rental" model="account.tax.template">
+            <field name="name">Withholding Tax 5% (Rental)</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">5</field>
+            <field name="amount_type">percent</field>
+            <field name="tax_scope">service</field>
+            <field name="description">Withholding Tax 5%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_withholding"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_rental_base_tag')],
+            }),
+            (0,0, {
+                'account_id': ref('sa_account_400073'),
+                'repartition_type': 'tax',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_rental_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_rental_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_400073'),
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_rental_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        </record>
+        <record id="sa_withholding_tax_5_tickets_or_air_freight" model="account.tax.template">
+            <field name="name">Withholding Tax 5% (Tickets or Air Freight)</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">5</field>
+            <field name="amount_type">percent</field>
+            <field name="tax_scope">service</field>
+            <field name="description">Withholding Tax 5%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_withholding"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_tickets_or_air_freight_base_tag')],
+            }),
+            (0,0, {
+                'account_id': ref('sa_account_400073'),
+                'repartition_type': 'tax',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_tickets_or_air_freight_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_tickets_or_air_freight_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_400073'),
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_tickets_or_air_freight_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        </record>
+        <record id="sa_withholding_tax_5_tickets_or_sea_freight" model="account.tax.template">
+            <field name="name">Withholding Tax 5% (Tickets or Sea Freight)</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">5</field>
+            <field name="amount_type">percent</field>
+            <field name="tax_scope">service</field>
+            <field name="description">Withholding Tax 5%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_withholding"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_tickets_or_sea_freight_base_tag')],
+            }),
+            (0,0, {
+                'account_id': ref('sa_account_400073'),
+                'repartition_type': 'tax',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_tickets_or_sea_freight_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_tickets_or_sea_freight_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_400073'),
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_tickets_or_sea_freight_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        </record>
+        <record id="sa_withholding_tax_5_international_telecommunication" model="account.tax.template">
+            <field name="name">Withholding Tax 5% (International Telecommunication)</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">5</field>
+            <field name="amount_type">percent</field>
+            <field name="tax_scope">service</field>
+            <field name="description">Withholding Tax 5%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_withholding"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_international_telecommunication_base_tag')],
+            }),
+            (0,0, {
+                'account_id': ref('sa_account_400073'),
+                'repartition_type': 'tax',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_international_telecommunication_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_international_telecommunication_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_400073'),
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_international_telecommunication_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        </record>
+        <record id="sa_withholding_tax_5_distributed_profits" model="account.tax.template">
+            <field name="name">Withholding Tax 5% (Distributed Profits)</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">5</field>
+            <field name="amount_type">percent</field>
+            <field name="tax_scope">service</field>
+            <field name="description">Withholding Tax 5%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_withholding"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_distributed_profits_base_tag')],
+            }),
+            (0,0, {
+                'account_id': ref('sa_account_400073'),
+                'repartition_type': 'tax',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_distributed_profits_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_distributed_profits_tax_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_400073'),
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_distributed_profits_base_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        </record>
+        <record id="sa_withholding_tax_5_consulting_and_technical" model="account.tax.template">
+            <field name="name">Withholding Tax 5% (Consulting and Technical)</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">5</field>
+            <field name="amount_type">percent</field>
+            <field name="tax_scope">service</field>
+            <field name="description">Withholding Tax 5%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_withholding"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_consulting_and_technical_base_tag')],
+            }),
+            (0,0, {
+                'account_id': ref('sa_account_400073'),
+                'repartition_type': 'tax',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_consulting_and_technical_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_consulting_and_technical_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_400073'),
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_consulting_and_technical_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        </record>
+        <record id="sa_withholding_tax_5_return_from_loans" model="account.tax.template">
+            <field name="name">Withholding Tax 5% (Return from Loans)</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">5</field>
+            <field name="amount_type">percent</field>
+            <field name="tax_scope">service</field>
+            <field name="description">Withholding Tax 5%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_withholding"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_return_from_loans_base_tag')],
+            }),
+            (0,0, {
+                'account_id': ref('sa_account_400073'),
+                'repartition_type': 'tax',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_return_from_loans_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_return_from_loans_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_400073'),
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_return_from_loans_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        </record>
+        <record id="sa_withholding_tax_5_insurance_amd_reinsurance" model="account.tax.template">
+            <field name="name">Withholding Tax 5% (Insurance &amp; Reinsurance)</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">5</field>
+            <field name="amount_type">percent</field>
+            <field name="tax_scope">service</field>
+            <field name="description">Withholding Tax 5%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_withholding"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_insurance_and_reinsurance_base_tag')],
+            }),
+            (0,0, {
+                'account_id': ref('sa_account_400073'),
+                'repartition_type': 'tax',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_insurance_and_reinsurance_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_insurance_and_reinsurance_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_400073'),
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_5_insurance_and_reinsurance_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        </record>
+        <record id="sa_withholding_tax_15_royalties" model="account.tax.template">
+            <field name="name">Withholding Tax 15% (Royalties)</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">15</field>
+            <field name="amount_type">percent</field>
+            <field name="tax_scope">service</field>
+            <field name="description">Withholding Tax 15%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_withholding"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_15_royalties_base_tag')],
+            }),
+            (0,0, {
+                'account_id': ref('sa_account_400073'),
+                'repartition_type': 'tax',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_15_royalties_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_15_royalties_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_400073'),
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_15_royalties_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        </record>
+        <record id="sa_withholding_tax_15_paid_services_from_main_branch" model="account.tax.template">
+            <field name="name">Withholding Tax 15% (Paid Services from Main Branch)</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">15</field>
+            <field name="amount_type">percent</field>
+            <field name="tax_scope">service</field>
+            <field name="description">Withholding Tax 15%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_withholding"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_15_paid_services_from_main_branch_base_tag')],
+            }),
+            (0,0, {
+                'account_id': ref('sa_account_400073'),
+                'repartition_type': 'tax',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_15_paid_services_from_main_branch_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_15_paid_services_from_main_branch_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_400073'),
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_15_paid_services_from_main_branch_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        </record>
+        <record id="sa_withholding_tax_15_paid_services_from_another_branch" model="account.tax.template">
+            <field name="name">Withholding Tax 15% (Paid Services from another branch)</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">15</field>
+            <field name="amount_type">percent</field>
+            <field name="tax_scope">service</field>
+            <field name="description">Withholding Tax 15%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_withholding"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_15_paid_services_from_another_branch_base_tag')],
+            }),
+            (0,0, {
+                'account_id': ref('sa_account_400073'),
+                'repartition_type': 'tax',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_15_paid_services_from_another_branch_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_15_paid_services_from_another_branch_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_400073'),
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_15_paid_services_from_another_branch_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        </record>
+        <record id="sa_withholding_tax_15_others" model="account.tax.template">
+            <field name="name">Withholding Tax 15% (Others)</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">15</field>
+            <field name="amount_type">percent</field>
+            <field name="tax_scope">service</field>
+            <field name="description">Withholding Tax 15%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_withholding"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_15_others_base_tag')],
+            }),
+            (0,0, {
+                'account_id': ref('sa_account_400073'),
+                'repartition_type': 'tax',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_15_others_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_15_others_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_400073'),
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_15_others_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        </record>
+        <record id="sa_withholding_tax_20_managerial" model="account.tax.template">
+            <field name="name">Withholding Tax 20% (Managerial)</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">20</field>
+            <field name="amount_type">percent</field>
+            <field name="tax_scope">service</field>
+            <field name="description">Withholding Tax 20%</field>
+            <field name="tax_group_id" ref="sa_tax_group_taxes_withholding"/>
+            <field name="chart_template_id" ref="sa_chart_template_standard"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_20_managerial_base_tag')],
+            }),
+            (0,0, {
+                'account_id': ref('sa_account_400073'),
+                'repartition_type': 'tax',
+                'plus_report_expression_ids': [ref('tax_report_line_withholding_tax_20_managerial_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_20_managerial_base_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('sa_account_400073'),
+                'minus_report_expression_ids': [ref('tax_report_line_withholding_tax_20_managerial_tax_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'account_id': ref('sa_account_201020'),
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        </record>
+    </data>
+</odoo>
+
+```
+
+## File: data\l10n_sa_chart_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Chart Template -->
+    <record id="sa_chart_template_standard" model="account.chart.template">
+        <field name="property_account_receivable_id" ref="sa_account_102011"/>
+        <field name="property_account_payable_id" ref="sa_account_201002"/>
+        <field name="property_account_expense_categ_id" ref="sa_account_400001"/>
+        <field name="property_account_income_categ_id" ref="sa_account_500001"/>
+        <field name="income_currency_exchange_account_id" ref="sa_account_500011"/>
+        <field name="expense_currency_exchange_account_id" ref="sa_account_400053"/>
+        <field name="default_pos_receivable_account_id" ref="sa_account_102012" />
+        <field name="property_tax_payable_account_id" ref="sa_account_202003"/>
+        <field name="property_tax_receivable_account_id" ref="sa_account_100103"/>
+    </record>
+</odoo>
+
+```
+
+## File: data\report_paperformat_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="paperformat_l10n_sa_a4" model="report.paperformat">
+            <field name="name">Saudi Arabia A4</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_bottom">32</field>
+            <field name="header_spacing">45</field>
+            <field name="margin_top">50</field>
+        </record>
+    </data>
+    <data>
+        <function model="res.company" name="write">
+            <value model="res.company" search="[
+                ('partner_id.country_id', '=', ref('base.sa'))]"/>
+            <value eval="{'paperformat_id': ref('l10n_sa.paperformat_l10n_sa_a4')}"/>
+        </function>
+    </data>
+</odoo>
+
+```
+
+## File: i18n_extra\l10n_sa.pot
+
+```pot
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_sa
+#
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_chart_template_standard_liquidity_transfer
+msgid "Liquidity Transfer"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_101060
+msgid "VAT Paid to Customs"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_201020
+msgid "Withholding Tax Payable"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400073
+msgid "Withholding Tax Expense"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400072
+msgid "Zakat Expense"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_201019
+msgid "Zakat Provision"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_100101
+msgid "Right of use Asset (IFRS 16)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_100102
+msgid "Accumulated Depreciation right use asset (IFRS 16)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_100103
+msgid "VAT Receivable"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_101005
+msgid "Main Safe"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_101006
+msgid "Main Safe - Foreign Currency"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_101007
+msgid "Visa & Master Credit Cards"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_101008
+msgid "Gateway Credit Cards"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_101009
+msgid "Manual Visa & Master Cards"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_101010
+msgid "PayPal Account"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_102011
+msgid "Accounts Receivable"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_102012
+msgid "Accounts Receivable (PoS)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_102013
+msgid "Post Dated Cheques Received"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_102014
+msgid "Other Receivable"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_102015
+msgid "Other Debtors"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_103016
+msgid "Shipment Insurance"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_103017
+msgid "Shipments Documentation Charges"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_103018
+msgid "Shipment Other Charges"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_103019
+msgid "Handling Difference in Inventory"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_103020
+msgid "Items Delivered to Customs on temprary Base"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104021
+msgid "Prepaid Medical Insurance"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104022
+msgid "Prepaid Life Insurance"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104023
+msgid "Prepaid Office Rent"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104024
+msgid "Prepaid Other Insurance"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104025
+msgid "Prepaid License Fees"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104026
+msgid "Prepaid Maintenance"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104027
+msgid "Prepaid Site Hosting Fees"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104028
+msgid "Prepaid Employees Housing"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104029
+msgid "Prepaid Schooling Fees"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104030
+msgid "Prepaid Consultancy Fees"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104031
+msgid "Prepaid Legal Fees"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104032
+msgid "Prepaid Sponsorship Fees"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104033
+msgid "PrePaid Advertisement Expenses"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104034
+msgid "Prepaid Bank Guarantee"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104035
+msgid "Other Prepayments"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104036
+msgid "Prepaid Finance charge for Loans"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104037
+msgid "Deposit - Office Rent"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104038
+msgid "Deposits - Customs"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104039
+msgid "Deposit to Immigration (Visa)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104040
+msgid "Deposit Others"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_104041
+msgid "VAT Input"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_106001
+msgid "Leasehold Improvement"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_106002
+msgid "Furniture and Equipment"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_106003
+msgid "Computer Hardware & Software"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_106004
+msgid "Motor Vehicles"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_106005
+msgid "Work In Progress"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_106006
+msgid "Amortisation on Leasehold Improvement"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_106007
+msgid "Acc.Deprn.of Furniture & Office Equipment"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_106008
+msgid "Acc. Deprn.Computer Hardware & Software"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_106009
+msgid "Acc. Depreciation of Motor Vehicles"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_106010
+msgid "Registration of Trademarks"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_106011
+msgid "Computer Card Renewal"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_201002
+msgid "Payables"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_201003
+msgid "Credit Notes to Customers"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_201004
+msgid "Accrued - Salaries"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_201005
+msgid "Leave Tickets Provision"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_201006
+msgid "Leave Days Provision"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_201007
+msgid "Accrued - Commissions"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_201008
+msgid "Accrued Salaries Increment"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_201009
+msgid "Accrued-Staff Bonus"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_201010
+msgid "Accrued Other Personnel Cost"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_201011
+msgid "Accrued - Utilities"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_201012
+msgid "Accrued - Telephone"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_201013
+msgid "Accrued - Sponsorship"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_201014
+msgid "Accrued - Audit Fees"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_201015
+msgid "Accrued - Office Rent"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_201016
+msgid "Accrued Others"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_201017
+msgid "VAT Output"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_201018
+msgid "Deferred income"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_202001
+msgid "End of Service Provision"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_202002
+msgid "Reservations"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_202003
+msgid "VAT Payable"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400001
+msgid "Cost of Goods Sold in Trading"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400002
+msgid "Cost Of Goods Sold I/C Sales"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400003
+msgid "Basic Salary"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400004
+msgid "Housing Allowance"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400005
+msgid "Transportation Allowance"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400006
+msgid "Leave Ticket"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400007
+msgid "Leave Salary"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400008
+msgid "End Of Service Indemnity"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400009
+msgid "Medical Insurance"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400010
+msgid "Life Insurance"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400011
+msgid "Sales Commission"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400012
+msgid "Staff Other Allowances"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400013
+msgid "Uniform"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400014
+msgid "Visa Expenses"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400015
+msgid "Personnel Cost Others"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400016
+msgid "Office Rent"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400017
+msgid "Warehouse Rent"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400018
+msgid "Water & Electricity"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400019
+msgid "Other Utility Cahrges"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400020
+msgid "Telephone"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400021
+msgid "Courrier"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400022
+msgid "Web Site Hosting Fees"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400023
+msgid "Others - Communication"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400024
+msgid "Air tickets"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400025
+msgid "Hotel"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400026
+msgid "Meals"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400027
+msgid "Per Diem"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400028
+msgid "Others"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400029
+msgid "Audit Fees"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400030
+msgid "Sponsorship Fees"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400031
+msgid "Legal fees"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400032
+msgid "Trade License Fees"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400033
+msgid "Others - Professional Fees"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400034
+msgid "Other - Advertising Expenses"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400035
+msgid "Write Off Receivables & Payables"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400036
+msgid "Write Off Inventory"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400037
+msgid "Amortisation of Preoperating Expenses"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400038
+msgid "Cash Shortage"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400039
+msgid "Others - Provision & Write off"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400040
+msgid "Insurance"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400041
+msgid "Training"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400042
+msgid "Maintenance"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400043
+msgid "Security & Guard"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400044
+msgid "Cleaning"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400045
+msgid "Subscriptions"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400046
+msgid "Gifts & Donations"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400047
+msgid "Kitchen and Buffet Expenses"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400048
+msgid "Vehicle Expenses"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400049
+msgid "Convoyance Expenses"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400050
+msgid "Others - Office Various Expenses"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400051
+msgid "Other Bank Charges"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400052
+msgid "Loss On Fixed Assets Disposal"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400053
+msgid "Loss on Difference on Exchange"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400054
+msgid "Disposal of Business Branch"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400055
+msgid "Income Tax"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400056
+msgid "Previous Year Adjustments Account"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400057
+msgid "Other Non Operating Expenses"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400058
+msgid "Credit Card Charges"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400059
+msgid "Bank Finance & Loan Charges"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400060
+msgid "Air Miles Card Charges"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400061
+msgid "Credit Card Swipe Charges"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400062
+msgid "PayPal Charges"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400063
+msgid "Amortization on Leasehold Improvement"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400064
+msgid "Depreciation Of Furniture & Office Equipment"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400065
+msgid "Depreciation Of Computer Hard & Soft"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400066
+msgid "Depreciation Of Motor Vehicles"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400067
+msgid "Consultancy Fees"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400068
+msgid "Provision for Doubtful Debts"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400069
+msgid "Closing Account"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_400070
+msgid "Depreciation on right of use asset (IFRS 16)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_500001
+msgid "Sales Account"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_500002
+msgid "Sales of I/C"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_500003
+msgid "Management Consultancy Fees"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_500004
+msgid "Sales from Other Region"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_500005
+msgid "Advertising Income"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_500006
+msgid "Branding Income"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_500007
+msgid "Space Rental Income"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_500008
+msgid "Service Income"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_500009
+msgid "Interest Revenue"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_500010
+msgid "Capital Gain"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_500011
+msgid "Gain On Difference Of Exchange"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_500013
+msgid "Other Income"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.account.template,name:l10n_sa.sa_account_999999
+msgid "Undistributed Profits/Losses"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.report,name:l10n_sa.tax_report_vat_filing
+msgid "VAT Filing Report"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_vat_all_sales_base
+msgid "VAT on Sales and all other Outputs (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_standard_rated_15_base
+msgid "1. Standard Rated 15% (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_special_sales_to_locals_base
+msgid "2. Special Sales to Locals (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_local_sales_subject_to_0_base
+msgid "3. Local Sales Subject to 0% (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_export_sales_base
+msgid "4. Export Sales (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_exempt_sales_base
+msgid "5. Exempt Sales (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_net_sales_base
+msgid "6. Net Sales (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_vat_all_expenses_base
+msgid "VAT on Expenses and all other Inputs (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_standard_rated_15_purchases_base
+msgid "7. Standard rated 15% Purchases (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_taxable_imports_15_paid_to_customs_base
+msgid "8. Taxable Imports 15% Paid to Customs (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_imports_subject_tp_reverse_charge_mechanism_base
+msgid "9. Imports subject to reverse charge mechanism (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_zero_rated_purchases_base
+msgid "10. Zero Rated Purchases (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_exempt_purchases_base
+msgid "11. Exempt Purchases (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_net_purchases_base
+msgid "12. Net Purchases (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_vat_all_sales_tax
+msgid "VAT on Sales and all other Outputs (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_standard_rated_15_tax
+msgid "1. Standard Rated 15% (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_special_sales_to_locals_tax
+msgid "2. Special Sales to Locals (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_local_sales_subject_to_0_tax
+msgid "3. Local Sales Subject to 0% (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_export_sales_tax
+msgid "4. Export Sales (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_exempt_sales_tax
+msgid "5. Exempt Sales (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_net_sales_tax
+msgid "6. Net Sales (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_vat_all_expenses_tax
+msgid "VAT on Expenses and all other Inputs (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_standard_rated_15_purchases_tax
+msgid "7. Standard rated 15% Purchases (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_taxable_imports_15_paid_to_customs_tax
+msgid "8. Taxable Imports 15% Paid to Customs (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_imports_subject_tp_reverse_charge_mechanism_tax
+msgid "9. Imports subject to reverse charge mechanism (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_zero_rated_purchases_tax
+msgid "10. Zero Rated Purchases (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_exempt_purchases_tax
+msgid "11. Exempt Purchases (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_net_purchases_tax
+msgid "12. Net Purchases (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_net_vat_due
+msgid "Net VAT Due"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_total_value_of_due_tax_for_the_period
+msgid "Total value of due tax for the period"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_net_vat_due_or_reclaimed_for_the_period
+msgid "Net VAT due (or reclaimed) for the period"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.report,name:l10n_sa.tax_report_withholding_tax
+msgid "Withholding Tax Report"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_on_purchased_services_base
+msgid "Withholding Tax on Purchased Services (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_5_rental_base
+msgid "Withholding Tax 5% (Rental) (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_5_tickets_or_air_freight_base
+msgid "Withholding Tax 5% (Tickets or Air Freight) (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_5_tickets_or_sea_freight_base
+msgid "Withholding Tax 5% (Tickets or Sea Freight)(Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_5_international_telecommunication_base
+msgid "Withholding Tax 5% (International Telecommunication)(Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_5_distributed_profits_base
+msgid "Withholding Tax 5% (Distributed Profits) (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_5_consulting_and_technical_base
+msgid "Withholding Tax 5% (Consulting and Technical) (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_5_return_from_loans_base
+msgid "Withholding Tax 5% (Return from Loans) (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_5_insurance_and_reinsurance_base
+msgid "Withholding Tax 5% (Insurance & Reinsurance) (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_15_royalties_base
+msgid "Withholding Tax 15% (Royalties)(Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_15_paid_services_from_main_branch_base
+msgid "Withholding Tax 15% (Paid Services from Main Branch)(Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_15_paid_services_from_another_branch_base
+msgid "Withholding Tax 15% (Paid Services from another branch)(Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_15_others_base
+msgid "Withholding Tax 15% (Others)(Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_20_managerial_base
+msgid "Withholding Tax 20% (Managerial)(Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_total_base
+msgid "Withholding Tax Total (Base)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_on_purchased_services_tax
+msgid "Withholding Tax on Purchased Services (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_5_rental_tax
+msgid "Withholding Tax 5% (Rental) (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_5_tickets_or_air_freight_tax
+msgid "Withholding Tax 5% (Tickets or Air Freight) (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_5_tickets_or_sea_freight_tax
+msgid "Withholding Tax 5% (Tickets or Sea Freight)(Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_5_international_telecommunication_tax
+msgid "Withholding Tax 5% (International Telecommunication)(Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_5_distributed_profits_tax
+msgid "Withholding Tax 5% (Distributed Profits) (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_5_consulting_and_technical_tax
+msgid "Withholding Tax 5% (Consulting and Technical) (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_5_return_from_loans_tax
+msgid "Withholding Tax 5% (Return from Loans) (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_5_insurance_and_reinsurance_tax
+msgid "Withholding Tax 5% (Insurance & Reinsurance) (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_15_royalties_tax
+msgid "Withholding Tax 15% (Royalties)(Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_15_paid_services_from_main_branch_tax
+msgid "Withholding Tax 15% (Paid Services from Main Branch)(Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_15_paid_services_from_another_branch_tax
+msgid "Withholding Tax 15% (Paid Services from another branch)(Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_15_others_tax
+msgid "Withholding Tax 15% (Others)(Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_20_managerial_tax
+msgid "Withholding Tax 20% (Managerial)(Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.report.line,name:l10n_sa.tax_report_line_withholding_tax_total_tax
+msgid "Withholding Tax Total (Tax)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_withholding_tax_5_rental
+msgid "Withholding Tax 5% (Rental)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_withholding_tax_5_tickets_or_air_freight
+msgid "Withholding Tax 5% (Tickets or Air Freight)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_withholding_tax_5_tickets_or_sea_freight
+msgid "Withholding Tax 5% (Tickets or Sea Freight)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_withholding_tax_5_international_telecommunication
+msgid "Withholding Tax 5% (International Telecommunication)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_withholding_tax_5_distributed_profits
+msgid "Withholding Tax 5% (Distributed Profits)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_withholding_tax_5_consulting_and_technical
+msgid "Withholding Tax 5% (Consulting and Technical)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_withholding_tax_5_return_from_loans
+msgid "Withholding Tax 5% (Return from Loans)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_withholding_tax_5_insurance_amd_reinsurance
+msgid "Withholding Tax 5% (Insurance & Reinsurance)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_withholding_tax_15_royalties
+msgid "Withholding Tax 15% (Royalties)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_withholding_tax_15_paid_services_from_main_branch
+msgid "Withholding Tax 15% (Paid Services from Main Branch)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_withholding_tax_15_paid_services_from_another_branch
+msgid "Withholding Tax 15% (Paid Services from another branch)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_withholding_tax_15_others
+msgid "Withholding Tax 15% (Others)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_withholding_tax_20_managerial
+msgid "Withholding Tax 20% (Managerial)"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_sales_tax_15
+msgid "Sales Tax 15%"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_local_sales_tax_0
+msgid "Local Sales 0%"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_export_sales_tax_0
+msgid "Export Sales 0%"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_exempt_sales_tax_0
+msgid "Exempt Sales Tax 0%"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_purchase_tax_15
+msgid "Purchase Tax 15%"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_rcp_tax_15
+msgid "Reverse charge provision Tax 15%"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_import_tax_paid_15_paid_to_customs
+msgid "Import tax 15% Paid to customs"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_purchases_tax_0
+msgid "Purchases 0%"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.template,name:l10n_sa.sa_exempt_purchases_tax
+msgid "Exempt Purchases"
+msgstr ""
+
+#. module: l10n_sa
+#: model:res.country,vat_label:base.sa
+msgid "VAT Number"
+msgstr ""
+
+#. module: l10n_sa
+#: model:res.currency,currency_unit_label:base.SAR
+msgid "Riyal"
+msgstr ""
+
+#. module: l10n_sa
+#: model:res.currency,currency_subunit_label:base.SAR
+msgid "Halala"
+msgstr ""
+
+#. module: l10n_sa
+#: model:account.tax.group,name:l10n_sa.sa_tax_group_taxes_15
+msgid "VAT Taxes"
+msgstr ""
+
+```
+
+## File: models\account_chart_template.py
+
+```python
+# -*- encoding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+from odoo import models
+
+
+class AccountChartTemplate(models.Model):
+    _inherit = 'account.chart.template'
+
+    def _prepare_all_journals(self, acc_template_ref, company, journals_dict=None):
+        """ If Saudi Arabia chart, we add 3 new journals Tax Adjustments, IFRS 16 and Zakat"""
+        if self == self.env.ref('l10n_sa.sa_chart_template_standard'):
+            if not journals_dict:
+                journals_dict = []
+            journals_dict.extend(
+                [{'name': 'Tax Adjustments', 'company_id': company.id, 'code': 'TA', 'type': 'general',
+                  'favorite': True, 'sequence': 1},
+                 {'name': 'IFRS 16 Right of Use Asset', 'company_id': company.id, 'code': 'IFRS', 'type': 'general',
+                  'favorite': True, 'sequence': 10},
+                 {'name': 'Zakat', 'company_id': company.id, 'code': 'ZAKAT', 'type': 'general', 'favorite': True,
+                  'sequence': 10}])
+        return super()._prepare_all_journals(acc_template_ref, company, journals_dict=journals_dict)
+
+    def _load_template(self, company, code_digits=None, account_ref=None, taxes_ref=None):
+        account_ref, taxes_ref = super(AccountChartTemplate, self)._load_template(company=company,
+                                                                                  code_digits=code_digits,
+                                                                                  account_ref=account_ref,
+                                                                                  taxes_ref=taxes_ref)
+        if self == self.env.ref('l10n_sa.sa_chart_template_standard'):
+            ifrs_journal_id = self.env['account.journal'].search([('company_id', '=', company.id), ('code', '=', 'IFRS')], limit=1)
+            if ifrs_journal_id:
+                ifrs_account_ids = [self.env.ref('l10n_sa.sa_account_100101').id,
+                                    self.env.ref('l10n_sa.sa_account_100102').id,
+                                    self.env.ref('l10n_sa.sa_account_400070').id]
+                ifrs_accounts = self.env['account.account'].browse([account_ref.get(id) for id in ifrs_account_ids])
+                for account in ifrs_accounts:
+                    account.allowed_journal_ids = [(4, ifrs_journal_id.id, 0)]
+            zakat_journal_id = self.env['account.journal'].search([('company_id', '=', company.id), ('code', '=', 'ZAKAT')], limit=1)
+            if zakat_journal_id:
+                zakat_account_ids = [self.env.ref('l10n_sa.sa_account_201019').id,
+                                    self.env.ref('l10n_sa.sa_account_400072').id]
+                zakat_accounts = self.env['account.account'].browse([account_ref.get(id) for id in zakat_account_ids])
+                for account in zakat_accounts:
+                    account.allowed_journal_ids = [(4, zakat_journal_id.id, 0)]
+        return account_ref, taxes_ref
+
+```
+
+## File: models\account_move.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+import base64
+
+from odoo import api, fields, models, _
+from odoo.exceptions import UserError
+from odoo.tools import float_repr
+
+
+class AccountMove(models.Model):
+    _inherit = 'account.move'
+
+    l10n_sa_delivery_date = fields.Date(string='Delivery Date', default=fields.Date.context_today, copy=False,
+                                        readonly=True, states={'draft': [('readonly', False)]},
+                                        help="In case of multiple deliveries, you should take the date of the latest one. ")
+    l10n_sa_show_delivery_date = fields.Boolean(compute='_compute_show_delivery_date')
+    l10n_sa_qr_code_str = fields.Char(string='Zatka QR Code', compute='_compute_qr_code_str')
+    l10n_sa_confirmation_datetime = fields.Datetime(string='Confirmation Date', readonly=True, copy=False)
+
+    @api.depends('country_code', 'move_type')
+    def _compute_show_delivery_date(self):
+        for move in self:
+            move.l10n_sa_show_delivery_date = move.country_code == 'SA' and move.move_type in ('out_invoice', 'out_refund')
+
+    @api.depends('amount_total_signed', 'amount_tax_signed', 'l10n_sa_confirmation_datetime', 'company_id', 'company_id.vat')
+    def _compute_qr_code_str(self):
+        """ Generate the qr code for Saudi e-invoicing. Specs are available at the following link at page 23
+        https://zatca.gov.sa/ar/E-Invoicing/SystemsDevelopers/Documents/20210528_ZATCA_Electronic_Invoice_Security_Features_Implementation_Standards_vShared.pdf
+        """
+        def get_qr_encoding(tag, field):
+            company_name_byte_array = field.encode()
+            company_name_tag_encoding = tag.to_bytes(length=1, byteorder='big')
+            company_name_length_encoding = len(company_name_byte_array).to_bytes(length=1, byteorder='big')
+            return company_name_tag_encoding + company_name_length_encoding + company_name_byte_array
+
+        for record in self:
+            qr_code_str = ''
+            if record.l10n_sa_confirmation_datetime and record.company_id.vat:
+                seller_name_enc = get_qr_encoding(1, record.company_id.display_name)
+                company_vat_enc = get_qr_encoding(2, record.company_id.vat)
+                time_sa = fields.Datetime.context_timestamp(self.with_context(tz='Asia/Riyadh'), record.l10n_sa_confirmation_datetime)
+                timestamp_enc = get_qr_encoding(3, time_sa.isoformat())
+                totals = record._get_l10n_sa_totals()
+                invoice_total_enc = get_qr_encoding(4, float_repr(abs(totals['total_amount']), 2))
+                total_vat_enc = get_qr_encoding(5, float_repr(abs(totals['total_tax']), 2))
+
+                str_to_encode = seller_name_enc + company_vat_enc + timestamp_enc + invoice_total_enc + total_vat_enc
+                qr_code_str = base64.b64encode(str_to_encode).decode()
+            record.l10n_sa_qr_code_str = qr_code_str
+
+    def _post(self, soft=True):
+        res = super()._post(soft)
+        for record in self:
+            if record.country_code == 'SA' and record.move_type in ('out_invoice', 'out_refund'):
+                if not record.l10n_sa_show_delivery_date:
+                    raise UserError(_('Delivery Date cannot be empty'))
+                if not record.l10n_sa_confirmation_datetime:
+                    record.l10n_sa_confirmation_datetime = fields.Datetime.now()
+        return res
+
+    def _l10n_sa_reset_confirmation_datetime(self):
+        self.filtered(lambda m: m.country_code == 'SA').l10n_sa_confirmation_datetime = False
+
+    def button_draft(self):
+        self._l10n_sa_reset_confirmation_datetime()
+        super().button_draft()
+
+    def _get_l10n_sa_totals(self):
+        self.ensure_one()
+        return {
+            'total_amount': self.amount_total_signed,
+            'total_tax': self.amount_tax_signed,
+        }
+
+```
+
+## File: models\__init__.py
+
+```python
+# -*- encoding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+from . import account_chart_template
+from . import account_move
+
+```
+
+## File: static\description\icon.svg
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 106 106">
+  <defs>
+    <mask id="a" x="0" y="0" width="106" height="106" maskUnits="userSpaceOnUse">
+      <path d="M6.06,0H98.43C104.49,0,106,1.51,106,7.57V98.43c0,6.06-1.51,7.57-7.57,7.57H6.06C1.51,106,0,104.49,0,98.43V7.57C0,1.51,1.51,0,6.06,0Z" style="fill: #fff;fill-rule: evenodd"/>
+    </mask>
+    <mask id="b" x="4.8" y="5.8" width="50.4" height="36.4" maskUnits="userSpaceOnUse">
+      <rect x="6.29" y="7.38" width="48.45" height="31.57" rx="1" style="fill: #fff"/>
+    </mask>
+    <symbol id="c" data-name="account icon" viewBox="0 0 106 106">
+      <g style="mask: url(#a)">
+        <g>
+          <path d="M0,0H106V106H0Z" style="fill: #5a5a64;fill-rule: evenodd"/>
+          <path d="M6.06,1.51H98.43q6.06,0,7.57,3V0H0V4.54Q1.52,1.51,6.06,1.51Z" style="fill: #fff;fill-opacity: 0.382999986410141;fill-rule: evenodd"/>
+          <path d="M6.06,104.49H98.43q6.06,0,7.57-4.55V106H0V99.94Q1.52,104.49,6.06,104.49Z" style="fill-opacity: 0.382999986410141;fill-rule: evenodd"/>
+          <g>
+            <path d="M70.38,104.49H6.06C3,104.49,0,103,0,98.43V61.28L28.77,19.69H59.06a77.33,77.33,0,0,0,21.2,13.87c.07,11.31.07,4.86,0,16.17h3.12l.21,36.82Z" style="fill: #393939;fill-rule: evenodd;opacity: 0.324000000953674;isolation: isolate"/>
+            <g style="opacity: 0.30000000000000004">
+              <g>
+                <path d="M68.77,58.54H76c.76,0,1,.12,1,.46v2.45c0,.31-.24.43-.93.43H61.44c-.66,0-.92-.12-.92-.42,0-.83,0-1.67,0-2.51,0-.29.26-.4.92-.41Z"/>
+                <path d="M64.33,77.42c.42.39.76.66,1,1a.89.89,0,0,1,0,1.31.92.92,0,0,1-1.32,0,4.25,4.25,0,0,1-.48-.47c-.14-.15-.26-.31-.49-.6-.32.37-.54.66-.79.91-.53.53-1.08.58-1.5.15s-.36-.94.15-1.45c.26-.26.54-.5.91-.83-.38-.34-.72-.61-1-.91a.9.9,0,0,1,0-1.36.91.91,0,0,1,1.36,0c.29.28.54.6.93,1A12.1,12.1,0,0,1,64,75.18a.91.91,0,0,1,1.36,0,.87.87,0,0,1,0,1.31C65.07,76.79,64.73,77.06,64.33,77.42Z"/>
+                <path d="M62.13,66.9c0-.47,0-.88,0-1.28a.92.92,0,0,1,.92-1,.91.91,0,0,1,1,1c0,.41,0,.81,0,1.3h1.14a1.16,1.16,0,0,1,1.22,1c0,.55-.42.85-1.18.86H64.12c0,.49,0,.91,0,1.34a.94.94,0,1,1-1.88,0c0-.41,0-.81,0-1.3H60.92a.94.94,0,1,1,0-1.88C61.3,66.89,61.68,66.9,62.13,66.9Z"/>
+                <path d="M74.31,76H72.23c-.67,0-1-.34-1-.93a.89.89,0,0,1,1-1q2.18,0,4.35,0a1,1,0,1,1,0,1.91c-.74,0-1.47,0-2.21,0Z"/>
+                <path d="M74.28,68.61c-.71,0-1.43,0-2.14,0a.86.86,0,0,1-1-.9.85.85,0,0,1,.92-1c1.5,0,3,0,4.48,0a.93.93,0,0,1,1,1,.91.91,0,0,1-1,.91c-.75,0-1.51,0-2.27,0Z"/>
+                <path d="M74.36,78.09c.72,0,1.44,0,2.15,0a1,1,0,0,1,1,1c0,.57-.38.93-1,.94H72.28c-.75,0-1.09-.32-1.09-.94s.37-1,1.09-1,1.39,0,2.08,0Z"/>
+                <path d="M81.29,90.55H56.14a4,4,0,0,1-4-4V53.73a4,4,0,0,1,4-4H81.29a4,4,0,0,1,4,4V86.55A4,4,0,0,1,81.29,90.55ZM56.14,53.73V86.55H81.29V53.73Z"/>
+              </g>
+              <path d="M43.49,83.26H31.8V25.71H56v10.6q0,4.55,4.54,4.55H75.71v5.78h4.55V34.8c-4.55-3-16.66-12.11-19.69-13.63H30.29a2.68,2.68,0,0,0-3,3V84.77a2.68,2.68,0,0,0,3,3H48.45V83.26ZM60.57,25.71l15.14,10.6H60.57Z"/>
+            </g>
+            <path d="M60.57,18.68H30.29a2.68,2.68,0,0,0-3,3V82.28a2.68,2.68,0,0,0,3,3H48.45V80.77H31.8V23.22H56v10.6q0,4.55,4.54,4.55H75.71v5.78h4.55V32.31C75.71,29.28,63.6,20.2,60.57,18.68Zm0,15.14V23.22l15.14,10.6Z" style="fill: #a8a9ab"/>
+            <g>
+              <path d="M68.77,55.78H76c.76,0,1,.13,1,.53v2.85c0,.37-.24.5-.93.5q-7.3,0-14.61,0c-.66,0-.92-.14-.92-.48,0-1,0-2,0-2.93,0-.34.26-.47.92-.47Z" style="fill: #a8a9ab"/>
+              <path d="M64.33,76.53c.42.38.76.65,1,1a.89.89,0,0,1,0,1.31.92.92,0,0,1-1.32,0,5.44,5.44,0,0,1-.48-.48c-.14-.14-.26-.31-.49-.59-.32.36-.54.65-.79.91-.53.53-1.08.57-1.5.14s-.36-.94.15-1.45c.26-.26.54-.49.91-.82-.38-.35-.72-.61-1-.92a.9.9,0,0,1,0-1.36.92.92,0,0,1,1.36,0c.29.28.54.61.93,1A13.78,13.78,0,0,1,64,74.28a.91.91,0,0,1,1.36,0,.88.88,0,0,1,0,1.32C65.07,75.89,64.73,76.16,64.33,76.53Z" style="fill: #a8a9ab"/>
+              <path d="M62.13,65.88c0-.48,0-.88,0-1.29a1,1,0,1,1,1.91,0c0,.4,0,.81,0,1.3h1.14a1.15,1.15,0,0,1,1.22,1c0,.54-.42.85-1.18.85H64.12c0,.49,0,.92,0,1.34a.94.94,0,1,1-1.88,0c0-.4,0-.81,0-1.3H60.92a.94.94,0,1,1,0-1.88Z" style="fill: #a8a9ab"/>
+              <path d="M74.31,75.11c-.69,0-1.38,0-2.08,0s-1-.35-1-.94a.89.89,0,0,1,1-1q2.18,0,4.35,0a.91.91,0,0,1,1,1,.93.93,0,0,1-1,1c-.74,0-1.47,0-2.21,0Z" style="fill: #a8a9ab"/>
+              <path d="M74.28,67.76H72.14a.87.87,0,0,1-1-.9.84.84,0,0,1,.92-1c1.5,0,3,0,4.48,0a.94.94,0,0,1,1,1,.91.91,0,0,1-1,.91H74.28Z" style="fill: #a8a9ab"/>
+              <path d="M74.36,77.2c.72,0,1.44,0,2.15,0a1,1,0,0,1,1,1c0,.56-.38.93-1,.93q-2.12,0-4.23,0c-.75,0-1.09-.32-1.09-.94s.37-.94,1.09-1,1.39,0,2.08,0Z" style="fill: #a8a9ab"/>
+              <path d="M81.29,88.06H56.14a4,4,0,0,1-4-4V51.24a4,4,0,0,1,4-4H81.29a4,4,0,0,1,4,4V84.06A4,4,0,0,1,81.29,88.06ZM56.14,51.24V84.06H81.29V51.24Z" style="fill: #a8a9ab"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </symbol>
+  </defs>
+  <g>
+    <use width="106" height="106" transform="translate(-0.07 0)" xlink:href="#c"/>
+    <rect x="6.2" y="10.57" width="48.45" height="31.57" rx="1" style="fill: #393939;opacity: 0.44;isolation: isolate"/>
+    <g style="mask: url(#b)">
+      <image width="1200" height="800" transform="translate(4.8 5.8) scale(0.04 0.05)" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABLAAAANjCAYAAAC6LOPAAAAACXBIWXMAAQeYAAEHmAEWNs1oAAAgAElEQVR4Xuzdd3QUddvG8Ws3pJAEQu+99x56R0B6R1RAUEABpYiABRsKqKhgwYoFFUVURFTsBQSlFwUFRbq00ENLQrLvH5GQzc7ubE3G9/l+znnOITP38Biy2d259v7dP5vG1XAIAAAAAAAAsCi7WQEAAAAAAACQkwiwAAAAAAAAYGkEWAAAAAAAALA0AiwAAAAAAABYGgEWAAAAAAAALI0ACwAAAAAAAJZGgAUAAAAAAABLI8ACAAAAAACApRFgAQAAAAAAwNIIsAAAAAAAAGBpBFgAAAAAAACwNAIsAAAAAAAAWBoBFgAAAAAAACyNAAsAAAAAAACWRoAFAAAAAAAASyPAAgAAAAAAgKURYAEAAAAAAMDSCLAAAAAAAABgaQRYAAAAAAAAsDQCLAAAAAAAAFgaARYAAAAAAAAsjQALAAAAAAAAlkaABQAAAAAAAEsjwAIAAAAAAIClEWABAAAAAADA0giwAAAAAAAAYGkEWAAAAAAAALA0AiwAAAAAAABYGgEWAAAAAAAALI0ACwAAAAAAAJZGgAUAAAAAAABLI8ACAAAAAACApRFgAQAAAAAAwNIIsAAAAAAAAGBpBFgAAAAAAACwNAIsAAAAAAAAWBoBFgAAAAAAACyNAAsAAAAAAACWRoAFAAAAAAAASyPAAgAAAAAAgKURYAEAAAAAAMDSCLAAAAAAAABgaQRYAAAAAAAAsDQCLAAAAAAAAFgaARYAAAAAAAAsjQALAAAAAAAAlkaABQAAAAAAAEsjwAIAAAAAAIClEWABAAAAAADA0giwAAAAAAAAYGkEWAAAAAAAALA0AiwAAAAAAABYGgEWAAAAAAAALI0ACwAAAAAAAJZGgAUAAAAAAABLI8ACAAAAAACApRFgAQAAAAAAwNIIsAAAAAAAAGBpBFgAAAAAAACwNAIsAAAAAAAAWBoBFgAAAAAAACyNAAsAAAAAAACWRoAFAAAAAAAASyPAAgAAAAAAgKURYAEAAAAAAMDSCLAAAAAAAABgaQRYAAAAAAAAsDQCLAAAAAAAAFgaARYAAAAAAAAsjQALAAAAAAAAlkaABQAAAAAAAEsjwAIAAAAAAIClEWABAAAAAADA0giwAAAAAAAAYGkEWAAAAAAAALA0AiwAAAAAAABYGgEWAAAAAAAALI0ACwAAAAAAAJZGgAUAAAAAAABLI8ACAAAAAACApRFgAQAAAAAAwNIIsAAAAAAAAGBpBFgAAAAAAACwNAIsAAAAAAAAWBoBFgAAAAAAACyNAAsAAAAAAACWRoAFAAAAAAAASyPAAgAAAAAAgKURYAEAAAAAAMDSCLAAAAAAAABgaQRYAAAAAAAAsDQCLAAAAAAAAFgaARYAAAAAAAAsjQALAAAAAAAAlkaABQAAAAAAAEsjwAIAAAAAAIClEWABAAAAAADA0giwAAAAAAAAYGkEWAAAAAAAALA0AiwAAAAAAABYGgEWAAAAAAAALI0ACwAAAAAAAJZGgAUAAAAAAABLI8ACAAAAAACApRFgAQAAAAAAwNIIsAAAAAAAAGBpBFgAAAAAAACwNAIsAAAAAAAAWBoBFgAAAAAAACyNAAsAAAAAAACWRoAFAAAAAAAASyPAAgAAAAAAgKURYAEAAAAAAMDSCLAAAAAAAABgaQRYAAAAAAAAsDQCLAAAAAAAAFgaARYAAAAAAAAsjQALAAAAAAAAlkaABQAAAAAAAEsjwAIAAAAAAIClEWABAAAAAADA0giwAAAAAAAAYGkEWAAAAAAAALA0AiwAAAAAAABYGgEWAAAAAAAALI0ACwAAAAAAAJZGgAUAAAAAAABLI8ACAAAAAACApRFgAQAAAAAAwNIIsAAAAAAAAGBpBFgAAAAAAACwNAIsAAAAAAAAWBoBFgAAAAAAACyNAAsAAAAAAACWRoAFAAAAAAAASyPAAgAAAAAAgKURYAEAAAAAAMDSCLAAAAAAAABgaQRYAAAAAAAAsDQCLAAAAAAAAFgaARYAAAAAAAAsjQALAAAAAAAAlkaABQAAAAAAAEsjwAIAAAAAAIClEWABAAAAAADA0giwAAAAAAAAYGkEWAAAAAAAALA0AiwAAAAAAABYGgEWAAAAAAAALI0ACwAAAAAAAJZGgAUAAAAAAABLI8ACAAAAAACApRFgAQAAAAAAwNIIsAAAAAAAAGBpBFgAAAAAAACwNAIsAAAAAAAAWBoBFgAAAAAAACyNAAsAAAAAAACWRoAFAAAAAAAASyPAAgAAAAAAgKURYAEAAAAAAMDSCLAAAAAAAABgaQRYAAAAAAAAsDQCLAAAAAAAAFgaARYAAAAAAAAsjQAL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CVgAAAAApCZgAQAAAJCagAUAAABAagIWAAAAAKkJWAAAAACkJmABAAAAkJqABQAAAEBqAhYAAAAAqQlYAAAAAKQmYAEAAACQmoAFAAAAQGoCFgAAAACpCVgAAAAApCZgAQAAAJCagAUAAABAagIWAAAAAKkJWAAAAACkJmABAAAAkJqABQAAAEBqAhYAAAAAqQlYAAAAAKQmYAEAAACQmoAFAAAAQGoCFgAAAACpCVgAAAAApCZgAQAAAJCagAUAAABAagIWAAAAAKkJWAAAAACkJmABAAAAkJqABQAAAEBqAhYAAAAAqQlYAAAAAKQmYAEAAACQmoAFAAAAQGoCFgAAAACpCVgAAAAApCZgAQAAAJCagAUAAABAagIWAAAAAKkJWAAAAACkJmABAAAAkJqABQAAAEBqAhYAAAAAqQlYAAAAAKQmYAEAAACQmoAFAAAAQGoCFgAAAACpCVgAAAAApCZgAQAAAJCagAUAAABAagIWAAAAAKkJWAAAAACkJmABAAAAkJqABQAAAEBqAhYAAAAAqQlYAAAAAKQmYAEAAACQmoAFAAAAQGoCFgAAAACpCVgAAAAApCZgAQAAAJCagAUAAABAagIWAAAAAKkJWAAAAACkJmABAAAAkJqABQAAAEBqAhYAAAAAqQlYAAAAAKQmYAEAAACQmoAFAAAAQGoCFgAAAACpCVgAAAAApCZgAQAAAJCagAUAAABAagIWAAAAAKkJWAAAAACkJmABAAAAkJqABQAAAEBqAhYAAAAAqQlYAAAAAKQmYAEAAACQmoAFAAAAQGoCFgAAAACpCVgAAAAApCZgAQAAAJCagAUAAABAagIWAAAAAKkJWAAAAACkJmABAAAAkJqABQAAAEBqAhYAAAAAqQlYAAAAAKQmYAEAAACQmoAFAAAAQGoCFgAAAACpCVgAAAAApCZgAQAAAJCagAUAAABAagIWAAAAAKkJWAAAAACkJmABAAAAkJqABQAAAEBqAhYAAAAAqQlYAAAAAKQmYAEAAACQmoAFAAAAQGoCFgAAAACpCVgAAAAApCZgAQAAAJCagAUAAABAagIWAAAAAKkJWAAAAACkJmABAAAAkJqABQAAAEBqAhYAAAAAqQlYAAAAAKQmYAEAAACQmoAFAAAAQGoCFgAAAACpCVgAAAAApCZgAQAAAJCagAUAAABAagIWAAAAAKkJWAAAAACkJmABAAAAkJqABQAAAEBqAhYAAAAAqQlYAAAAAKQmYAEAAACQmoAFAAAAQGoCFgAAAACpCVgAAAAApCZgAQAAAJCagAUAAABAagIWAAAAAKkJWAAAAACkJmABAAAAkJqABQAAAEBqAhYAAAAAqQlYAAAAAKQmYAEAAACQmoAFAAAAQGoCFgAAAACpCVgAAAAApCZgAQAAAJCagAUAAABAagIWAAAAAKkJWAAAAACkJmABAAAAkJqABQAAAEBqAhYAAAAAqQlYAAAAAKQmYAEAAACQmoAFAAAAQGoCFgAAAACpCVgAAAAApCZgAQAAAJCagAUAAABAagIWAAAAAKkJWAAAAACkJmABAAAAkJqABQAAAEBqAhYAAAAAqQlYAAAAAKQmYAEAAACQmoAFAAAAQGoCFgAAAACpCVgAAAAApCZgAQAAAJCagAUAAABAagIWAAAAAKkJWAAAAACkJmABAAAAkJqABQAAAEBqAhYAAAAAqQlYAAAAAKQmYAEAAACQmoAFAAAAQGoCFgAAAACpCVgAAAAApCZgAQAAAJCagAUAAABAagIWAAAAAKkJWAAAAACkJmABAAAAkJqABQAAAEBqAhYAAAAAqQlYAAAAAKQmYAEAAACQmoAFAAAAQGoCFgAAAACpCVgAAAAApCZgAQAAAJCagAUAAABAagIWAAAAAKkJWAAAAACkJmABAAAAkJqABQAAAEBqAhYAAAAAqQlYAAAAAKQmYAEAAACQmoAFAAAAQGoCFgAAAACpCVgAAAAApCZgAQAAAJCagAUAAABAagIWAAAAAKkJWAAAAACkJmABAAAAkJqABQAAAEBqAhYAAAAAqdVGxD2lEQAAAAC8Xf4Xu8yLurKnFD0AAAAASUVORK5CYII="/>
+    </g>
+  </g>
+</svg>
+
+```
+
+## File: views\report_invoice.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="arabic_english_invoice" inherit_id="l10n_gcc_invoice.arabic_english_invoice">
+        <xpath expr="//div[@name='due_date']" position="after">
+            <div class="row" t-if="o.l10n_sa_delivery_date" name="delivery_date">
+                <div class="col-6"></div>
+                <div class="col-2">
+                    <strong style="white-space:nowrap">Delivery Date:
+                    </strong>
+                </div>
+                <div class="col-2">
+                    <span t-field="o.l10n_sa_delivery_date"/>
+                </div>
+                <div class="col-2 text-end">
+                    <strong style="white-space:nowrap">:
+                        تاريخ التوصيل
+                    </strong>
+                </div>
+            </div>
+        </xpath>
+        <xpath expr="//t[@t-set='address']" position="after">
+            <t t-set="information_block">
+                <div class="row">
+                    <p class="col-6 me-3">
+                        <img t-if="o.l10n_sa_qr_code_str"
+                            style="display:block;"
+                            t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s'%('QR', quote_plus(o.l10n_sa_qr_code_str), 200, 200)"/>
+                    </p>
+                    <div class="col-6" t-if="o.partner_shipping_id and (o.partner_shipping_id != o.partner_id)" groups="account.group_delivery_invoice_address" name="shipping_address_block">
+                        <strong>Shipping Address:</strong>
+                        <div t-field="o.partner_shipping_id" t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
+                    </div>
+                </div>
+            </t>
+        </xpath>
+        <xpath expr="//th[@name='th_total']//span[2]" position="attributes">
+            <attribute name="class">d-none</attribute>
+        </xpath>
+        <xpath expr="//th[@name='th_total']//span[2]" position="after">
+            <span>
+                Subtotal<br/>(inclusive of VAT)
+            </span>
+        </xpath>
+        <xpath expr="//th[@name='th_total']//span" position="attributes">
+            <attribute name="class">d-none</attribute>
+        </xpath>
+        <xpath expr="//th[@name='th_total']//span" position="after">
+            <span>
+                المجموع شامل ضريبة القيمة المضافة
+            </span>
+        </xpath>
+        <xpath expr="//th[@name='th_subtotal']//span[2]" position="attributes">
+            <attribute name="class">d-none</attribute>
+        </xpath>
+        <xpath expr="//th[@name='th_subtotal']//span[2]" position="after">
+            <span>
+                Subtotal<br/>(exclusive of VAT)
+            </span>
+        </xpath>
+        <xpath expr="//th[@name='th_subtotal']//span" position="attributes">
+            <attribute name="class">d-none</attribute>
+        </xpath>
+        <xpath expr="//th[@name='th_subtotal']//span" position="after">
+            <span>
+                المجموع الفرعي بدون الضريبة
+            </span>
+        </xpath>
+        <xpath expr="//th[@name='th_taxes']//span" position="attributes">
+            <attribute name="class">d-none</attribute>
+        </xpath>
+        <xpath expr="//th[@name='th_taxes']//span" position="after">
+            <span>
+                نسبة الضريبة
+            </span>
+        </xpath>
+        <xpath expr="//tr" position="attributes">
+            <attribute name="style">font-size: 14px;</attribute>
+        </xpath>
+        <xpath expr="//span[@t-field='line.l10n_gcc_invoice_tax_amount']" position="attributes">
+            <attribute name="t-options">{"widget": "monetary", "display_currency": o.currency_id}</attribute>
+        </xpath>
+        <xpath expr="//span[@t-field='line.price_unit']" position="attributes">
+            <attribute name="t-options">{"widget": "monetary", "display_currency": o.currency_id}</attribute>
+        </xpath>
+        <xpath expr="//div[hasclass('clearfix')]//strong" position="attributes">
+            <attribute name="class">d-none</attribute>
+        </xpath>
+        <xpath expr="//div[hasclass('clearfix')]//strong" position="after">
+            <strong>
+                Invoice Taxable Amount
+                /<br/>
+                المبلغ الخاضع للضريبة غير شامل ضريبة القيمة المضافة
+            </strong>
+        </xpath>
+        <xpath expr="//tr[hasclass('o_total')]//strong" position="attributes">
+            <attribute name="class">d-none</attribute>
+        </xpath>
+        <xpath expr="//tr[hasclass('o_total')]//strong" position="after">
+            <strong>
+                Invoice Total (inclusive of VAT)
+                /
+                إجمالي قيمة الفاتورة شامل ضريبة القيمة المضافة
+            </strong>
+        </xpath>
+        <xpath expr="//div[@name='invoice_date']//span" position="before">
+            <span t-if="o.l10n_sa_confirmation_datetime" t-field="o.l10n_sa_confirmation_datetime"/>
+        </xpath>
+        <xpath expr="//div[@name='invoice_date']//span[@t-field='o.invoice_date']" position="attributes">
+            <attribute name="t-if">not o.l10n_sa_confirmation_datetime</attribute>
+        </xpath>
+        <xpath expr="//div[hasclass('clearfix')]" position="attributes">
+            <attribute name="class">clearfix pt-2 pb-2</attribute>
+        </xpath>
+    </template>
+</odoo>
+
+```
+
+## File: views\view_move_form.xml
+
+```xml
+<odoo>
+    <data>
+        <record id="view_move_form" model="ir.ui.view">
+            <field name="name">account.move.deliver_date</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <field name="invoice_date" position="after">
+                    <field name="l10n_sa_show_delivery_date" invisible="1"/>
+                    <field name="l10n_sa_delivery_date" attrs="{'invisible': [('l10n_sa_show_delivery_date', '=', False)], 'required': [('l10n_sa_show_delivery_date', '=', True)]}"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>
+```
+

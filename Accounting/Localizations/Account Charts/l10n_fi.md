@@ -1,0 +1,3383 @@
+# Odoo Module: l10n_fi
+
+Category: Accounting/Localizations/Account Charts
+
+This file contains the source code of the Odoo module.
+
+## File: __init__.py
+
+```python
+#-*- coding:utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from. import models
+
+```
+
+## File: __manifest__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+{
+    "name": "Finnish Localization",
+    "version": "13.0.2",
+    "author": "Avoin.Systems, "
+              "Tawasta, "
+              "Vizucom, "
+              "Sprintit",
+    "category": "Accounting/Localizations/Account Charts",
+    "description": """
+This is the Odoo module to manage the accounting in Finland.
+============================================================
+
+After installing this module, you'll have access to :
+    * Finnish chart of account
+    * Fiscal positions
+    * Invoice Payment Reference Types (Finnish Standard Reference & Finnish Creditor Reference (RF))
+    * Finnish Reference format for Sale Orders
+
+Set the payment reference type from the Sales Journal.
+    """,
+    "depends": [
+        'account',
+        'base_iban',
+        'base_vat',
+    ],
+    "data": [
+        'data/account_account_tag_data.xml',
+        'data/account_chart_template_data.xml',
+        'data/account.account.template.csv',
+        'data/account_tax_report_line.xml',
+        'data/account_tax_group_data.xml',
+        'data/account_tax_template_data.xml',
+        'data/l10n_fi_chart_post_data.xml',
+        'data/account_fiscal_position_template_data.xml',
+        'data/account_chart_template_configuration_data.xml'
+    ],
+    "demo": [
+        'demo/demo_company.xml',
+    ],
+    "installable": True,
+    'license': 'LGPL-3',
+}
+
+```
+
+## File: data\account.account.template.csv
+
+```csv
+"id","code","name","account_type","chart_template_id/id","reconcile","tag_ids/id"
+"account_1020","1020","Kehittämismenot","asset_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_development_costs"
+"account_1030","1030","Aineettomat oikeudet","asset_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_immaterial_rights"
+"account_1050","1050","Liikearvo","asset_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_goodwill"
+"account_1060","1060","Konserniliikearvo","asset_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_goodwill"
+"account_1070","1070","Muut pitkävaikutteiset menot","asset_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_long_term_expenses"
+"account_1090","1090","Ennakkomaksut aineettomista hyödykkeistä","asset_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_advance_payments_intangible"
+"account_1100","1100","Maa- ja vesialueet","asset_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_land_and_water_areas_owned"
+"account_1120","1120","Rakennukset ja rakennelmat","asset_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_buildings_owned"
+"account_1160","1160","Koneet ja kalusto","asset_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_machines_and_hardware"
+"account_1300","1300","Muut aineelliset hyödykkeet","asset_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_tangible_assets"
+"account_1380","1380","Ennakkomaksut ja keskeneräiset hankinnat","asset_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_payments_on_account_tangible"
+"account_1400","1400","Osuudet saman konsernin yrityksissä","asset_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_shares_in_group_companies"
+"account_1410","1410","Saamiset saman konsernin yrityksiltä","asset_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_receivables_from_group_long-term"
+"account_1420","1420","Osuudet omistusyhteysyrityksissä","asset_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_shares_in_associated_companies"
+"account_1430","1430","Pitkäaikaiset saamiset omistusyhteysyrityksiltä","asset_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_receivables_from_associated_companies_non-current"
+"account_1440","1440","Muut osakkeet ja osuudet","asset_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_shares_and_participations"
+"account_1470","1470","Muut pitkäaikaiset saamiset","asset_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_long-term_receivables"
+"account_1500","1500","Aineet ja tarvikkeet","asset_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_materials_and_supplies_inventories"
+"account_1510","1510","Keskeneräiset tuotteet","asset_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_work_in_progress"
+"account_1520","1520","Valmiit tuotteet","asset_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_finished_goods_inventories"
+"account_1530","1530","Tavarat","asset_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_goods_in_transit"
+"account_1540","1540","Muu vaihto-omaisuus","asset_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_current_assets"
+"account_1550","1550","Ennakkomaksut vaihto-omaisuudesta","asset_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_advance_payments_for_property"
+"account_1600","1600","Pitkäaikaiset myyntisaamiset","asset_receivable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_trade_receivables_long-term"
+"account_1630","1630","Saamiset saman konsernin yrityksiltä, pitkäaikaiset","asset_receivable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_receivables_from_group_long-term"
+"account_1640","1640","Saamiset omistusyhteysyrityksiltä, pitkäaikaiset","asset_receivable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_receivables_from_associated_companies_non-current"
+"account_1650","1650","Lainasaamiset, pitkäaikaiset","asset_receivable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_loan_receivables_long-term"
+"account_1660","1660","Muut saamiset, pitkäaikaiset","asset_receivable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_other_long-term_receivables"
+"account_1670","1670","Pitkäaikaiset maksamattomat osakkeet / osuudet","asset_receivable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_unpaid_shares_of_long-term"
+"account_1680","1680","Pitkäaikaiset siirtosaamiset","asset_receivable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_prepaid_expenses_and_long-term"
+"account_1690","1690","Pitkäaikaiset laskennalliset verosaamiset","asset_receivable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_deferred_tax_assets_are_long-term"
+"account_1700","1700","Myyntisaamiset","asset_receivable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_accounts_receivable"
+"account_1701","1701","Myyntisaamiset (myyntipiste)","asset_receivable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_accounts_receivable"
+"account_1710","1710","Myyntisaamiset vanha järjestelmä","asset_receivable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_accounts_receivable"
+"account_1720","1720","Korttisaamiset","asset_receivable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_accounts_receivable"
+"account_1730","1730","Saamiset saman konsernin yrityksiltä, lyhytaikaiset","asset_receivable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_receivables_from_group"
+"account_1740","1740","Saamiset omistusyhteysyrityksiltä, lyhytaikaiset","asset_receivable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_receivables_from_associated_companies"
+"account_1750","1750","Lainasaamiset, lyhytaikaiset","asset_receivable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_loans"
+"account_1760","1760","Muut saamiset, lyhytaikaiset","asset_receivable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_other_receivables"
+"account_1765","1765","ALV-saamiset","asset_current","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_other_receivables"
+"account_1777","1777","Selvittelytili","asset_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_receivables"
+"account_1780","1780","Maksamattomat osakkeet / osuudet, lyhytaikaiset","asset_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_unpaid_contributions"
+"account_1800","1800","Siirtosaamiset, lyhytaikaiset","asset_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_prepayments_and_accrued_income"
+"account_1850","1850","Laskennalliset verosaamiset","asset_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_deferred_tax_assets"
+"account_1860","1860","Osuudet saman konsernin yrityksissä","asset_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_shares_in_group_companies"
+"account_1880","1880","Muut osakkeet ja osuudet (rahoitusomaisuus)","asset_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_shares_and_marketable_securities"
+"account_1890","1890","Muut rahoitusarvopaperit","asset_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_financial_assets"
+"account_1900","1900","Rahat / käteisvarat","asset_cash","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_liquidity"
+"account_1910","1910","Pankkisaamiset","asset_cash","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_liquidity"
+"account_1920","1920","Pankkisaamiset, pankki2","asset_cash","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_liquidity"
+"account_1930","1930","Pankkisaamiset, pankki3","asset_cash","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_liquidity"
+"account_1940","1940","Pankkisaamiset, pankki4","asset_cash","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_liquidity"
+"account_1990","1990","Rahansiirrot ja täsmäytykset","asset_cash","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_liquidity"
+"account_2000","2000","Osakepääoma","equity","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_stock_capital"
+"account_2010","2010","Osakeanti","equity","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_stock_capital"
+"account_2020","2020","Ylikurssirahasto","equity","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_share_premium_account"
+"account_2030","2030","Arvonkorotusrahasto (oy)","equity","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_revaluation_reserve"
+"account_2050","2050","Vararahasto (oy)","equity","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_reserve"
+"account_2060","2060","Sijoitetun vapaan oman pääoman rahasto","equity","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_the_invested_unrestricted_equity_fund"
+"account_2070","2070","Yhtiöjärjestyksen mukainen rahasto","equity","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_the_articles_of_association_or_fund_under_the_rules"
+"account_2080","2080","Muut rahastot (oy)","equity","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_reserves"
+"account_2100","2100","Osuuspääoma","equity","l10n_fi.fi_chart_template","False",
+"account_2110","2110","Arvonkorotusrahasto (osk)","equity","l10n_fi.fi_chart_template","False",
+"account_2120","2120","Vararahasto (osk)","equity","l10n_fi.fi_chart_template","False",
+"account_2130","2130","Sääntöjen mukainen rahasto","equity","l10n_fi.fi_chart_template","False",
+"account_2140","2140","Muut rahastot (osk)","equity","l10n_fi.fi_chart_template","False",
+"account_2150","2150","Pääomapanokset (ay)","equity","l10n_fi.fi_chart_template","False",
+"account_2160","2160","Arvonkorotusrahasto (ay)","equity","l10n_fi.fi_chart_template","False",
+"account_2170","2170","Pääomapanokset (ky)","equity","l10n_fi.fi_chart_template","False",
+"account_2190","2190","Arvonkorotusrahasto (ky)","equity","l10n_fi.fi_chart_template","False",
+"account_2200","2200","Peruspääoma","equity","l10n_fi.fi_chart_template","False",
+"account_2210","2210","Arvonkorotusrahasto (tmi)","equity","l10n_fi.fi_chart_template","False",
+"account_2250","2250","Edellisten tilikausien voitto / tappio","equity","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_retained_earnings"
+"account_2330","2330","Pääomavajaus edellisiltä tilikausilta","equity","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_retained_earnings"
+"account_2340","2340","Yksityistilit tilikaudella","equity","l10n_fi.fi_chart_template","False",
+"account_2370","2370","Tilikauden tulos","equity_unaffected","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_profit_for_the_period"
+"account_2390","2390","Vähemmistöosuus","liability_non_current","l10n_fi.fi_chart_template","False",
+"account_2400","2400","Poistoero","liability_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_depreciation_difference"
+"account_2450","2450","Verotusperusteiset varaukset","liability_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_tax_based_reservations"
+"account_2500","2500","Eläkevaraukset","liability_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_provisions_for_pensions"
+"account_2530","2530","Verovaraukset","liability_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_tax_provisions"
+"account_2550","2550","Muut pakolliset varaukset","liability_non_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_provisions"
+"account_2590","2590","Konsernireservi","liability_non_current","l10n_fi.fi_chart_template","False",
+"account_2600","2600","Pääomalainat, pitkäaikaiset","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_subordinated_loans_long-term"
+"account_2610","2610","Joukkovelkakirjalainat, pitkäaikaiset","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_bonds_are_long-term"
+"account_2620","2620","Pitkäaikaiset vaihtovelkakirjalainat","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_convertible_bonds_long-term"
+"account_2630","2630","Lainat rahoituslaitoksilta","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_loans_from_financial_institutions_long-term"
+"account_2650","2650","Pitkäaikaiset takaisinlainat työeläkelaitoksilta","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_pension_loans_long-term"
+"account_2660","2660","Pitkäaikaiset saadut ennakot","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_advances_received_long-term"
+"account_2670","2670","Ostovelat, pitkäaikaiset","liability_payable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_accounts_payable-current"
+"account_2690","2690","Pitkäaikaiset rahoitusvekselit","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_bills_of_long-term"
+"account_2700","2700","Velat saman konsernin yrityksille, pitkäaikaiset","liability_payable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_consolidated_long-term_liabilities"
+"account_2710","2710","Velat omistusyhteysyrityksille, pitkäaikaiset","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_payables_to_associated_companies_non-current"
+"account_2720","2720","Muut velat, pitkäaikaiset","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_long-term_liabilities"
+"account_2750","2750","Pitkäaikaiset siirtovelat","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_accrued_long-term"
+"account_2770","2770","Pitkäaikaiset laskennalliset verovelat","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_deferred_tax_liabilities_are_long-term"
+"account_2800","2800","Pääomalainat, lyhytaikaiset","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_capital_loans_are_short-term"
+"account_2810","2810","Joukkovelkakirjalainat","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_bonds_short-term"
+"account_2820","2820","Vaihtovelkakirjalainat","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_convertible_bonds_short-term"
+"account_2830","2830","Lainat rahoituslaitoksilta","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_loans_from_financial_institutions_short-term"
+"account_2850","2850","Työeläkelaitoksien takaisinlainojen lyhennyserät","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_pension_loans_short-term"
+"account_2860","2860","Saadut ennakot","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_advances_received_short-term"
+"account_2870","2870","Ostovelat","liability_payable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_accounts_payable"
+"account_2880","2880","Maksuliikennetili","liability_payable","l10n_fi.fi_chart_template","True","l10n_fi.account_tag_accounts_payable"
+"account_2890","2890","Rahoitusvekselit","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_bills_of_short-term"
+"account_2900","2900","Velat saman konsernin yrityksille","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_group_short-term_liabilities"
+"account_2910","2910","Velat omistusyhteysyrityksille","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_payables_to_associated_companies"
+"account_2920","2920","Ennakonpidätys- ja stm-velka","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_short-term_liabilities"
+"account_2930","2930","Suoritettava arvonlisävero","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_short-term_liabilities"
+"account_2935","2935","OmaVero-tapahtumat","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_short-term_liabilities"
+"account_2940","2940","Muut velat","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_short-term_liabilities"
+"account_2950","2950","Palkkojen siirtovelat","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_accrued_liabilities_short-term"
+"account_2951","2951","Muut siirtovelat","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_accrued_liabilities_short-term"
+"account_2952","2952","Palkkojen jaksotus","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_accrued_liabilities_short-term"
+"account_2980","2980","Laskennalliset verovelat","liability_current","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_deferred_tax_liabilities_are_short-term"
+"account_3000","3000","Myynti","income","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_sales"
+"account_3200","3200","Oheispalvelut","income","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_sales"
+"account_3250","3250","Toimitusveloitukset ja osamaksulisät","income","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_sales"
+"account_3300","3300","Komissiokauppa ja agentuuri","income","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_sales"
+"account_3330","3330","Tavaramyynti Ahvenanmaalle","income","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_sales"
+"account_3350","3350","Yhteisömyynti","income","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_sales"
+"account_3380","3380","Myynti yhteisön ulkopuolelle","income","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_sales"
+"account_3400","3400","Myynti, käytetyt tavarat ja taide-, keräily- ja antiikkiesineet","income","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_sales"
+"account_3440","3440","Myynti, arvopaperit ja kiinteistöt","income","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_sales"
+"account_3500","3500","Myynnin alennukset","income","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_sales"
+"account_3550","3550","Välilliset verot","income","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_sales_adjustment_items"
+"account_3570","3570","Tulonsiirto- ja läpikulkuerät","income","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_sales_adjustment_items"
+"account_3580","3580","Myynnin valuuttakurssierot","income","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_sales_adjustment_items"
+"account_3590","3590","Muut myynnin oikaisuerät","income","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_sales_adjustment_items"
+"account_3600","3600","Valmiiden ja keskeneräisten tuotteiden varastojen lisäys (+) tai vähennys (-)","expense_direct_cost","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_manufacturing_warehouse_change"
+"account_3630","3630","Valmistus omaan käyttöön","expense_direct_cost","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_manufacturing_own_use"
+"account_3650","3650","Myyntivoitot pysyvistä vastaavista","income_other","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_income_other"
+"account_3700","3700","Leasinghyvitykset","income_other","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_income_other"
+"account_3710","3710","Keskeytys- ym. vakuuskorvaukset","income_other","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_income_other"
+"account_3750","3750","Vuokratuotot","income_other","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_income_other"
+"account_3800","3800","Saadut avustukset ja tuet","income_other","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_income_other"
+"account_3850","3850","Palvelutuotot","income_other","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_income_other"
+"account_3900","3900","Palkkiot ja korvaukset","income_other","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_income_other"
+"account_3980","3980","Muut tuotot","income_other","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_income_other"
+"account_4000","4000","Ostot","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_purchases"
+"account_4090","4090","Tavaraostot Ahvenanmaalta","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_purchases"
+"account_4110","4110","Yhteisöhankinnat","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_purchases"
+"account_4130","4130","Tuontiostot yhteisön ulkopuolelta","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_purchases"
+"account_4150","4150","Ostot, käytetyt tavarat ja taide-, keräily- ja antiikkiesineet","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_purchases"
+"account_4200","4200","Ostot, arvopaperit ja kiinteistöt","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_purchases"
+"account_4230","4230","Ostojen alennukset","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_purchases_adjustment_items"
+"account_4260","4260","Palautetut tavarat","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_purchases_adjustment_items"
+"account_4270","4270","Saadut vahingonkorvaukset ja avustukset","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_purchases_adjustment_items"
+"account_4290","4290","Rahdit, huolinta ja muut hankintakulut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_purchases_adjustment_items"
+"account_4340","4340","Siirrot muuhun kuin myyntitarkoitukseen","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_purchases_adjustment_items"
+"account_4370","4370","Ostojen valuuttakurssierot","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_purchases_adjustment_items"
+"account_4380","4380","Muut ostojen oikaisuerät","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_purchases_adjustment_items"
+"account_4400","4400","Varastojen lisäys (+) tai vähennys (-)","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_change_in_inventories"
+"account_4450","4450","Alihankinta","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_external_services"
+"account_4480","4480","Vuokrattu työvoima","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_external_services"
+"account_4490","4490","Muut ulkopuoliset palvelut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_external_services"
+"account_5000","5000","Työssäoloajan normaalipalkat","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_wages_and_salaries_in_production"
+"account_5100","5100","Lisät ja korvaukset","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_wages_and_salaries_other"
+"account_5200","5200","Palkkiot","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_wages_and_salaries_other"
+"account_5300","5300","Loma-ajan ja sosiaalipalkat","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_wages_and_salaries_other"
+"account_5330","5330","Palkkojen jaksotus","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_wages_and_salaries_other"
+"account_5400","5400","Luontoisedut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_wages_and_salaries_other"
+"account_5470","5470","Saadut korvaukset palkoista","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_wages_and_salaries_other"
+"account_5600","5600","Johdon palkat ja palkkiot","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_wages_and_salaries_other"
+"account_5700","5700","Johdon luontoisedut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_wages_and_salaries_other"
+"account_5770","5770","Saadut korvaukset johdon palkoista","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_wages_and_salaries_other"
+"account_5800","5800","Osakkaiden ja omaisten palkat ja palkkiot","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_wages_and_salaries_other"
+"account_5900","5900","Osakkaiden ja omaisten luontoisedut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_wages_and_salaries_other"
+"account_5960","5960","Saadut korvaukset osakkaiden ja omaisten palkoista","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_wages_and_salaries_other"
+"account_5990","5990","Luontoisetujen vastatili","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_wages_and_salaries_other"
+"account_6000","6000","Maksetut eläkkeet","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_pension_costs_of_production"
+"account_6100","6100","Eläkevakuutusmaksut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_pension_costs_other"
+"account_6290","6290","Tilikauden aikainen jaksotus","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_additional_expenses_other"
+"account_6300","6300","Sosiaaliturvamaksut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_additional_expenses_other"
+"account_6400","6400","Pakolliset vakuutusmaksut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_additional_expenses_other"
+"account_6500","6500","Muut henkilöstön vakuutusmaksut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_additional_expenses_other"
+"account_6690","6690","Tilikauden aikainen jaksotus","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_additional_expenses_other"
+"account_6800","6800","Suunnitelman mukaiset poistot","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_depreciation_according_to_plan"
+"account_6930","6930","Konserniliikearvon poisto ja konsenireservin vähennys","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_change_in_depreciation_difference"
+"account_6950","6950","Arvonalentumiset pysyvien vastaavien hyödykkeistä","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_impairment_of_fixed_assets"
+"account_6990","6990","Vaihtuvien vastaavien poikkeukselliset arvonalentumiset","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_impairment_losses_financial_assets_current_assets"
+"account_7000","7000","Vapaaehtoiset henkilösivukulut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_personnel_other"
+"account_7200","7200","Toimitilakulut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_premises_costs"
+"account_7230","7230","Toimitilavuokrat","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_premises_costs"
+"account_7250","7250","Varastovuokrat","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_premises_costs"
+"account_7270","7270","Autotalli- ja autopaikkavuokrat","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_premises_costs"
+"account_7500","7500","Ajoneuvokulut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_vehicle_expenses"
+"account_7520","7520","Ajoneuvovuokrat","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_vehicle_expenses"
+"account_7640","7640","Atk-laite ja -ohjelmakulut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_it_expenses"
+"account_7650","7650","Atk-laite ja ohjelm. vuokrat","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_it_expenses"
+"account_7710","7710","Kone- ja kalustokulut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_in_machinery_and_equipment_expenses"
+"account_7720","7720","Kone- ja kalustovuokrat","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_in_machinery_and_equipment_expenses"
+"account_7800","7800","Matkakulut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_travelling"
+"account_7950","7950","Edustuskulut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_representation"
+"account_8000","8000","Myyntikulut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_selling_expenses"
+"account_8050","8050","Markkinointikulut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_marketing_expenses"
+"account_8300","8300","Tutkimus- ja kehityskulut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_research_and_development"
+"account_8370","8370","Ostetut hallintopalvelut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_administrative_services"
+"account_8450","8450","Muut hallintokulut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_administrative_expenses"
+"account_8451","8451","Puhelin- ja tietoliikennekulut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_it_expenses"
+"account_8452","8452","Vakuutukset ja vahingonkorvaukset","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_fixed_costs"
+"account_8453","8453","Toimisto- ja hallintokulut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_administrative_expenses"
+"account_8455","8455","Muut hallintokulut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_administrative_expenses"
+"account_8700","8700","Muut liikekulut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_fixed_costs"
+"account_8730","8730","Myynnin luottotappiot","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_fixed_costs"
+"account_8790","8790","Fuusiotappio","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_fixed_costs"
+"account_8800","8800","Vähennyskelvottomat liikekulut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_fixed_costs"
+"account_8850","8850","Käyttöomaisuuden luovutustappiot","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_fixed_costs"
+"account_8890","8890","Täsmäytyserot","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_fixed_costs"
+"account_8990","8990","Osuus osakkuusyritysten tuloksesta","expense","l10n_fi.fi_chart_template","False",
+"account_9000","9000","Tuotot osuuksista saman konsernin yrityksissä","income_other","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_income_from_shares_in_group"
+"account_9030","9030","Osuus osakkuusyritysten voitosta (tappiosta)","income_other","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_income_from_associated_company"
+"account_9040","9040","Tuotot osuuksista omistusyhteysyrityksissä","income_other","l10n_fi.fi_chart_template","False",
+"account_9070","9070","Tuotot osuuksista muissa omistusyhteysyrityksissä","income_other","l10n_fi.fi_chart_template","False",
+"account_9080","9080","Sijoitustuotot pysyvien vastaavien sijoituksista, konserni","income_other","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_investment_income_other_current_assets_group"
+"account_9090","9090","Sijoitustuotot pysyvien vastaavien sijoituksista, muut","income_other","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_investment_income_from_fixed_assets"
+"account_9150","9150","Muut korko- ja rahoitustuotot, konserni","income_other","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_interest_and_financial_income_from_group"
+"account_9160","9160","Muut korko- ja rahoitustuotot, muut","income_other","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_interest_and_financial_income"
+"account_9300","9300","Arvonalentumiset pysyvien vastaavien sijoituksista","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_impairment_losses_on_investments_in_fixed_assets"
+"account_9370","9370","Arvonalentumiset vaihtuvien vastaavien rahoitusarvopapereista","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_impairment_losses_financial_assets_current_assets"
+"account_9420","9420","Korkokulut ja muut rahoituskulut, konserni","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_financial_expenses_group"
+"account_9440","9440","Korkokulut ja muut rahoituskulut, muut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_other_financial_expenses"
+"account_9800","9800","Poistoeron lisäys (-) tai vähennys (+)","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_change_in_depreciation_difference"
+"account_9840","9840","Verotusperusteisten varausten lisäys (-) tai vähennys (+)","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_change_in_provisions"
+"account_9850","9850","Konserniavustukset, saadut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_group_contribution"
+"account_9860","9860","Konserniavustukset, maksetut","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_group_contribution"
+"account_9900","9900","Tilikauden ja aikaisempien tilikausien verot","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_taxes_for_the_period"
+"account_9970","9970","Laskennalliset verot","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_taxes_for_the_period"
+"account_9980","9980","Muut välittömät verot","expense","l10n_fi.fi_chart_template","False","l10n_fi.account_tag_taxes_for_the_period"
+"account_9990","9990","Vähemmistöosuudet","expense","l10n_fi.fi_chart_template","False",
+
+```
+
+## File: data\account_account_tag_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Tags for accounts -->
+    <record id="account_tag_development_costs" model="account.account.tag">
+        <field name="name">Tase: Kehittämismenot</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_immaterial_rights" model="account.account.tag">
+        <field name="name">Tase: Aineettomat oikeudet</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_goodwill" model="account.account.tag">
+        <field name="name">Tase: Liikearvo</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_long_term_expenses" model="account.account.tag">
+        <field name="name">Tase: Muut pitkävaikutteiset menot</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_advance_payments_intangible" model="account.account.tag">
+        <field name="name">Tase: Ennakkomaksut aineettomat</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_land_and_water_areas_owned" model="account.account.tag">
+        <field name="name">Tase: Maa- ja vesialueet omistetut</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_land_and_water_rights_lease" model="account.account.tag">
+        <field name="name">Tase: Maa- ja vesialueet vuokraoikeudet</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_buildings_owned" model="account.account.tag">
+        <field name="name">Tase: Rakennukset omistetut</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_building_leases" model="account.account.tag">
+        <field name="name">Tase: Rakennukset vuokraoikeudet</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_machines_and_hardware" model="account.account.tag">
+        <field name="name">Tase: Koneet ja kalusto</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_tangible_assets" model="account.account.tag">
+        <field name="name">Tase: Muut aineelliset hyödykkeet</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_payments_on_account_tangible" model="account.account.tag">
+        <field name="name">Tase: Ennakkomaksut aineelliset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_shares_in_group_companies" model="account.account.tag">
+        <field name="name">Tase: Osuudet saman konsernin yrityksissä</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_receivables_from_associated_companies_investments" model="account.account.tag">
+        <field name="name">Tase: Saamiset saman konsernin yrityksiltä sijoitukset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_shares_in_associated_companies" model="account.account.tag">
+        <field name="name">Tase: Osuudet omistusyhteysyrityksissä</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_receivables_from_associated_companies_investments" model="account.account.tag">
+        <field name="name">Tase: Saamiset omistusyhteysyrityksiltä sijoitukset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_shares_and_participations" model="account.account.tag">
+        <field name="name">Tase: Muut osakkeet ja osuudet</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_receivables_investments" model="account.account.tag">
+        <field name="name">Tase: Muut saamiset sijoitukset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_materials_and_supplies_inventories" model="account.account.tag">
+        <field name="name">Tase: Aineet ja tarvikkeet vaihto-omaisuus</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_work_in_progress" model="account.account.tag">
+        <field name="name">Tase: Keskeneräiset tuotteet</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_finished_goods_inventories" model="account.account.tag">
+        <field name="name">Tase: Valmiit tuotteet ja tavarat vaihto-omaisuus</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_goods_in_transit" model="account.account.tag">
+        <field name="name">Tase: Matkalla olevat tavarat</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_current_assets" model="account.account.tag">
+        <field name="name">Tase: Muu vaihto-omaisuus</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_advance_payments_for_property" model="account.account.tag">
+        <field name="name">Tase: Ennakkomaksut vaihto-omaisuus</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_trade_receivables_long-term" model="account.account.tag">
+        <field name="name">Tase: Myyntisaamiset pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_receivables_from_group_long-term" model="account.account.tag">
+        <field name="name">Tase: Saamiset konserni pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_receivables_from_associated_companies_non-current" model="account.account.tag">
+        <field name="name">Tase: Saamiset omistusyhteysyritykset pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_loan_receivables_long-term" model="account.account.tag">
+        <field name="name">Tase: Lainasaamiset pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_deferred_tax_assets_are_long-term" model="account.account.tag">
+        <field name="name">Tase: Laskennalliset verosaamiset pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_long-term_receivables" model="account.account.tag">
+        <field name="name">Tase: Muut saamiset pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_unpaid_shares_of_long-term" model="account.account.tag">
+        <field name="name">Tase: Maksamattomat osuudet pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_prepaid_expenses_and_long-term" model="account.account.tag">
+        <field name="name">Tase: Siirtosaamiset pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_accounts_receivable" model="account.account.tag">
+        <field name="name">Tase: Myyntisaamiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_trade_group" model="account.account.tag">
+        <field name="name">Tase: Myyntisaamiset konserni</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_receivables_from_group" model="account.account.tag">
+        <field name="name">Tase: Saamiset konserni</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_accounts_receivable_from_associated_companies" model="account.account.tag">
+        <field name="name">Tase: Myyntisaamiset omistusyhteysyritykset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_receivables_from_associated_companies" model="account.account.tag">
+        <field name="name">Tase: Saamiset omistusyhteysyritykset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_loans" model="account.account.tag">
+        <field name="name">Tase: Lainasaamiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_deferred_tax_assets" model="account.account.tag">
+        <field name="name">Tase: Laskennalliset verosaamiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_receivables" model="account.account.tag">
+        <field name="name">Tase: Muut saamiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_unpaid_contributions" model="account.account.tag">
+        <field name="name">Tase: Maksamattomat osuudet</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_prepayments_and_accrued_income" model="account.account.tag">
+        <field name="name">Tase: Siirtosaamiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_shares_in_the_consolidated_financial_securities" model="account.account.tag">
+        <field name="name">Tase: Osuudet konserni rahoitusarvopaperit</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_shares_and_marketable_securities" model="account.account.tag">
+        <field name="name">Tase: Muut osakkeet ja osuudet rahoitusarvopaperit</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_financial_assets" model="account.account.tag">
+        <field name="name">Tase: Muut rahoitusarvopaperit</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_liquidity" model="account.account.tag">
+        <field name="name">Tase: Rahat ja pankkisaamiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_stock_capital" model="account.account.tag">
+        <field name="name">Tase: Osake-, osuus- tai muu vastaava pääoma</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_share_premium_account" model="account.account.tag">
+        <field name="name">Tase: Ylikurssirahasto</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_revaluation_reserve" model="account.account.tag">
+        <field name="name">Tase: Arvonkorotusrahasto</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_the_invested_unrestricted_equity_fund" model="account.account.tag">
+        <field name="name">Tase: Sijoitetun vapaan oman pääoman rahasto</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_reserve" model="account.account.tag">
+        <field name="name">Tase: Vararahasto</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_the_articles_of_association_or_fund_under_the_rules" model="account.account.tag">
+        <field name="name">Tase: Yhtiöjärjestyksen tai sääntöjen mukainen rahasto</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_the_fair_value_reserve" model="account.account.tag">
+        <field name="name">Tase: Käyvän arvon rahasto</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_reserves" model="account.account.tag">
+        <field name="name">Tase: Muut rahastot</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_retained_earnings" model="account.account.tag">
+        <field name="name">Tase: Edellisten tilikausien tulos</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_profit_for_the_period" model="account.account.tag">
+        <field name="name">Tase: Tilikauden tulos</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_depreciation_difference" model="account.account.tag">
+        <field name="name">Tase: Poistoero</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_tax_based_reservations" model="account.account.tag">
+        <field name="name">Tase: Verotusperäiset varaukset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_provisions_for_pensions" model="account.account.tag">
+        <field name="name">Tase: Eläkevaraukset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_tax_provisions" model="account.account.tag">
+        <field name="name">Tase: Verovaraukset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_provisions" model="account.account.tag">
+        <field name="name">Tase: Muut pakolliset varaukset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_subordinated_loans_long-term" model="account.account.tag">
+        <field name="name">Tase: Pääomalainat pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_bonds_are_long-term" model="account.account.tag">
+        <field name="name">Tase: Joukkovelkakirjalainat pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_convertible_bonds_long-term" model="account.account.tag">
+        <field name="name">Tase: Vaihtovelkakirjalainat pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_loans_from_financial_institutions_long-term" model="account.account.tag">
+        <field name="name">Tase: Lainat rahoituslaitoksilta pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_pension_loans_long-term" model="account.account.tag">
+        <field name="name">Tase: Eläkelainat pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_advances_received_long-term" model="account.account.tag">
+        <field name="name">Tase: Saadut ennakot pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_accounts_payable-current" model="account.account.tag">
+        <field name="name">Tase: Ostovelat pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_bills_of_long-term" model="account.account.tag">
+        <field name="name">Tase: Rahoitusvekselit pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_consolidated_long-term_liabilities" model="account.account.tag">
+        <field name="name">Tase: Velat konserni pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_payables_to_associated_companies_non-current" model="account.account.tag">
+        <field name="name">Tase: Velat omistusyhteysyritykset pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_deferred_tax_liabilities_are_long-term" model="account.account.tag">
+        <field name="name">Tase: Laskennalliset verovelat pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_long-term_liabilities" model="account.account.tag">
+        <field name="name">Tase: Muut velat pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_accrued_long-term" model="account.account.tag">
+        <field name="name">Tase: Siirtovelat pitkäaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_capital_loans_are_short-term" model="account.account.tag">
+        <field name="name">Tase: Pääomalainat lyhytaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_bonds_short-term" model="account.account.tag">
+        <field name="name">Tase: Joukkovelkakirjalainat lyhytaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_convertible_bonds_short-term" model="account.account.tag">
+        <field name="name">Tase: Vaihtovelkakirjalainat lyhytaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_loans_from_financial_institutions_short-term" model="account.account.tag">
+        <field name="name">Tase: Lainat rahoituslaitoksilta lyhytaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_pension_loans_short-term" model="account.account.tag">
+        <field name="name">Tase: Eläkelainat lyhytaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_advances_received_short-term" model="account.account.tag">
+        <field name="name">Tase: Saadut ennakot lyhytaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_accounts_payable" model="account.account.tag">
+        <field name="name">Tase: Ostovelat</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_bills_of_short-term" model="account.account.tag">
+        <field name="name">Tase: Rahoitusvekselit lyhytaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_trade_payables_to_group" model="account.account.tag">
+        <field name="name">Tase: Ostovelat konserni</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_group_short-term_liabilities" model="account.account.tag">
+        <field name="name">Tase: Velat konserni lyhytaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_trade_payables_to_associated_companies" model="account.account.tag">
+        <field name="name">Tase: Ostovelat omistusyhteysyritykset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_payables_to_associated_companies" model="account.account.tag">
+        <field name="name">Tase: Velat omistusyhteysyritykset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_deferred_tax_liabilities_are_short-term" model="account.account.tag">
+        <field name="name">Tase: Laskennalliset verovelat lyhytaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_short-term_liabilities" model="account.account.tag">
+        <field name="name">Tase: Muut velat lyhytaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_accrued_liabilities_short-term" model="account.account.tag">
+        <field name="name">Tase: Siirtovelat lyhytaikaiset</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_sales" model="account.account.tag">
+        <field name="name">Tulos: Myynti</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_sales_adjustment_items" model="account.account.tag">
+        <field name="name">Tulos: Myynnin oikaisuerät</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_manufacturing_warehouse_change" model="account.account.tag">
+        <field name="name">Tulos: Valmiiden ja keskeneräisten tuotteiden varastojen muutos</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_manufacturing_own_use" model="account.account.tag">
+        <field name="name">Tulos: Valmistus omaan käyttöön</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_income_other" model="account.account.tag">
+        <field name="name">Tulos: Liiketoiminnan muut tuotot</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_purchases" model="account.account.tag">
+        <field name="name">Tulos: Ostot</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_purchases_adjustment_items" model="account.account.tag">
+        <field name="name">Tulos: Ostojen oikaisuerät</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_change_in_inventories" model="account.account.tag">
+        <field name="name">Tulos: Varastojen muutos</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_external_services" model="account.account.tag">
+        <field name="name">Tulos: Ulkopuoliset palvelut</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_wages_and_salaries_in_production" model="account.account.tag">
+        <field name="name">Tulos: Palkat ja palkkiot tuotanto</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_wages_and_salaries_other" model="account.account.tag">
+        <field name="name">Tulos: Palkat ja palkkiot muut</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_pension_costs_of_production" model="account.account.tag">
+        <field name="name">Tulos: Eläkekulut tuotanto</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_pension_costs_other" model="account.account.tag">
+        <field name="name">Tulos: Eläkekulut muut</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_additional_expenses_production" model="account.account.tag">
+        <field name="name">Tulos: Muut sivukulut tuotanto</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_additional_expenses_other" model="account.account.tag">
+        <field name="name">Tulos: Muut sivukulut muut</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_depreciation_according_to_plan" model="account.account.tag">
+        <field name="name">Tulos: Suunnitelman mukaiset poistot</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_impairment_of_fixed_assets" model="account.account.tag">
+        <field name="name">Tulos: Arvonalentumiset pysyvät vastaavat</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_impairment_losses_financial_assets_current_assets" model="account.account.tag">
+        <field name="name">Tulos: Arvonalentumiset vaihtuvat vastaavat</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_personnel_other" model="account.account.tag">
+        <field name="name">Tulos: Henkilöstö muut</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_premises_costs" model="account.account.tag">
+        <field name="name">Tulos: Toimitilakulut</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_vehicle_expenses" model="account.account.tag">
+        <field name="name">Tulos: Ajoneuvokulut</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_it_expenses" model="account.account.tag">
+        <field name="name">Tulos: IT-kulut</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_in_machinery_and_equipment_expenses" model="account.account.tag">
+        <field name="name">Tulos: Kone- ja kalustokulut</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_travelling" model="account.account.tag">
+        <field name="name">Tulos: Matkat</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_representation" model="account.account.tag">
+        <field name="name">Tulos: Edustus</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_selling_expenses" model="account.account.tag">
+        <field name="name">Tulos: Myyntikulut</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_marketing_expenses" model="account.account.tag">
+        <field name="name">Tulos: Markkinointikulut</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_research_and_development" model="account.account.tag">
+        <field name="name">Tulos: Tutkimus ja kehitys</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_administrative_services" model="account.account.tag">
+        <field name="name">Tulos: Hallintopalvelut</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_administrative_expenses" model="account.account.tag">
+        <field name="name">Tulos: Muut hallintokulut</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_fixed_costs" model="account.account.tag">
+        <field name="name">Tulos: Muut kiinteät kulut</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_income_from_shares_in_group" model="account.account.tag">
+        <field name="name">Tulos: Tuotot osuuksista konserni</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_income_from_associated_company" model="account.account.tag">
+        <field name="name">Tulos: Tuotot osuuksista omistusyhteysyritys</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_investment_income_other_current_assets_group" model="account.account.tag">
+        <field name="name">Tulos: Sijoitustuotot muut pysyvät vastaavat konserni</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_investment_income_from_fixed_assets" model="account.account.tag">
+        <field name="name">Tulos: Muut sijoitustuotot pysyvät vastaavat</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_interest_and_financial_income_from_group" model="account.account.tag">
+        <field name="name">Tulos: Korko ja rahoitustuotot konserni</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_interest_and_financial_income" model="account.account.tag">
+        <field name="name">Tulos: Muut korko ja rahoitustuotot</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_impairment_losses_on_investments_in_fixed_assets" model="account.account.tag">
+        <field name="name">Tulos: Arvonalentumiset sijoitukset pysyvät vastaavat</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_impairment_losses_financial_assets_current_assets" model="account.account.tag">
+        <field name="name">Tulos: Arvonalentumiset rahoitusarvopaperit vaihtuvat vastaavat</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_financial_expenses_group" model="account.account.tag">
+        <field name="name">Tulos: Rahoituskulut konserni</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_financial_expenses" model="account.account.tag">
+        <field name="name">Tulos: Rahoituskulut muut</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_change_in_depreciation_difference" model="account.account.tag">
+        <field name="name">Tulos: Poistoeron muutos</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_change_in_provisions" model="account.account.tag">
+        <field name="name">Tulos: Varausten muutos</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_group_contribution" model="account.account.tag">
+        <field name="name">Tulos: Konserniavustus</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_taxes_for_the_period" model="account.account.tag">
+        <field name="name">Tulos: Tilikauden verot</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_deferred_taxes" model="account.account.tag">
+        <field name="name">Tulos: Laskennalliset verot</field>
+        <field name="applicability">accounts</field>
+    </record>
+    <record id="account_tag_other_tax" model="account.account.tag">
+        <field name="name">Tulos: Muut välittömät verot</field>
+        <field name="applicability">accounts</field>
+    </record>
+</odoo>
+
+```
+
+## File: data\account_chart_template_configuration_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <function model="account.chart.template" name="try_loading">
+        <value eval="[ref('l10n_fi.fi_chart_template')]"/>
+    </function>
+</odoo>
+
+```
+
+## File: data\account_chart_template_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Account Chart Template -->
+    <record id="fi_chart_template" model="account.chart.template">
+        <field name="name">Finnish Chart of Accounts</field>
+        <field name="cash_account_code_prefix">1910</field>
+        <field name="bank_account_code_prefix">1921</field>
+        <field name="transfer_account_code_prefix">1950</field>
+        <field name="code_digits">4</field>
+        <field name="currency_id" ref="base.EUR"/>
+        <field name="country_id" ref="base.fi"/>
+    </record>
+</odoo>
+
+```
+
+## File: data\account_fiscal_position_template_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- # Fiscal positions -->
+    <record id="aland" model="account.fiscal.position.template">
+        <field name="name">Aland</field>
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="country_id" ref="base.ax"/>
+        <field name="auto_apply" eval="True"/>
+        <field name="vat_required" eval="True"/>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="finland" model="account.fiscal.position.template">
+        <field name="name">Finland</field>
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="country_id" ref="base.fi"/>
+        <field name="auto_apply" eval="True"/>
+        <field name="vat_required" eval="True"/>
+        <field name="sequence">3</field>
+    </record>
+
+    <record id="eu" model="account.fiscal.position.template">
+        <field name="name">EU</field>
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="country_group_id" ref="base.europe"/>
+        <field name="auto_apply" eval="True"/>
+        <field name="vat_required" eval="True"/>
+        <field name="sequence">4</field>
+    </record>
+
+    <record id="eu_no_vat" model="account.fiscal.position.template">
+        <field name="name">EU no VAT</field>
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="country_group_id" ref="base.europe"/>
+        <field name="auto_apply" eval="True"/>
+        <field name="sequence">5</field>
+    </record>
+
+    <record id="non_eu" model="account.fiscal.position.template">
+        <field name="name">Non EU</field>
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="auto_apply" eval="True"/>
+        <field name="sequence">6</field>
+    </record>
+
+    <record id="construction" model="account.fiscal.position.template">
+        <field name="name">Construction services + Scrap metal</field>
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="country_id" ref="base.fi"/>
+        <field name="sequence">7</field>
+    </record>
+
+    <!-- # Fiscal Position Rules -->
+    
+    <!-- ## Aland -->
+    <!-- ### Aland:sales -->
+    <!-- #### Aland:sales:goods -->
+    <record id="aland_sales_goods_25_5" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="aland"/>
+        <field name="tax_src_id" ref="tax_dom_sales_goods_25_5"/>
+        <field name="tax_dest_id" ref="aland_sales_0"/>
+    </record>
+    <record id="aland_sales_goods_24" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="aland"/>
+        <field name="tax_src_id" ref="tax_dom_sales_goods_24"/>
+        <field name="tax_dest_id" ref="aland_sales_0"/>
+    </record>
+    <record id="aland_sales_goods_14" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="aland"/>
+        <field name="tax_src_id" ref="tax_dom_sales_goods_14"/>
+        <field name="tax_dest_id" ref="aland_sales_0"/>
+    </record>
+    <record id="aland_sales_goods_10" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="aland"/>
+        <field name="tax_src_id" ref="tax_dom_sales_goods_10"/>
+        <field name="tax_dest_id" ref="aland_sales_0"/>
+    </record>
+    <!-- #### Aland:sales:service -->
+    <record id="aland_sales_service_25_5" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="aland"/>
+        <field name="tax_src_id" ref="tax_dom_sales_service_25_5"/>
+        <field name="tax_dest_id" ref="aland_sales_0"/>
+    </record>
+    <record id="aland_sales_service_24" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="aland"/>
+        <field name="tax_src_id" ref="tax_dom_sales_service_24"/>
+        <field name="tax_dest_id" ref="aland_sales_0"/>
+    </record>
+    <record id="aland_sales_service_14" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="aland"/>
+        <field name="tax_src_id" ref="tax_dom_sales_service_14"/>
+        <field name="tax_dest_id" ref="aland_sales_0"/>
+    </record>
+    <record id="aland_sales_service_10" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="aland"/>
+        <field name="tax_src_id" ref="tax_dom_sales_service_10"/>
+        <field name="tax_dest_id" ref="aland_sales_0"/>
+    </record>
+    <!-- ### Aland:purchase -->
+    <!-- #### Aland:purchase:goods -->
+    <record id="aland_purchase_goods_25_5" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="aland"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_goods_25_5"/>
+        <field name="tax_dest_id" ref="tax_non_eu_purchase_goods_25_5"/>
+    </record>
+    <record id="aland_purchase_goods_24" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="aland"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_goods_24"/>
+        <field name="tax_dest_id" ref="tax_non_eu_purchase_goods_24"/>
+    </record>
+    <record id="aland_purchase_goods_14" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="aland"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_goods_14"/>
+        <field name="tax_dest_id" ref="tax_non_eu_purchase_goods_14"/>
+    </record>
+    <record id="aland_purchase_goods_10" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="aland"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_goods_10"/>
+        <field name="tax_dest_id" ref="tax_non_eu_purchase_goods_10"/>
+    </record>
+    <!-- #### Aland:purchase:services -->
+    <record id="aland_purchase_service_25_5" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="aland"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_service_25_5"/>
+        <field name="tax_dest_id" ref="tax_dom_purchase_0"/>
+    </record>
+    <record id="aland_purchase_service_24" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="aland"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_service_24"/>
+        <field name="tax_dest_id" ref="tax_dom_purchase_0"/>
+    </record>
+    <record id="aland_purchase_service_14" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="aland"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_service_14"/>
+        <field name="tax_dest_id" ref="tax_dom_purchase_0"/>
+    </record>
+    <record id="aland_purchase_service_10" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="aland"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_service_10"/>
+        <field name="tax_dest_id" ref="tax_dom_purchase_0"/>
+    </record>
+
+    <!-- ## EU -->
+    <!-- ### EU:sales -->
+    <!-- #### EU:sales:goods -->
+    <record id="eu_sales_goods_25_5" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="eu"/>
+        <field name="tax_src_id" ref="tax_dom_sales_goods_25_5"/>
+        <field name="tax_dest_id" ref="tax_eu_sales_goods_0"/>
+    </record>
+    <record id="eu_sales_goods_24" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="eu"/>
+        <field name="tax_src_id" ref="tax_dom_sales_goods_24"/>
+        <field name="tax_dest_id" ref="tax_eu_sales_goods_0"/>
+    </record>
+    <record id="eu_sales_goods_14" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="eu"/>
+        <field name="tax_src_id" ref="tax_dom_sales_goods_14"/>
+        <field name="tax_dest_id" ref="tax_eu_sales_goods_0"/>
+    </record>
+    <record id="eu_sales_goods_10" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="eu"/>
+        <field name="tax_src_id" ref="tax_dom_sales_goods_10"/>
+        <field name="tax_dest_id" ref="tax_eu_sales_goods_0"/>
+    </record>
+    <!-- #### EU:sales:service -->
+    <record id="eu_sales_service_25_5" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="eu"/>
+        <field name="tax_src_id" ref="tax_dom_sales_service_25_5"/>
+        <field name="tax_dest_id" ref="tax_eu_sales_service_0"/>
+    </record>
+    <record id="eu_sales_service_24" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="eu"/>
+        <field name="tax_src_id" ref="tax_dom_sales_service_24"/>
+        <field name="tax_dest_id" ref="tax_eu_sales_service_0"/>
+    </record>
+    <record id="eu_sales_service_14" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="eu"/>
+        <field name="tax_src_id" ref="tax_dom_sales_service_14"/>
+        <field name="tax_dest_id" ref="tax_eu_sales_service_0"/>
+    </record>
+    <record id="eu_sales_service_10" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="eu"/>
+        <field name="tax_src_id" ref="tax_dom_sales_service_10"/>
+        <field name="tax_dest_id" ref="tax_eu_sales_service_0"/>
+    </record>
+    <!-- ### EU:purchase -->
+    <!-- #### EU:purchase:goods -->
+    <record id="eu_purchase_goods_25_5" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_goods_25_5"/>
+        <field name="tax_dest_id" ref="tax_eu_purchase_goods_25_5"/>
+    </record>
+    <record id="eu_purchase_goods_24" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_goods_24"/>
+        <field name="tax_dest_id" ref="tax_eu_purchase_goods_24"/>
+    </record>
+    <record id="eu_purchase_goods_14" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_goods_14"/>
+        <field name="tax_dest_id" ref="tax_eu_purchase_goods_14"/>
+    </record>
+    <record id="eu_purchase_goods_10" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_goods_10"/>
+        <field name="tax_dest_id" ref="tax_eu_purchase_goods_10"/>
+    </record>
+    <!-- #### EU:purchase:service -->
+    <record id="eu_purchase_service_25_5" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_service_25_5"/>
+        <field name="tax_dest_id" ref="tax_eu_purchase_service_25_5"/>
+    </record>
+    <record id="eu_purchase_service_24" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_service_24"/>
+        <field name="tax_dest_id" ref="tax_eu_purchase_service_24"/>
+    </record>
+    <record id="eu_purchase_service_14" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_service_14"/>
+        <field name="tax_dest_id" ref="tax_eu_purchase_service_14"/>
+    </record>
+    <record id="eu_purchase_service_10" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_service_10"/>
+        <field name="tax_dest_id" ref="tax_eu_purchase_service_10"/>
+    </record>
+
+    <!-- ## Non EU -->
+    <!-- ### Non EU:sales -->
+    <!-- #### Non EU:sales:goods -->
+    <record id="non_eu_sale_25_5" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_sales_goods_25_5"/>
+        <field name="tax_dest_id" ref="vat0export"/>
+    </record>
+    <record id="non_eu_sale_24" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_sales_goods_24"/>
+        <field name="tax_dest_id" ref="vat0export"/>
+    </record>
+    <record id="non_eu_sale_14" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_sales_goods_14"/>
+        <field name="tax_dest_id" ref="vat0export"/>
+    </record>
+    <record id="non_eu_sale_10" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_sales_goods_10"/>
+        <field name="tax_dest_id" ref="vat0export"/>
+    </record>
+    <!-- #### Non EU:sales:service -->
+    <record id="non_eu_sale_service_25_5" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_sales_service_25_5"/>
+        <field name="tax_dest_id" ref="vat0export"/>
+    </record>
+    <record id="non_eu_sale_service_24" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_sales_service_24"/>
+        <field name="tax_dest_id" ref="vat0export"/>
+    </record>
+    <record id="non_eu_sale_service_14" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_sales_service_14"/>
+        <field name="tax_dest_id" ref="vat0export"/>
+    </record>
+    <record id="non_eu_sale_service_10" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_sales_service_10"/>
+        <field name="tax_dest_id" ref="vat0export"/>
+    </record>
+    <!-- ### Non EU:purchase -->
+    <!-- #### Non EU:purchase:goods -->
+    <record id="non_eu_purchase_goods_25_5" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_goods_25_5"/>
+        <field name="tax_dest_id" ref="tax_non_eu_purchase_goods_25_5"/>
+    </record>
+    <record id="non_eu_purchase_goods_24" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_goods_24"/>
+        <field name="tax_dest_id" ref="tax_non_eu_purchase_goods_24"/>
+    </record>
+    <record id="non_eu_purchase_goods_14_25_5" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_goods_14"/>
+        <field name="tax_dest_id" ref="tax_non_eu_purchase_goods_25_5"/>
+    </record>
+    <record id="non_eu_purchase_goods_14" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_goods_14"/>
+        <field name="tax_dest_id" ref="tax_non_eu_purchase_goods_24"/>
+    </record>
+    <record id="non_eu_purchase_goods_10_25_5" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_goods_10"/>
+        <field name="tax_dest_id" ref="tax_non_eu_purchase_goods_25_5"/>
+    </record>
+    <record id="non_eu_purchase_goods_10" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_goods_10"/>
+        <field name="tax_dest_id" ref="tax_non_eu_purchase_goods_24"/>
+    </record>
+    <!-- #### Non EU:purchase:services -->
+    <record id="non_eu_purchase_service_25_5" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_service_25_5"/>
+        <field name="tax_dest_id" ref="tax_dom_purchase_0"/>
+    </record>
+    <record id="non_eu_purchase_service_24" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_service_24"/>
+        <field name="tax_dest_id" ref="tax_dom_purchase_0"/>
+    </record>
+    <record id="non_eu_purchase_service_14" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_service_14"/>
+        <field name="tax_dest_id" ref="tax_dom_purchase_0"/>
+    </record>
+    <record id="non_eu_purchase_service_10" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_service_10"/>
+        <field name="tax_dest_id" ref="tax_dom_purchase_0"/>
+    </record>
+    <!-- #### Non EU:purchase:brutto -->
+    <record id="non_eu_purchase_brutto_25_5" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_brutto_25_5"/>
+        <field name="tax_dest_id" ref="tax_dom_purchase_0"/>
+    </record>
+    <record id="non_eu_purchase_brutto_24" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_brutto_24"/>
+        <field name="tax_dest_id" ref="tax_dom_purchase_0"/>
+    </record>
+    <record id="non_eu_purchase_brutto_14" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_brutto_14"/>
+        <field name="tax_dest_id" ref="tax_dom_purchase_0"/>
+    </record>
+    <record id="non_eu_purchase_brutto_10" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="non_eu"/>
+        <field name="tax_src_id" ref="tax_dom_purchase_brutto_10"/>
+        <field name="tax_dest_id" ref="tax_dom_purchase_0"/>
+    </record>
+
+    <!-- ## Construction -->
+    <record id="construction_fiscpos_tax_1_25_5" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="construction"/>
+        <field name="tax_src_id" ref="tax_construct_purchase_25_5"/>
+        <field name="tax_dest_id" ref="tax_construct_purchase_25_5_finland"/>
+    </record>
+    <record id="construction_fiscpos_tax_1" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="construction"/>
+        <field name="tax_src_id" ref="tax_construct_purchase_24"/>
+        <field name="tax_dest_id" ref="tax_construct_purchase_24_finland"/>
+    </record>
+    <record id="construction_fiscpos_tax_2_25_5" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="construction"/>
+        <field name="tax_src_id" ref="tax_dom_sales_goods_25_5"/>
+        <field name="tax_dest_id" ref="tax_construct_sales_0"/>
+    </record>
+    <record id="construction_fiscpos_tax_2" model="account.fiscal.position.tax.template">
+        <field name="position_id" ref="construction"/>
+        <field name="tax_src_id" ref="tax_dom_sales_goods_24"/>
+        <field name="tax_dest_id" ref="tax_construct_sales_0"/>
+    </record>
+
+</odoo>
+
+```
+
+## File: data\account_tax_group_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="tax_group_25_5" model="account.tax.group">
+            <field name="name">VAT 25.5%</field>
+            <field name="country_id" ref="base.fi"/>
+        </record>
+        <record id="tax_group_24" model="account.tax.group">
+            <field name="name">VAT 24%</field>
+            <field name="country_id" ref="base.fi"/>
+        </record>
+        <record id="tax_group_14" model="account.tax.group">
+            <field name="name">VAT 14%</field>
+            <field name="country_id" ref="base.fi"/>
+        </record>
+        <record id="tax_group_10" model="account.tax.group">
+            <field name="name">VAT 10%</field>
+            <field name="country_id" ref="base.fi"/>
+        </record>
+        <record id="tax_group_0" model="account.tax.group">
+            <field name="name">VAT 0%</field>
+            <field name="country_id" ref="base.fi"/>
+        </record>
+    </data>
+</odoo>
+
+```
+
+## File: data\account_tax_report_line.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vat_report" model="account.report">
+        <field name="name">VAT Report</field>
+        <field name="root_report_id" ref="account.generic_tax_report"/>
+        <field name="country_id" ref="base.fi"/>
+        <field name="filter_fiscal_position" eval="True"/>
+        <field name="availability_condition">country</field>
+        <field name="column_ids">
+            <record id="vat_report_balance" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="expression_label">balance</field>
+            </record>
+        </field>
+        <field name="line_ids">
+            <record id="tax_report_sales_title" model="account.report.line">
+                <field name="name">Vero kotimaan myynneistä verokannoittain</field>
+                <!-- "sale_25_5_and_24" refers to both 24% and 25.5% taxes. Will only be 25.5 on 01/01/2025.-->
+                <field name="aggregation_formula">sale_25_5_and_24.balance + sale_14.balance + sale_10.balance</field>
+                <field name="children_ids">
+                    <record id="tax_report_sales_25_5_and_24" model="account.report.line">
+                        <field name="name">25.5% tax + 24% tax</field>
+                        <field name="code">sale_25_5_and_24</field>
+                        <field name="foldable">True</field>
+                        <field name="aggregation_formula">sale_25_5.balance + sale_24.balance</field>
+                        <field name="children_ids">
+                            <record id="tax_report_sales_25_5" model="account.report.line">
+                                <field name="name">25.5% tax</field>
+                                <field name="code">sale_25_5</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_sales_25_5_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">fi_320</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_sales_24" model="account.report.line">
+                                <field name="name">24% tax</field>
+                                <field name="code">sale_24</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_sales_24_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">fi_301</field>
+                                    </record>
+                                </field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_sales_14" model="account.report.line">
+                        <field name="name">14 %:n vero</field>
+                        <field name="code">sale_14</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_sales_14_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">fi_302</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_sales_10" model="account.report.line">
+                        <field name="name">10 %:n vero</field>
+                        <field name="code">sale_10</field>
+                        <field name="expression_ids">
+                            <record id="tax_report_sales_10_tag" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">tax_tags</field>
+                                <field name="formula">fi_303</field>
+                            </record>
+                        </field>
+                    </record>
+                </field>
+            </record>
+            <record id="tax_report_tax_purchase_goods_eu" model="account.report.line">
+                <field name="name">Vero tavaraostoista muista EU-maista</field>
+                <field name="code">goods_eu</field>
+                <field name="expression_ids">
+                    <record id="tax_report_tax_purchase_goods_eu_tag" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">tax_tags</field>
+                        <field name="formula">fi_305</field>
+                    </record>
+                </field>
+            </record>
+            <record id="tax_report_tax_purchase_service_eu" model="account.report.line">
+                <field name="name">Vero palveluostoista muista EU-maista</field>
+                <field name="code">service_eu</field>
+                <field name="expression_ids">
+                    <record id="tax_report_tax_purchase_service_eu_tag" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">tax_tags</field>
+                        <field name="formula">fi_tax_306</field>
+                    </record>
+                </field>
+            </record>
+            <record id="tax_report_tax_import_goods_no_eu" model="account.report.line">
+                <field name="name">Vero tavaroiden maahantuonneista EU:n ulkopuolelta</field>
+                <field name="code">goods_no_eu</field>
+                <field name="expression_ids">
+                    <record id="tax_report_tax_import_goods_no_eu_tag" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">tax_tags</field>
+                        <field name="formula">fi_340</field>
+                    </record>
+                </field>
+            </record>
+            <record id="tax_report_tax_purchase_construct_service" model="account.report.line">
+                <field name="name">Vero rakentamispalvelun ja metalliromun ostoista (käännetty verovelvollisuus)</field>
+                <field name="code">construct</field>
+                <field name="expression_ids">
+                    <record id="tax_report_tax_purchase_construct_service_tag" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">tax_tags</field>
+                        <field name="formula">fi_318</field>
+                    </record>
+                </field>
+            </record>
+            <record id="tax_report_deductible" model="account.report.line">
+                <field name="name">Verokauden vähennettävä vero</field>
+                <field name="code">deductible</field>
+                <field name="expression_ids">
+                    <record id="tax_report_deductible_tag" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">tax_tags</field>
+                        <field name="formula">fi_307</field>
+                    </record>
+                </field>
+            </record>
+            <record id="vat_report_relief" model="account.report.line">
+                <field name="name">Alarajahuojennuksen määrä</field>
+                <field name="expression_ids">
+                    <record id="vat_report_relief_tag" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">tax_tags</field>
+                        <field name="formula">fi_vat_relief</field>
+                    </record>
+                </field>
+            </record>
+            <record id="tax_report_tax_payable" model="account.report.line">
+                <field name="name">Maksettava vero / Palautukseen oikeuttava vero (-)</field>
+                <!-- "sale_25_5_and_24" refers to both 24% and 25.5% taxes. Will only be 25.5 on 01/01/2025.-->
+                <field name="aggregation_formula">sale_25_5_and_24.balance + sale_14.balance + sale_10.balance + goods_eu.balance + service_eu.balance + goods_no_eu.balance + construct.balance - deductible.balance</field>
+            </record>
+            <record id="tax_report_base_turnover_0_vat" model="account.report.line">
+                <field name="name">0-verokannan alainen liikevaihto</field>
+                <field name="expression_ids">
+                    <record id="tax_report_base_turnover_0_vat_tag" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">tax_tags</field>
+                        <field name="formula">fi_304</field>
+                    </record>
+                </field>
+            </record>
+            <record id="tax_report_base_sales_goods_eu" model="account.report.line">
+                <field name="name">Tavaroiden myynnit muihin EU-maihin</field>
+                <field name="expression_ids">
+                    <record id="tax_report_base_sales_goods_eu_tag" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">tax_tags</field>
+                        <field name="formula">fi_311</field>
+                    </record>
+                </field>
+            </record>
+            <record id="tax_report_base_sales_service_eu" model="account.report.line">
+                <field name="name">Palvelujen myynnit muihin EU-maihin</field>
+                <field name="expression_ids">
+                    <record id="tax_report_base_sales_service_eu_tag" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">tax_tags</field>
+                        <field name="formula">fi_312</field>
+                    </record>
+                </field>
+            </record>
+            <record id="tax_report_base_purchase_goods_eu" model="account.report.line">
+                <field name="name">Tavaraostot muista EU-maista</field>
+                <field name="expression_ids">
+                    <record id="tax_report_base_purchase_goods_eu_tag" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">tax_tags</field>
+                        <field name="formula">fi_base_purchase_goods_eu</field>
+                    </record>
+                </field>
+            </record>
+            <record id="tax_report_base_purchase_service_eu" model="account.report.line">
+                <field name="name">Palveluostot muista EU-maista</field>
+                <field name="expression_ids">
+                    <record id="tax_report_base_purchase_service_eu_tag" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">tax_tags</field>
+                        <field name="formula">fi_base_306</field>
+                    </record>
+                </field>
+            </record>
+            <record id="tax_report_base_import_goods_no_eu" model="account.report.line">
+                <field name="name">Tavaroiden maahantuonnit EU:n ulkopuolelta</field>
+                <field name="expression_ids">
+                    <record id="tax_report_base_import_goods_no_eu_tag" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">tax_tags</field>
+                        <field name="formula">fi_base_340</field>
+                    </record>
+                </field>
+            </record>
+            <record id="tax_report_base_sales_construct_service" model="account.report.line">
+                <field name="name">Rakentamispalvelun ja metalliromun myynnit (käännetty verovelvollisuus)</field>
+                <field name="expression_ids">
+                    <record id="tax_report_base_sales_construct_service_tag" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">tax_tags</field>
+                        <field name="formula">fi_319</field>
+                    </record>
+                </field>
+            </record>
+            <record id="tax_report_base_purchase_construct_service" model="account.report.line">
+                <field name="name">Rakentamispalvelun ja metalliromun ostot (käännetty verovelvollisuus)</field>
+                <field name="expression_ids">
+                    <record id="tax_report_base_purchase_construct_service_tag" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">tax_tags</field>
+                        <field name="formula">fi_base_318</field>
+                    </record>
+                </field>
+            </record>
+        </field>
+    </record>
+</odoo>
+
+```
+
+## File: data\account_tax_template_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- # Domestic -->
+    <!-- ## Domestic:sales -->
+    <!-- ### Domestic:sales:goods -->
+    <record id="tax_dom_sales_goods_25_5" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">25.5%</field>
+        <field name="description">25.5%</field>
+        <field name="amount">25.5</field>
+        <field name="tax_group_id" ref="tax_group_25_5"/>
+        <field name="type_tax_use">sale</field>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'plus_report_expression_ids': [ref('tax_report_sales_25_5_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'minus_report_expression_ids': [ref('tax_report_sales_25_5_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="tax_dom_sales_goods_24" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">24%</field>
+        <field name="description">24%</field>
+        <field name="amount">24.0</field>
+        <field name="tax_group_id" ref="tax_group_24"/>
+        <field name="type_tax_use">sale</field>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'plus_report_expression_ids': [ref('tax_report_sales_24_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'minus_report_expression_ids': [ref('tax_report_sales_24_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="tax_dom_sales_goods_14" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">14%</field>
+        <field name="description">14%</field>
+        <field name="amount">14.0</field>
+        <field name="tax_group_id" ref="tax_group_14"/>
+        <field name="type_tax_use">sale</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'plus_report_expression_ids': [ref('tax_report_sales_14_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'minus_report_expression_ids': [ref('tax_report_sales_14_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="tax_dom_sales_goods_10" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">10%</field>
+        <field name="description">10%</field>
+        <field name="amount">10.0</field>
+        <field name="tax_group_id" ref="tax_group_10"/>
+        <field name="type_tax_use">sale</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'plus_report_expression_ids': [ref('tax_report_sales_10_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'minus_report_expression_ids': [ref('tax_report_sales_10_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="tax_dom_sales_goods_0" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">0%</field>
+        <field name="description">0%</field>
+        <field name="amount">0.0</field>
+        <field name="tax_group_id" ref="tax_group_0"/>
+        <field name="type_tax_use">sale</field>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_turnover_0_vat_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_turnover_0_vat_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+    <!-- ### Domestic:sales:service -->
+    <record id="tax_dom_sales_service_25_5" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">25.5% S</field>
+        <field name="description">25.5%</field>
+        <field name="amount">25.5</field>
+        <field name="tax_group_id" ref="tax_group_25_5"/>
+        <field name="type_tax_use">sale</field>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'plus_report_expression_ids': [ref('tax_report_sales_25_5_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'minus_report_expression_ids': [ref('tax_report_sales_25_5_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="tax_dom_sales_service_24" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">24% S</field>
+        <field name="description">24%</field>
+        <field name="amount">24.0</field>
+        <field name="tax_group_id" ref="tax_group_24"/>
+        <field name="type_tax_use">sale</field>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'plus_report_expression_ids': [ref('tax_report_sales_24_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'minus_report_expression_ids': [ref('tax_report_sales_24_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="tax_dom_sales_service_14" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">14% S</field>
+        <field name="description">14%</field>
+        <field name="amount">14.0</field>
+        <field name="tax_group_id" ref="tax_group_14"/>
+        <field name="type_tax_use">sale</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'plus_report_expression_ids': [ref('tax_report_sales_14_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'minus_report_expression_ids': [ref('tax_report_sales_14_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="tax_dom_sales_service_10" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">10% S</field>
+        <field name="description">10%</field>
+        <field name="amount">10.0</field>
+        <field name="tax_group_id" ref="tax_group_10"/>
+        <field name="type_tax_use">sale</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'plus_report_expression_ids': [ref('tax_report_sales_10_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'minus_report_expression_ids': [ref('tax_report_sales_10_tag')],
+            }),
+        ]"/>
+    </record>
+    <!-- ## Domestic:purchase -->
+    <!-- ### Domestic:purchase:goods -->
+    <record id="tax_dom_purchase_goods_25_5" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">25.5%</field>
+        <field name="description">25.5%</field>
+        <field name="amount">25.5</field>
+        <field name="tax_group_id" ref="tax_group_25_5"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="tax_dom_purchase_goods_24" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">24%</field>
+        <field name="description">24%</field>
+        <field name="amount">24.0</field>
+        <field name="tax_group_id" ref="tax_group_24"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="tax_dom_purchase_goods_14" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">14%</field>
+        <field name="description">14%</field>
+        <field name="amount">14.0</field>
+        <field name="tax_group_id" ref="tax_group_14"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="tax_dom_purchase_goods_10" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">10%</field>
+        <field name="description">10%</field>
+        <field name="amount">10.0</field>
+        <field name="tax_group_id" ref="tax_group_10"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+    </record>
+    <!-- ### Domestic:purchase:service -->
+    <record id="tax_dom_purchase_service_25_5" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">25.5% S</field>
+        <field name="description">25.5%</field>
+        <field name="amount">25.5</field>
+        <field name="tax_group_id" ref="tax_group_25_5"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="tax_dom_purchase_service_24" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">24% S</field>
+        <field name="description">24%</field>
+        <field name="amount">24.0</field>
+        <field name="tax_group_id" ref="tax_group_24"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="tax_dom_purchase_service_14" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">14% S</field>
+        <field name="description">14%</field>
+        <field name="amount">14.0</field>
+        <field name="tax_group_id" ref="tax_group_14"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="tax_dom_purchase_service_10" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">10% S</field>
+        <field name="description">10%</field>
+        <field name="amount">10.0</field>
+        <field name="tax_group_id" ref="tax_group_10"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+    </record>
+    <!-- ### Domestic:purchase:brutto -->
+    <record id="tax_dom_purchase_brutto_25_5" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">25.5% incl</field>
+        <field name="description">25.5% incl</field>
+        <field name="price_include" eval="1" />
+        <field name="include_base_amount" eval="1" />
+        <field name="amount">25.5</field>
+        <field name="tax_group_id" ref="tax_group_25_5"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="tax_dom_purchase_brutto_24" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">24% incl</field>
+        <field name="description">24% incl</field>
+        <field name="price_include" eval="1" />
+        <field name="include_base_amount" eval="1" />        
+        <field name="amount">24.0</field>
+        <field name="tax_group_id" ref="tax_group_24"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="tax_dom_purchase_brutto_14" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">14% incl</field>
+        <field name="description">14% incl</field>
+        <field name="price_include" eval="1" />
+        <field name="include_base_amount" eval="1" />        
+        <field name="amount">14.0</field>
+        <field name="tax_group_id" ref="tax_group_14"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="tax_dom_purchase_brutto_10" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">10% incl</field>
+        <field name="description">10% incl</field>
+        <field name="price_include" eval="1" />
+        <field name="include_base_amount" eval="1" />        
+        <field name="amount">10.0</field>
+        <field name="tax_group_id" ref="tax_group_10"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+    </record>
+    <!-- ### Domestic:purchase:no_category -->
+    <record id="tax_dom_purchase_0" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">0%</field>
+        <field name="description">0%</field>
+        <field name="amount">0.0</field>
+        <field name="tax_group_id" ref="tax_group_0"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount_type">percent</field>
+    </record>
+    <!-- # Europe -->
+    <!-- ## Europe:sales -->
+    <!-- ### Europe:sales:goods -->
+    <record id="tax_eu_sales_goods_0" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">0% EU G</field>
+        <field name="description">0%</field>
+        <field name="amount">0.0</field>
+        <field name="tax_group_id" ref="tax_group_0"/>
+        <field name="type_tax_use">sale</field>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_sales_goods_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_sales_goods_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+    <!-- ### Europe:sales:service -->
+    <record id="tax_eu_sales_service_0" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">0% EU S</field>
+        <field name="description">0%</field>
+        <field name="amount">0.0</field>
+        <field name="tax_group_id" ref="tax_group_0"/>
+        <field name="type_tax_use">sale</field>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_sales_service_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_sales_service_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+    <!-- ## Europe:purchase -->
+    <!-- ### Europe:purchase:goods -->
+    <record id="tax_eu_purchase_goods_25_5" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">25.5% EU G</field>
+        <field name="description">25.5%</field>
+        <field name="amount">25.5</field>
+        <field name="tax_group_id" ref="tax_group_25_5"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_purchase_goods_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_purchase_goods_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_purchase_goods_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_purchase_goods_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+    </record>
+    <record id="tax_eu_purchase_goods_24" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">24% EU G</field>
+        <field name="description">24%</field>
+        <field name="amount">24.0</field>
+        <field name="tax_group_id" ref="tax_group_24"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_purchase_goods_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_purchase_goods_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_purchase_goods_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_purchase_goods_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+    </record>
+    <record id="tax_eu_purchase_goods_14" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">14% EU</field>
+        <field name="description">14%</field>
+        <field name="amount">14.0</field>
+        <field name="tax_group_id" ref="tax_group_14"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_purchase_goods_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_purchase_goods_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_purchase_goods_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_purchase_goods_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+    </record>
+    <record id="tax_eu_purchase_goods_10" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">10% EU G</field>
+        <field name="description">10%</field>
+        <field name="amount">10.0</field>
+        <field name="tax_group_id" ref="tax_group_10"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_purchase_goods_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_purchase_goods_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_purchase_goods_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_purchase_goods_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+    </record>
+    <!-- ### Europe:purchase:service -->
+    <record id="tax_eu_purchase_service_25_5" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">25.5% EU S</field>
+        <field name="description">25.5%</field>
+        <field name="amount">25.5</field>
+        <field name="tax_group_id" ref="tax_group_25_5"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_purchase_service_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_purchase_service_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_purchase_service_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_purchase_service_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+    </record>
+    <record id="tax_eu_purchase_service_24" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">24% EU S</field>
+        <field name="description">24%</field>
+        <field name="amount">24.0</field>
+        <field name="tax_group_id" ref="tax_group_24"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_purchase_service_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_purchase_service_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_purchase_service_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_purchase_service_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+    </record>
+    <record id="tax_eu_purchase_service_14" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">14% EU S</field>
+        <field name="description">14%</field>
+        <field name="amount">14.0</field>
+        <field name="tax_group_id" ref="tax_group_14"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_purchase_service_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_purchase_service_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_purchase_service_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_purchase_service_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+    </record>
+    <record id="tax_eu_purchase_service_10" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">10% EU S</field>
+        <field name="description">10%</field>
+        <field name="amount">10.0</field>
+        <field name="tax_group_id" ref="tax_group_10"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_purchase_service_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_purchase_service_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_purchase_service_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_purchase_service_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+    </record>
+    <!-- # TRIANGULATION -->
+    <record id="vat0triangulation" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">0% ABC</field>
+        <field name="description">0%</field>
+        <field name="amount">0.0</field>
+        <field name="tax_group_id" ref="tax_group_0"/>
+        <field name="type_tax_use">sale</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+    <record id="triangulation_purchase" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">ABC</field>
+        <field name="description">ABC</field>
+        <field name="amount">0.0</field>
+        <field name="tax_group_id" ref="tax_group_0"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+            }),
+        ]"/>
+    </record>
+    <!-- # Construct -->
+    <record id="tax_construct_sales_0" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">0% Construct</field>
+        <field name="description">0%</field>
+        <field name="amount">0.0</field>
+        <field name="tax_group_id" ref="tax_group_0"/>
+        <field name="type_tax_use">sale</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_sales_construct_service_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_sales_construct_service_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+    <record id="tax_construct_purchase_25_5" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">25.5% Construct</field>
+        <field name="description">25.5%</field>
+        <field name="amount">25.5</field>
+        <field name="tax_group_id" ref="tax_group_25_5"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="tax_construct_purchase_24" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">24% Construct</field>
+        <field name="description">24%</field>
+        <field name="amount">24.0</field>
+        <field name="tax_group_id" ref="tax_group_24"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="tax_construct_purchase_25_5_finland" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">25.5% FI Construct</field>
+        <field name="description">25.5%</field>
+        <field name="tax_group_id" ref="tax_group_25_5"/>
+        <field name="amount">25.5</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_purchase_construct_service_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'minus_report_expression_ids': [ref('tax_report_tax_purchase_construct_service_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_purchase_construct_service_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'plus_report_expression_ids': [ref('tax_report_tax_purchase_construct_service_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="tax_construct_purchase_24_finland" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">24% FI Construct</field>
+        <field name="description">24%</field>
+        <field name="tax_group_id" ref="tax_group_24"/>
+        <field name="amount">24.0</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_purchase_construct_service_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'minus_report_expression_ids': [ref('tax_report_tax_purchase_construct_service_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_purchase_construct_service_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+              'plus_report_expression_ids': [ref('tax_report_tax_purchase_construct_service_tag')],
+            }),
+        ]"/>
+    </record>
+    <!-- # Aland -->
+    <!-- ## Aland:sales -->
+    <record id="aland_sales_0" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">0% Aland</field>
+        <field name="description">0%</field>
+        <field name="amount">0.0</field>
+        <field name="tax_group_id" ref="tax_group_0"/>
+        <field name="type_tax_use">sale</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_turnover_0_vat_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_turnover_0_vat_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+    <!-- # Non EU -->
+    <!-- ## Non EU:purchase -->
+    <!-- ## Non EU:purchase:goods -->
+    <record id="tax_non_eu_purchase_goods_25_5" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">25.5% EX G</field>
+        <field name="description">25.5%</field>
+        <field name="amount">25.5</field>
+        <field name="tax_group_id" ref="tax_group_25_5"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+    </record>
+    <record id="tax_non_eu_purchase_goods_24" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">24% EX G</field>
+        <field name="description">24%</field>
+        <field name="amount">24.0</field>
+        <field name="tax_group_id" ref="tax_group_24"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+    </record>
+    <record id="tax_non_eu_purchase_goods_14" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">14% EX G</field>
+        <field name="description">14%</field>
+        <field name="amount">14.0</field>
+        <field name="tax_group_id" ref="tax_group_14"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+    </record>
+    <record id="tax_non_eu_purchase_goods_10" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">10% EX G</field>
+        <field name="description">10%</field>
+        <field name="amount">10.0</field>
+        <field name="tax_group_id" ref="tax_group_10"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag'), ref('tax_report_tax_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'factor_percent': -100,
+              'repartition_type': 'tax',
+              'account_id': ref('account_2930'),
+            }),
+        ]"/>
+    </record>
+    <!-- ## Non EU:others -->
+    <record id="vat0export" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">0% EX</field>
+        <field name="description">0% EX</field>
+        <field name="amount">0.0</field>
+        <field name="tax_group_id" ref="tax_group_0"/>
+        <field name="type_tax_use">sale</field>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_turnover_0_vat_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_turnover_0_vat_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+    <record id="import_pay25_5" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">25.5% Import Pay</field>
+        <field name="description">25.5%</field>
+        <field name="amount">25.5</field>
+        <field name="tax_group_id" ref="tax_group_25_5"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_tax_import_goods_no_eu_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_tax_import_goods_no_eu_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="import_pay24" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">24% Import Pay</field>
+        <field name="description">24%</field>
+        <field name="amount">24.0</field>
+        <field name="tax_group_id" ref="tax_group_24"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'plus_report_expression_ids': [ref('tax_report_base_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_tax_import_goods_no_eu_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+              'minus_report_expression_ids': [ref('tax_report_base_import_goods_no_eu_tag')],
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_tax_import_goods_no_eu_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="import_deduct25_5" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">25.5% Import Deduct</field>
+        <field name="description">25.5%</field>
+        <field name="amount">25.5</field>
+        <field name="tax_group_id" ref="tax_group_25_5"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="import_deduct24" model="account.tax.template">
+        <field name="chart_template_id" ref="fi_chart_template"/>
+        <field name="name">24% Import Deduct</field>
+        <field name="description">24%</field>
+        <field name="amount">24.0</field>
+        <field name="tax_group_id" ref="tax_group_24"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="amount_type">percent</field>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'plus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+              'repartition_type': 'base',
+            }),
+            (0,0, {
+              'repartition_type': 'tax',
+              'account_id': ref('account_1765'),
+              'minus_report_expression_ids': [ref('tax_report_deductible_tag')],
+            }),
+        ]"/>
+    </record>
+</odoo>
+
+```
+
+## File: data\l10n_fi_chart_post_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="fi_chart_template" model="account.chart.template">
+        <field name="code_digits">4</field>
+        <field name="property_account_receivable_id" ref="account_1700"/>
+        <field name="property_account_payable_id" ref="account_2870"/>
+        <field name="property_account_expense_categ_id" ref="account_4000"/>
+        <field name="property_account_income_categ_id" ref="account_3000"/>
+        <field name="property_account_expense_id" ref="account_4000"/>
+        <field name="property_account_income_id" ref="account_3000"/>
+        <field name="expense_currency_exchange_account_id" ref="account_4380"/>
+        <field name="income_currency_exchange_account_id" ref="account_3500"/>
+        <field name="property_tax_payable_account_id" ref="account_2930"/>
+        <field name="property_tax_receivable_account_id" ref="account_1765"/>
+        <field name="default_pos_receivable_account_id" ref="account_1701"/>
+        <field name="account_journal_early_pay_discount_loss_account_id" ref="account_4230"/>
+        <field name="account_journal_early_pay_discount_gain_account_id" ref="account_3500"/>
+    </record>
+</odoo>
+
+```
+
+## File: migrations\13.0.2\end-migrate_update_taxes.py
+
+```python
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo.addons.account.models.chart_template import update_taxes_from_templates
+
+
+def migrate(cr, version):
+    update_taxes_from_templates(cr, 'l10n_fi.fi_chart_template')
+
+```
+
+## File: models\account_journal.py
+
+```python
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+from odoo import models, fields
+
+
+class AccountJournal(models.Model):
+
+    _inherit = 'account.journal'
+
+    invoice_reference_model = fields.Selection(selection_add=[
+        ('fi', 'Finnish Standard Reference'),
+        ('fi_rf', 'Finnish Creditor Reference (RF)'),
+    ], ondelete={'fi': lambda recs: recs.write({'invoice_reference_model': 'odoo'}),
+                 'fi_rf': lambda recs: recs.write({'invoice_reference_model': 'odoo'})})
+
+```
+
+## File: models\account_move.py
+
+```python
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+import re
+from odoo import api, models, _
+from odoo.exceptions import UserError
+import logging
+
+log = logging.getLogger(__name__)
+
+
+class AccountInvoiceFinnish(models.Model):
+    _inherit = 'account.move'
+
+    @api.model
+    def number2numeric(self, number):
+
+        invoice_number = re.sub(r'\D', '', number)
+
+        if invoice_number == '' or invoice_number is False:
+            raise UserError(_('Invoice number must contain numeric characters'))
+
+        # Make sure the base number is 3...19 characters long
+        if len(invoice_number) < 3:
+            invoice_number = ('11' + invoice_number)[-3:]
+        elif len(invoice_number) > 19:
+            invoice_number = invoice_number[:19]
+
+        return invoice_number
+
+    @api.model
+    def get_finnish_check_digit(self, base_number):
+        # Multiply digits from end to beginning with 7, 3 and 1 and
+        # calculate the sum of the products
+        total = sum((7, 3, 1)[idx % 3] * int(val) for idx, val in
+                    enumerate(base_number[::-1]))
+
+        # Subtract the sum from the next decade. 10 = 0
+        return str((10 - (total % 10)) % 10)
+
+    @api.model
+    def get_rf_check_digits(self, base_number):
+        check_base = base_number + 'RF00'
+        # 1. Convert all non-digits to digits
+        # 2. Calculate the modulo 97
+        # 3. Subtract the remainder from 98
+        # 4. Add leading zeros if necessary
+        return ''.join(
+            ['00', str(98 - (int(''.join(
+                [x if x.isdigit() else str(ord(x) - 55) for x in
+                 check_base])) % 97))])[-2:]
+
+    @api.model
+    def compute_payment_reference_finnish(self, number):
+        # Drop all non-numeric characters
+        invoice_number = self.number2numeric(number)
+
+        # Calculate the Finnish check digit
+        check_digit = self.get_finnish_check_digit(invoice_number)
+
+        return invoice_number + check_digit
+
+    @api.model
+    def compute_payment_reference_finnish_rf(self, number):
+        # Drop all non-numeric characters
+        invoice_number = self.number2numeric(number)
+
+        # Calculate the Finnish check digit
+        invoice_number += self.get_finnish_check_digit(invoice_number)
+
+        # Calculate the RF check digits
+        rf_check_digits = self.get_rf_check_digits(invoice_number)
+
+        return 'RF' + rf_check_digits + invoice_number
+
+    def _get_invoice_reference_fi_rf_invoice(self):
+        self.ensure_one()
+        return self.compute_payment_reference_finnish_rf(self.name)
+
+    def _get_invoice_reference_fi_rf_partner(self):
+        self.ensure_one()
+        return self.compute_payment_reference_finnish_rf(str(self.partner_id.id))
+
+    def _get_invoice_reference_fi_invoice(self):
+        self.ensure_one()
+        return self.compute_payment_reference_finnish(self.name)
+
+    def _get_invoice_reference_fi_partner(self):
+        self.ensure_one()
+        return self.compute_payment_reference_finnish(str(self.partner_id.id))
+
+```
+
+## File: models\__init__.py
+
+```python
+# -*- coding:utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from . import account_journal
+from . import account_move
+
+```
+
+## File: static\description\icon.svg
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 106 106">
+  <defs>
+    <mask id="a" x="0" y="0" width="106" height="106" maskUnits="userSpaceOnUse">
+      <path d="M6.06,0H98.43C104.49,0,106,1.51,106,7.57V98.43c0,6.06-1.51,7.57-7.57,7.57H6.06C1.51,106,0,104.49,0,98.43V7.57C0,1.51,1.51,0,6.06,0Z" style="fill: #fff;fill-rule: evenodd"/>
+    </mask>
+    <mask id="b" x="4.8" y="6.16" width="50.4" height="33.31" maskUnits="userSpaceOnUse">
+      <rect x="6.29" y="7.73" width="48.45" height="31.57" rx="1" style="fill: #fff"/>
+    </mask>
+    <symbol id="c" data-name="account icon" viewBox="0 0 106 106">
+      <g style="mask: url(#a)">
+        <g>
+          <path d="M0,0H106V106H0Z" style="fill: #5a5a64;fill-rule: evenodd"/>
+          <path d="M6.06,1.51H98.43q6.06,0,7.57,3V0H0V4.54Q1.52,1.51,6.06,1.51Z" style="fill: #fff;fill-opacity: 0.382999986410141;fill-rule: evenodd"/>
+          <path d="M6.06,104.49H98.43q6.06,0,7.57-4.55V106H0V99.94Q1.52,104.49,6.06,104.49Z" style="fill-opacity: 0.382999986410141;fill-rule: evenodd"/>
+          <g>
+            <path d="M70.38,104.49H6.06C3,104.49,0,103,0,98.43V61.28L28.77,19.69H59.06a77.33,77.33,0,0,0,21.2,13.87c.07,11.31.07,4.86,0,16.17h3.12l.21,36.82Z" style="fill: #393939;fill-rule: evenodd;opacity: 0.324000000953674;isolation: isolate"/>
+            <g style="opacity: 0.30000000000000004">
+              <g>
+                <path d="M68.77,58.54H76c.76,0,1,.12,1,.46v2.45c0,.31-.24.43-.93.43H61.44c-.66,0-.92-.12-.92-.42,0-.83,0-1.67,0-2.51,0-.29.26-.4.92-.41Z"/>
+                <path d="M64.33,77.42c.42.39.76.66,1,1a.89.89,0,0,1,0,1.31.92.92,0,0,1-1.32,0,4.25,4.25,0,0,1-.48-.47c-.14-.15-.26-.31-.49-.6-.32.37-.54.66-.79.91-.53.53-1.08.58-1.5.15s-.36-.94.15-1.45c.26-.26.54-.5.91-.83-.38-.34-.72-.61-1-.91a.9.9,0,0,1,0-1.36.91.91,0,0,1,1.36,0c.29.28.54.6.93,1A12.1,12.1,0,0,1,64,75.18a.91.91,0,0,1,1.36,0,.87.87,0,0,1,0,1.31C65.07,76.79,64.73,77.06,64.33,77.42Z"/>
+                <path d="M62.13,66.9c0-.47,0-.88,0-1.28a.92.92,0,0,1,.92-1,.91.91,0,0,1,1,1c0,.41,0,.81,0,1.3h1.14a1.16,1.16,0,0,1,1.22,1c0,.55-.42.85-1.18.86H64.12c0,.49,0,.91,0,1.34a.94.94,0,1,1-1.88,0c0-.41,0-.81,0-1.3H60.92a.94.94,0,1,1,0-1.88C61.3,66.89,61.68,66.9,62.13,66.9Z"/>
+                <path d="M74.31,76H72.23c-.67,0-1-.34-1-.93a.89.89,0,0,1,1-1q2.18,0,4.35,0a1,1,0,1,1,0,1.91c-.74,0-1.47,0-2.21,0Z"/>
+                <path d="M74.28,68.61c-.71,0-1.43,0-2.14,0a.86.86,0,0,1-1-.9.85.85,0,0,1,.92-1c1.5,0,3,0,4.48,0a.93.93,0,0,1,1,1,.91.91,0,0,1-1,.91c-.75,0-1.51,0-2.27,0Z"/>
+                <path d="M74.36,78.09c.72,0,1.44,0,2.15,0a1,1,0,0,1,1,1c0,.57-.38.93-1,.94H72.28c-.75,0-1.09-.32-1.09-.94s.37-1,1.09-1,1.39,0,2.08,0Z"/>
+                <path d="M81.29,90.55H56.14a4,4,0,0,1-4-4V53.73a4,4,0,0,1,4-4H81.29a4,4,0,0,1,4,4V86.55A4,4,0,0,1,81.29,90.55ZM56.14,53.73V86.55H81.29V53.73Z"/>
+              </g>
+              <path d="M43.49,83.26H31.8V25.71H56v10.6q0,4.55,4.54,4.55H75.71v5.78h4.55V34.8c-4.55-3-16.66-12.11-19.69-13.63H30.29a2.68,2.68,0,0,0-3,3V84.77a2.68,2.68,0,0,0,3,3H48.45V83.26ZM60.57,25.71l15.14,10.6H60.57Z"/>
+            </g>
+            <path d="M60.57,18.68H30.29a2.68,2.68,0,0,0-3,3V82.28a2.68,2.68,0,0,0,3,3H48.45V80.77H31.8V23.22H56v10.6q0,4.55,4.54,4.55H75.71v5.78h4.55V32.31C75.71,29.28,63.6,20.2,60.57,18.68Zm0,15.14V23.22l15.14,10.6Z" style="fill: #a8a9ab"/>
+            <g>
+              <path d="M68.77,55.78H76c.76,0,1,.13,1,.53v2.85c0,.37-.24.5-.93.5q-7.3,0-14.61,0c-.66,0-.92-.14-.92-.48,0-1,0-2,0-2.93,0-.34.26-.47.92-.47Z" style="fill: #a8a9ab"/>
+              <path d="M64.33,76.53c.42.38.76.65,1,1a.89.89,0,0,1,0,1.31.92.92,0,0,1-1.32,0,5.44,5.44,0,0,1-.48-.48c-.14-.14-.26-.31-.49-.59-.32.36-.54.65-.79.91-.53.53-1.08.57-1.5.14s-.36-.94.15-1.45c.26-.26.54-.49.91-.82-.38-.35-.72-.61-1-.92a.9.9,0,0,1,0-1.36.92.92,0,0,1,1.36,0c.29.28.54.61.93,1A13.78,13.78,0,0,1,64,74.28a.91.91,0,0,1,1.36,0,.88.88,0,0,1,0,1.32C65.07,75.89,64.73,76.16,64.33,76.53Z" style="fill: #a8a9ab"/>
+              <path d="M62.13,65.88c0-.48,0-.88,0-1.29a1,1,0,1,1,1.91,0c0,.4,0,.81,0,1.3h1.14a1.15,1.15,0,0,1,1.22,1c0,.54-.42.85-1.18.85H64.12c0,.49,0,.92,0,1.34a.94.94,0,1,1-1.88,0c0-.4,0-.81,0-1.3H60.92a.94.94,0,1,1,0-1.88Z" style="fill: #a8a9ab"/>
+              <path d="M74.31,75.11c-.69,0-1.38,0-2.08,0s-1-.35-1-.94a.89.89,0,0,1,1-1q2.18,0,4.35,0a.91.91,0,0,1,1,1,.93.93,0,0,1-1,1c-.74,0-1.47,0-2.21,0Z" style="fill: #a8a9ab"/>
+              <path d="M74.28,67.76H72.14a.87.87,0,0,1-1-.9.84.84,0,0,1,.92-1c1.5,0,3,0,4.48,0a.94.94,0,0,1,1,1,.91.91,0,0,1-1,.91H74.28Z" style="fill: #a8a9ab"/>
+              <path d="M74.36,77.2c.72,0,1.44,0,2.15,0a1,1,0,0,1,1,1c0,.56-.38.93-1,.93q-2.12,0-4.23,0c-.75,0-1.09-.32-1.09-.94s.37-.94,1.09-1,1.39,0,2.08,0Z" style="fill: #a8a9ab"/>
+              <path d="M81.29,88.06H56.14a4,4,0,0,1-4-4V51.24a4,4,0,0,1,4-4H81.29a4,4,0,0,1,4,4V84.06A4,4,0,0,1,81.29,88.06ZM56.14,51.24V84.06H81.29V51.24Z" style="fill: #a8a9ab"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </symbol>
+  </defs>
+  <g>
+    <use width="106" height="106" transform="translate(-0.07 0)" xlink:href="#c"/>
+    <rect x="6.2" y="10.57" width="48.45" height="31.57" rx="1" style="fill: #393939;opacity: 0.44;isolation: isolate"/>
+    <g style="mask: url(#b)">
+      <image width="800" height="488" transform="translate(4.8 6.16) scale(0.06 0.07)" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAyAAAAIRCAYAAACyIdnUAAAACXBIWXMAAK/IAACvyAF3Om7hAAALs0lEQVR4Xu3bsY4NYRyH4e/YYRPR6XSUotxEXIE70G0hXANql8IN6NQSEj2Vwqq2EB2RLNbRbP81Jy9rnqf+1f/MO5PZbLfb7QBSNx48H0dvjsa4fHE2ZQ2+nozDh3fGs8d3Z0sAOPcuzAYAAAC7IkAAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAEAADICBAAAyAgQAAAgI0AAAICMAAH427azAQD8P5aXbz/NNsCOHX/7McbeZjZjLZYL4/WHz8M9BmANNuPmU+/eoLa/zBas0cmv2QIAzr3FgxDAP8I9BmAF/AMCAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABkBAgAAJARIAAAQEaAAAAAGQECAABklrGnQSB3+nu2YI3cYwBWYPPu45ftbATs1sGTF+Pk/fEY+8tsyhp8/zkO798ej+4dzJYAcO4tt65fnW2AHbt25dI4OtX+nDn7IuYeA7AGvvcDAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAAAZAQIAAGQECAAAkBEgAABARoAAAACZZYzxajYCAADYhT8DJDMuNA2VVgAAAABJRU5ErkJggg=="/>
+    </g>
+  </g>
+</svg>
+
+```
+

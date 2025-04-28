@@ -1,0 +1,4824 @@
+# Odoo Module: l10n_be
+
+Category: Accounting/Localizations/Account Charts
+
+This file contains the source code of the Odoo module.
+
+## File: __init__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import api, SUPERUSER_ID
+
+from . import models
+
+def load_translations(cr, registry):
+    env = api.Environment(cr, SUPERUSER_ID, {})
+    env.ref('l10n_be.l10nbe_chart_template').process_coa_translations()
+
+```
+
+## File: __manifest__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+{
+    'name': 'Belgium - Accounting',
+    'version': '2.0',
+    'category': 'Accounting/Localizations/Account Charts',
+    'description': """
+This is the base module to manage the accounting chart for Belgium in Odoo.
+==============================================================================
+
+After installing this module, the Configuration wizard for accounting is launched.
+    * We have the account templates which can be helpful to generate Charts of Accounts.
+    * On that particular wizard, you will be asked to pass the name of the company,
+      the chart template to follow, the no. of digits to generate, the code for your
+      account and bank account, currency to create journals.
+
+Thus, the pure copy of Chart Template is generated.
+
+Wizards provided by this module:
+--------------------------------
+    * Partner VAT Intra: Enlist the partners with their related VAT and invoiced
+      amounts. Prepares an XML file format.
+
+        **Path to access :** Invoicing/Reporting/Legal Reports/Belgium Statements/Partner VAT Intra
+    * Periodical VAT Declaration: Prepares an XML file for Vat Declaration of
+      the Main company of the User currently Logged in.
+
+        **Path to access :** Invoicing/Reporting/Legal Reports/Belgium Statements/Periodical VAT Declaration
+    * Annual Listing Of VAT-Subjected Customers: Prepares an XML file for Vat
+      Declaration of the Main company of the User currently Logged in Based on
+      Fiscal year.
+
+        **Path to access :** Invoicing/Reporting/Legal Reports/Belgium Statements/Annual Listing Of VAT-Subjected Customers
+
+    """,
+    'author': 'Noviat, Odoo SA',
+    'depends': [
+        'account',
+        'base_iban',
+        'base_vat',
+        'l10n_multilang',
+    ],
+    'data': [
+        'data/account_chart_template_data.xml',
+        'data/account.account.template.csv',
+        'data/account_pcmn_belgium_data.xml',
+        'data/account_tax_group_data.xml',
+        'data/account_tax_report_data.xml',
+        'data/account_tax_template_data.xml',
+        'data/l10n_be_sequence_data.xml',
+        'data/fiscal_templates_data.xml',
+        'data/account_fiscal_position_tax_template_data.xml',
+        'data/account_reconcile_model_template.xml',
+        'data/account.group.template.csv',
+        'data/account_chart_template_configure_data.xml',
+        'data/menuitem_data.xml',
+    ],
+    'demo': [
+        'demo/l10n_be_demo.xml',
+        'demo/demo_company.xml',
+    ],
+    'post_init_hook': 'load_translations',
+    'license': 'LGPL-3',
+}
+
+```
+
+## File: data\account.account.template.csv
+
+```csv
+"id","name","code","account_type","chart_template_id/id","tag_ids/id","reconcile"
+"a000","Company creditors, beneficiaries of third party guarantees","000","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a001","Third party guarantees on behalf of the company","001","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a010","Accounts receivable for commitments on bills in circulation","010","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a0110","Creditors of commitments on bills in circulation - Bids ceded by the company under its backing","0110","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a0111","Creditors of commitments on notes in circulation - Other commitments on notes in circulation","0111","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a012","Accounts receivable for other personal guarantees","012","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a013","Creditors of other personal guarantees","013","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a020","Company creditors, beneficiaries of real guarantees","020","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a021","Actual guarantees established for own account","021","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a022","Creditors of third parties, beneficiaries of real guarantees","022","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a023","Real guarantees provided on behalf of third parties","023","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a030","Statutory deposits","030","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a031","Statutory applicants","031","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a032","Guarantees received","032","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a033","Constituents of guarantees","033","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a040","Third parties, holders in their name but at the risks and profits of the business of goods and values","040","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a041","Goods and securities held by third parties on their behalf but at the risk and profit of the company","041","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a050","Acquisition commitments","050","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a051","Creditors of acquisition commitments","051","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a052","Accounts receivable for assignment commitments","052","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a053","Sale commitment","053","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a060","Forward transactions - Goods purchased (to be received)","060","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a061","Creditors for goods purchased at term","061","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a062","Accounts receivable for goods sold forward","062","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a063","Forward transactions - Goods sold (to be delivered)","063","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a064","Forward transactions - Currencies purchased (to be received)","064","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a065","Creditors for forward currency purchases","065","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a066","Accounts receivable for currencies sold forward","066","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a067","Forward transactions - Currencies sold (to be delivered)","067","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a0700","Long-term usage rights - On land and buildings","0700","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a0701","Long-term usage rights - On installations, machines and tools","0701","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a0702","Long-term usage rights - On furniture and rolling stock","0702","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a071","Rent and royalty creditors","071","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a072","Goods and values ​​from third parties received on deposit, consignment or custom","072","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a073","Principals and depositors of goods and securities","073","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a074","Goods and securities held for accounts or at the risk and profit of third parties","074","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a075","Creditors of property and securities held on behalf of third parties or at their risk and profit","075","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a090","Concordat resolution commitments","090","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a091","Concordat resolution claims","091","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a092","Creditors under debt restructuring conditions","092","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a093","Duties on loan conditions","093","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a094","Ongoing litigation","094","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a095","Creditors of pending litigation","095","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a096","Debtors on technical guarantees","096","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a097","Rights on technical guarantees","097","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a098","Holders of options (buying or selling securities)","098","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a099","Options (buy or sell) on securities issued.","099","off_balance","l10n_be.l10nbe_chart_template","","False"
+"a100","Issued capital","100","equity","l10n_be.l10nbe_chart_template","","False"
+"a101","Uncalled capital","101","equity","l10n_be.l10nbe_chart_template","","False"
+"a11","Share premium account","11","equity","l10n_be.l10nbe_chart_template","","False"
+"a120","Revaluation surpluses on intangible fixed assets","120","equity","l10n_be.l10nbe_chart_template","","False"
+"a121","Revaluation surpluses on tangible fixed assets","121","equity","l10n_be.l10nbe_chart_template","","False"
+"a122","Revaluation surpluses on financial fixed assets","122","equity","l10n_be.l10nbe_chart_template","","False"
+"a123","Revaluation surpluses on stocks","123","equity","l10n_be.l10nbe_chart_template","","False"
+"a124","Decrease in amounts written down current investments","124","equity","l10n_be.l10nbe_chart_template","","False"
+"a130","Legal reserve","130","equity","l10n_be.l10nbe_chart_template","","False"
+"a1310","Reserves not available in respect of own shares held","1310","equity","l10n_be.l10nbe_chart_template","","False"
+"a1311","Other reserves not available","1311","equity","l10n_be.l10nbe_chart_template","","False"
+"a132","Untaxed reserves","132","equity","l10n_be.l10nbe_chart_template","","False"
+"a133","Available reserves","133","equity","l10n_be.l10nbe_chart_template","","False"
+"a140","Profit carried forward","140","equity","l10n_be.l10nbe_chart_template","","False"
+"a141","Loss carried forward","141","equity","l10n_be.l10nbe_chart_template","","False"
+"a15","Investment grants","15","equity","l10n_be.l10nbe_chart_template","","False"
+"a151","Investment grants received in cash","151","equity","l10n_be.l10nbe_chart_template","","False"
+"a152","Investment grants received in kind","152","equity","l10n_be.l10nbe_chart_template","","False"
+"a160","Provisions for pensions and similar obligations","160","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a161","Provisions for taxation","161","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a162","Provisions for major repairs and maintenance","162","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a163","Provisions for environmental obligations","163","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a1680","Deferred taxes on investment grants","1680","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a1681","Deferred taxes on gain on disposal of intangible fixed assets","1681","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a1682","Deferred taxes on gain on disposal of tangible fixed assets","1682","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a1687","Deferred taxes on gain on disposal of securities issued by Belgian public authorities","1687","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a1688","Foreign deferred taxes","1688","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a1700","Subordinated loans with a remaining term of more than one year - Convertible bonds","1700","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a1701","Subordinated loans with a remaining term of more than one year - Non convertible bonds","1701","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a1710","Unsubordinated debentures with a remaining term of more than one year - Convertible bonds","1710","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a1711","Unsubordinated debentures with a remaining term of more than one year - Non convertible bonds","1711","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a1730","Amounts payable to credit institutions with a remaining term of more than one year - Current account payable","1730","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a1731","Amounts payable to credit institutions with a remaining term of more than one year - Promissory notes","1731","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a1732","Amounts payable to credit institutions with a remaining term of more than one year - Bank acceptances","1732","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a174","Other loans with a remaining term of more than one year","174","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a1750","Suppliers (more than one year)","1750","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a1751","Bills of exchange payable after more than one year","1751","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a176","Advances received on contracts in progress (more than one year)","176","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a178","Amounts payable with a remaining term of more than one year - Guarantees received in cash","178","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a1790","Miscellaneous amounts payable with a remaining term of more than one year - Interest-bearing","1790","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a1791","Miscellaneous amounts payable with a remaining term of more than one year - Non interest-bearing or with an abnormally low interest rate","1791","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a1792","Miscellaneous amounts payable with a remaining term of more than one year - Cash Deposit","1792","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a19","Advance to associates on the sharing out of the assets","19","liability_non_current","l10n_be.l10nbe_chart_template","","False"
+"a200","Formation or capital increase expenses","200","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a201","Loan issue expenses","201","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a202","Other formation expenses","202","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a204","Restructuring costs","204","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a210","Research and development costs","210","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a211","Concessions, patents, licences, know-how, brands and similar rights","211","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a212","Goodwill","212","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a213","Intangible fixed assets - Advance payments","213","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a220","Land","220","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a2201","Land owned by the association or the foundation in full property","2201","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a2202","Other land","2202","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a221","Buildings","221","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a2211","Building owned by the association or the foundation in full property","2211","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a2212","Other building","2212","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a222","Developed land","222","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a2221","Built-up lands owned by the association or the foundation in full property","2221","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a2222","Other built-up lands","2222","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a223","Other rights to immovable property","223","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a2231","Other rights to immovable property belonging to the association or the foundation in full property","2231","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a2232","Other rights to immovable property - Other","2232","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a23","Plant, machinery and equipment","23","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a231","Plant, machinery and equipment owned by the association or the foundation in full property","231","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a232","Other plant, machinery and equipment","232","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a24","Furniture and vehicles","24","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a241","Furniture and vehicles owned by the association or the foundation in full property","241","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a242","Other furniture and vehicles","242","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a250","Leasing and similar rights - Land and buildings","250","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a251","Leasing and similar rights - Plant, machinery and equipment","251","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a252","Leasing and similar rights - Furniture and vehicles","252","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a26","Other tangible fixed assets","26","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a261","Other tangible fixed assets owned by the association or the foundation in full property","261","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a262","Other tangible fixed assets - Other","262","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a27","Tangible fixed assets under construction and advance payments","27","asset_non_current","l10n_be.l10nbe_chart_template","","False"
+"a2800","Participating interests and shares in associated enterprises - Acquisition value","2800","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2801","Participating interests and shares in associated enterprises - Uncalled amounts","2801","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2808","Participating interests and shares in associated enterprises - Revaluation surpluses","2808","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2809","Participating interests and shares in associated enterprises - Amounts written down","2809","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2810","Amounts receivable from affiliated enterprises - Current account","2810","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2811","Amounts receivable from affiliated enterprises - Bills receivable","2811","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2812","Amounts receivable from affiliated enterprises - Fixed income securities","2812","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2817","Other amounts receivable from affiliated enterprises - Doubtful amounts","2817","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2819","Amounts receivable from affiliated enterprises - Amounts written down","2819","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2820","Participating interests and shares in enterprises linked by a participating interest - Acquisition value","2820","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2821","Participating interests and shares in enterprises linked by a participating interest - Uncalled amounts","2821","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2828","Participating interests and shares in enterprises linked by a participating interest - Revaluation surpluses","2828","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2829","Participating interests and shares in enterprises linked by a participating interest - Amounts written down","2829","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2830","Amounts receivable from other enterprises linked by participating interests - Current account","2830","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2831","Amounts receivable from other enterprises linked by participating interests - Bills receivable","2831","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2832","Amounts receivable from other enterprises linked by participating interests - Fixed income securities","2832","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2837","Amounts receivable from other enterprises linked by participating interests - Doubtful amounts","2837","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2839","Amounts receivable from other enterprises linked by participating interests - Amounts written down","2839","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2840","Other participating interests and shares - Acquisition value","2840","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2841","Other participating interests and shares - Uncalled amounts","2841","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2848","Other participating interests and shares - Revaluation surpluses","2848","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2849","Other participating interests and shares - Amounts written down","2849","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2850","Other financial assets - Current account","2850","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2851","Other financial assets - Bills receivable","2851","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2852","Other financial assets - Fixed income securities","2852","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2857","Other financial assets - Doubtful amounts","2857","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2859","Other financial assets - Amounts written down","2859","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a288","Other financial assets - Cash Guarantees","288","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2900","Trade debtors after more than one year - Customer","2900","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2901","Trade debtors after more than one year - Bills receivable","2901","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2906","Trade debtors after more than one year - Advance payments","2906","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2907","Trade debtors after more than one year - Doubtful amounts","2907","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2909","Trade debtors after more than one year - Amounts written down","2909","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2910","Other amounts receivable after more than one year - Current account","2910","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2911","Other amounts receivable after more than one year - Bills receivable","2911","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2915","Non interest-bearing amounts receivable after more than one year or with an abnormally low interest rate","2915","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2917","Other amounts receivable after more than one year - Doubtful amounts","2917","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a2919","Other amounts receivable after more than one year - Amounts written down","2919","asset_fixed","l10n_be.l10nbe_chart_template","","False"
+"a300","Raw materials - Acquisition value","300","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a309","Raw materials - amounts written down","309","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a310","Consumables - Acquisition value","310","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a319","Consumables - amounts written down","319","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a320","Work in progress - Acquisition value","320","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a329","Work in progress - amounts written down","329","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a330","Finished goods - Acquisition value","330","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a339","Finished goods - amounts written down","339","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a340","Goods purchased for resale - Acquisition value","340","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a349","Goods purchased for resale - amounts written down","349","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a350","Immovable property intended for sale - Acquisition value","350","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a359","Immovable property intended for sale - amounts written down","359","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a360","Advance payments on purchases for stocks - Acquisition value","360","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a369","Advance payments on purchases for stocks - amounts written down","369","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a370","Contracts in progress - Acquisition value","370","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a371","Contracts in progress - Profit recognised","371","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a379","Contracts in progress - amounts written down","379","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a400","Trade debtors within one year - Customer","400","asset_receivable","l10n_be.l10nbe_chart_template","","True"
+"a4001","Customer (POS)","4001","asset_receivable","l10n_be.l10nbe_chart_template","","True"
+"a401","Trade debtors within one year - Bills receivable","401","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a404","Trade debtors within one year - Income receivable","404","asset_current","l10n_be.l10nbe_chart_template","","True"
+"a406","Trade debtors within one year - Advance payments","406","asset_receivable","l10n_be.l10nbe_chart_template","","True"
+"a407","Trade debtors within one year - Doubtful amounts","407","asset_receivable","l10n_be.l10nbe_chart_template","","True"
+"a409","Trade debtors within one year - Amounts written down","409","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a410","Called up capital, unpaid","410","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a411","VAT recoverable","411","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a4112","VAT recoverable - Current Account","4112","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a412","Taxes and withholdings taxes to be recovered","412","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a4128","Taxes and withholdings taxes to be recovered - Foreign taxes","4128","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a413","Grants receivable","413","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a414","Other amounts receivable within one year - Income receivable","414","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a415","Non interest-bearing amounts receivable within one year or with an abnormally low interest rate","415","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a416","Other amounts receivable within one year - Sundry amounts","416","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a417","Other amounts receivable within one year - Doubtful amounts","417","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a418","Other amounts receivable within one year - Guarantees paid in cash","418","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a419","Other amounts receivable within one year - Amounts written down","419","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a4200","Subordinated loans payable after more than one year falling due within one year - Convertible","4200","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a4201","Subordinated loans payable after more than one year falling due within one year - Non convertible","4201","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a4210","Unsubordinated debentures payable after more than one year falling due within one year - Convertible","4210","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a4211","Unsubordinated debentures payable after more than one year falling due within one year - Non convertible","4211","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a422","Leasing and similar obligations payable after more than one year falling due within one year","422","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a4230","Amounts payable after more than one year falling due within one year to credit institutions - Current account payable","4230","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a4231","Amounts payable after more than one year falling due within one year to credit institutions - Promissory notes","4231","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a4232","Amounts payable after more than one year falling due within one year to credit institutions - Bank acceptances","4232","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a424","Other loans payable after more than one year falling due within one year","424","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a4250","Amounts payable after more than one year falling due within one year to suppliers","4250","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a4251","Bills of exchange payable after more than one year falling due within one year","4251","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a426","Advance payments received on contract in progress payable after more than one year falling due within one year","426","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a428","Amounts payable after more than one year falling due within one year - Guarantees received in cash","428","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a429","Miscellaneous amounts payable after more than one year falling due within one year","429","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a430","Amounts payable within one year to credit institutions - Fixed term loans","430","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a431","Amounts payable within one year to credit institutions - Promissory notes","431","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a432","Amounts payable within one year to credit institutions - Bank acceptances","432","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a433","Amounts payable within one year to credit institutions - Current account payable","433","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a439","Other loans payable within one year","439","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a440","Suppliers payable within one year","440","liability_payable","l10n_be.l10nbe_chart_template","","True"
+"a441","Bills of exchange payable within one year","441","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a444","Invoices to be received payable within one year","444","liability_current","l10n_be.l10nbe_chart_template","","True"
+"a450","Estimated taxes payable","450","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a4508","Estimated taxes payable - Foreign taxes","4508","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a451","VAT payable","451","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a451054","VAT payable - compartment 54","451054","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a451055","VAT payable - Intracommunity acquisitions - box 55","451055","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a451056","VAT payable - reverse charge (cocontracting) - compartment 56","451056","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a451057","VAT payable - reverse charge (import) - compartment 57","451057","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a451063","VAT payable - credit notes - compartment 63","451063","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a4512","VAT due - Current Account","4512","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a451800","VAT payable - revisions insufficiencies","451800","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a451820","VAT payable - revisions of deductions","451820","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a451830","VAT payable - revisions","451830","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a452","Taxes payable","452","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a4528","Taxes payable - Foreign taxes","4528","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a453","Taxes withheld","453","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a454","Remuneration and social security - National Social Security Office","454","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a455","Remuneration and social security - Remuneration","455","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a456","Remuneration and social security - Holiday pay","456","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a459","Remuneration and social security - Other social obligations","459","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a460","Advances to be received within one year","460","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a461","Advances received","461","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a470","Dividends and director's fees relating to prior financial periods","470","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a471","Dividends - Current financial period","471","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a472","Director's fees - Current financial period","472","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a473","Other allocations","473","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a480","Miscellaneous amounts payable within one year - Debentures and matured coupons","480","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a483","Miscellaneous amounts payable within one year - Grants to repay","483","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a487","Lent securities to return","487","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a488","Miscellaneous amounts payable within one year - Guarantees received in cash","488","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a4890","Miscellaneous amounts payable within one year - Sundry interest-bearing amounts payable","4890","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a4891","Miscellaneous amounts payable within one year - Sundry non interest-bearing amounts payable or with an abnormally low interest rate","4891","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a490","Deferred charges","490","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a491","Accrued income","491","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a492","Accrued charges","492","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a493","Deferred income","493","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a496","Foreign currency translation differences - Assets","496","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a497","Foreign currency translation differences - Liabilities","497","liability_current","l10n_be.l10nbe_chart_template","","False"
+"a499","Suspense account","499","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a500","Current investments other than shares, fixed income securities and term accounts - Cost","500","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a509","Current investments other than shares, fixed income securities and term accounts - Amounts written down","509","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a510","Shares and current investments other than fixed income investments - Acquisition value","510","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a511","Shares and current investments other than fixed income investments - Uncalled amount","511","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a519","Shares and current investments other than fixed income investments - Amounts written down","519","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a520","Fixed income securities - Acquisition value","520","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a529","Fixed income securities - Amounts written down","529","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a530","Fixed term deposit over one year","530","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a531","Fixed term deposit between one month and one year","531","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a532","Fixed term deposit up to one month","532","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a539","Fixed term deposit - Amounts written down","539","asset_current","l10n_be.l10nbe_chart_template","","False"
+"a54","Cash at bank - Amounts overdue and in the process of collection","54","asset_cash","l10n_be.l10nbe_chart_template","","False"
+"a55","Cash at bank - Credit institutions","55","asset_cash","l10n_be.l10nbe_chart_template","","False"
+"a560","Cash at bank - Giro account - Bank account","560","asset_cash","l10n_be.l10nbe_chart_template","","False"
+"a561","Cash at bank - Giro account - Cheques issued","561","asset_cash","l10n_be.l10nbe_chart_template","","False"
+"a57","Cash in hand","57","asset_cash","l10n_be.l10nbe_chart_template","","False"
+"a578","Cash in hand - Stamps","578","asset_cash","l10n_be.l10nbe_chart_template","","False"
+"a58","Cash at bank and in hand - Internal transfers of funds","58","asset_cash","l10n_be.l10nbe_chart_template","","False"
+"a600","Purchases of raw materials","600","expense","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a601","Purchases of consumables","601","expense","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a602","Purchases of services, works and studies","602","expense","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a603","Sub-contracting","603","expense","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a604","Purchases of goods for resale","604","expense","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a605","Purchases of immovable property for resale","605","expense","l10n_be.l10nbe_chart_template","","False"
+"a608","Discounts, allowance and rebates received on purchase of raw materials, consumables","608","expense","l10n_be.l10nbe_chart_template","","False"
+"a6090","Decrease (increase) in stocks of raw materials","6090","expense","l10n_be.l10nbe_chart_template","","False"
+"a6091","Decrease (increase) in stocks of consumables","6091","expense","l10n_be.l10nbe_chart_template","","False"
+"a6094","Decrease (increase) in stocks of goods purchased for resale","6094","expense","l10n_be.l10nbe_chart_template","","False"
+"a6095","Decrease (increase) in immovable property for resale","6095","expense","l10n_be.l10nbe_chart_template","","False"
+"a61","Services and other goods","61","expense","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a617","Costs of hired temporary staff and persons placed at the enterprise's disposal","617","expense","l10n_be.l10nbe_chart_template","","False"
+"a618","Remuneration, premiums for extra statutory insurance, pensions of the directors, or the management staff which are not allowed following the contract","618","expense","l10n_be.l10nbe_chart_template","","False"
+"a6200","Remuneration and direct social benefits - Directors and managers","6200","expense","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a6201","Remuneration and direct social benefits - Executive","6201","expense","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a6202","Remuneration and direct social benefits - Employees","6202","expense","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a6203","Remuneration and direct social benefits - Manual workers","6203","expense","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a6204","Remuneration and direct social benefits - Other staff members","6204","expense","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a621","Employers' contribution for social security","621","expense","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a622","Employers' premiums for extra statutory insurance","622","expense","l10n_be.l10nbe_chart_template","","False"
+"a623","Other personnel costs","623","expense","l10n_be.l10nbe_chart_template","","False"
+"a6240","Retirement and survivors' pensions - Directors and managers","6240","expense","l10n_be.l10nbe_chart_template","","False"
+"a6241","Retirement and survivors' pensions - Personnel","6241","expense","l10n_be.l10nbe_chart_template","","False"
+"a6300","Depreciation of formation expenses","6300","expense","l10n_be.l10nbe_chart_template","","False"
+"a6301","Depreciation of intangible fixed assets","6301","expense","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a6302","Depreciation of tangible fixed assets","6302","expense","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a6308","Amounts written off intangible fixed assets","6308","expense","l10n_be.l10nbe_chart_template","","False"
+"a6309","Amounts written off tangible fixed assets","6309","expense","l10n_be.l10nbe_chart_template","","False"
+"a6310","Amounts written off stocks - Appropriations","6310","expense","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a6311","Amounts written off stocks - Write-backs","6311","expense","l10n_be.l10nbe_chart_template","","False"
+"a6320","Amounts written off contracts in progress - Appropriations","6320","expense","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a6321","Amounts written off contracts in progress - Write-backs","6321","expense","l10n_be.l10nbe_chart_template","","False"
+"a6330","Amounts written off trade debtors (more than one year) - Appropriations","6330","expense","l10n_be.l10nbe_chart_template","","False"
+"a6331","Amounts written off trade debtors (more than one year) - Write-backs","6331","expense","l10n_be.l10nbe_chart_template","","False"
+"a6340","Amounts written off trade debtors (within one year) - Appropriations","6340","expense","l10n_be.l10nbe_chart_template","","False"
+"a6341","Amounts written off trade debtors (within one year) - Write-backs","6341","expense","l10n_be.l10nbe_chart_template","","False"
+"a6350","Provisions for pensions and similar obligations - Appropriations","6350","expense","l10n_be.l10nbe_chart_template","","False"
+"a6351","Provisions for pensions and similar obligations - Uses and write-backs","6351","expense","l10n_be.l10nbe_chart_template","","False"
+"a6360","Provision for major repairs and maintenance - Appropriations","6360","expense","l10n_be.l10nbe_chart_template","","False"
+"a6361","Provision for major repairs and maintenance - Uses and write-backs","6361","expense","l10n_be.l10nbe_chart_template","","False"
+"a6370","Provisions for other risks and charges - Appropriations","6370","expense","l10n_be.l10nbe_chart_template","","False"
+"a6371","Provisions for other risks and charges - Uses (write-back)","6371","expense","l10n_be.l10nbe_chart_template","","False"
+"a6380","Provisions for other risks and charges - Provisions for environmental obligations excluded - Appropriations","6380","expense","l10n_be.l10nbe_chart_template","","False"
+"a6381","Provisions for other risks and charges - Provisions for environmental obligations excluded - Uses (write-back)","6381","expense","l10n_be.l10nbe_chart_template","","False"
+"a640","Taxes related to operation","640","expense","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a64012","Non deductible taxes","64012","expense","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a641","Loss on ordinary disposal of tangible fixed assets","641","expense","l10n_be.l10nbe_chart_template","","False"
+"a642","Loss on ordinary disposal of trade debtors","642","expense","l10n_be.l10nbe_chart_template","","False"
+"a643","Operating charges - Gifts","643","expense","l10n_be.l10nbe_chart_template","","False"
+"a6431","Operating charges - Gifts with a recovery right","6431","expense","l10n_be.l10nbe_chart_template","","False"
+"a6432","Operating charges - Gifts without any recovery right","6432","expense","l10n_be.l10nbe_chart_template","","False"
+"a649","Operating charges carried to assets as restructuring costs","649","expense","l10n_be.l10nbe_chart_template","","False"
+"a6500","Interests, commissions and other charges relating to debts","6500","expense","l10n_be.l10nbe_chart_template","","False"
+"a6501","Depreciation of loan issue expenses","6501","expense","l10n_be.l10nbe_chart_template","","False"
+"a6502","Other debt charges","6502","expense","l10n_be.l10nbe_chart_template","","False"
+"a6503","Capitalized Interests","6503","expense","l10n_be.l10nbe_chart_template","","False"
+"a6510","Amounts written off current assets except stocks, contracts in progress and trade debtors - Appropriations","6510","expense","l10n_be.l10nbe_chart_template","","False"
+"a6511","Amounts written off current assets except stocks, contracts in progress and trade debtors - Write-backs","6511","expense","l10n_be.l10nbe_chart_template","","False"
+"a652","Losses on disposal of current assets","652","expense","l10n_be.l10nbe_chart_template","","False"
+"a653","Amount of the discount borne by the enterprise, as a result of negotiating amounts receivable","653","expense","l10n_be.l10nbe_chart_template","account.account_tag_financing","False"
+"a654","Financial charges - Exchange differences","654","expense","l10n_be.l10nbe_chart_template","account.account_tag_financing","False"
+"a655","Financial charges - Foreign currency translation differences","655","expense","l10n_be.l10nbe_chart_template","","False"
+"a6560","Provisions of a financial nature - Appropriations","6560","expense","l10n_be.l10nbe_chart_template","account.account_tag_financing","False"
+"a657000","Discounts Given","657000","expense","l10n_be.l10nbe_chart_template","account.account_tag_financing","False"
+"a6561","Provisions of a financial nature - Uses and write-backs","6561","expense","l10n_be.l10nbe_chart_template","","False"
+"a659","Financial charges carried to assets as restructuring costs","659","expense","l10n_be.l10nbe_chart_template","","False"
+"a6600","Non-recurring depreciation of and amounts written off formation expenses","6600","expense","l10n_be.l10nbe_chart_template","account.account_tag_investing","False"
+"a6601","Non-recurring depreciation of and amounts written off intangible fixed assets","6601","expense","l10n_be.l10nbe_chart_template","","False"
+"a6602","Non-recurring depreciation of and amounts written off tangible fixed assets","6602","expense","l10n_be.l10nbe_chart_template","","False"
+"a661","Amounts written off financial fixed assets","661","expense","l10n_be.l10nbe_chart_template","","False"
+"a66200","Provisions for non-recurring operating liabilities and charges - Appropriations","66200","expense","l10n_be.l10nbe_chart_template","","False"
+"a66201","Provisions for non-recurring operating liabilities and charges - Uses","66201","expense","l10n_be.l10nbe_chart_template","","False"
+"a66210","Provisions for non-recurring financial liabilities and charges - Appropriations","66210","expense","l10n_be.l10nbe_chart_template","","False"
+"a66211","Provisions for non-recurring financial liabilities and charges - Uses","66211","expense","l10n_be.l10nbe_chart_template","","False"
+"a6630","Capital losses on disposal of intangible and tangible fixed assets","6630","expense","l10n_be.l10nbe_chart_template","","False"
+"a6631","Capital losses on disposal of financial fixed assets","6631","expense","l10n_be.l10nbe_chart_template","","False"
+"a668","Other  non-recurring financial charges","668","expense","l10n_be.l10nbe_chart_template","","False"
+"a6690","Non-recurring operating charges carried to assets as restructuring costs","6690","expense","l10n_be.l10nbe_chart_template","","False"
+"a6691","Non-recurring financial charges carried to assets as restructuring costs","6691","expense","l10n_be.l10nbe_chart_template","","False"
+"a6700","Belgian income taxes on the result of the current period - Income taxes paid and withholding taxes due or paid","6700","expense","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a6701","Belgian and foreign income taxes - Income taxes - Withholding taxes on immovables","6701","expense","l10n_be.l10nbe_chart_template","","False"
+"a6702","Belgian and foreign income taxes - Income taxes - Withholding taxes on investment income","6702","expense","l10n_be.l10nbe_chart_template","","False"
+"a6703","Belgian and foreign income taxes - Income taxes - Other income taxes","6703","expense","l10n_be.l10nbe_chart_template","","False"
+"a6710","Belgian income taxes on the result of prior periods - Additional charges for income taxes due or paid","6710","expense","l10n_be.l10nbe_chart_template","","False"
+"a6711","Belgian income taxes on the result of prior periods - Additional charges for estimated income taxes","6711","expense","l10n_be.l10nbe_chart_template","","False"
+"a6712","Belgian income taxes on the result of prior periods - Additional charges for income taxes provided for","6712","expense","l10n_be.l10nbe_chart_template","","False"
+"a672","Foreign income taxes on the result of the current period","672","expense","l10n_be.l10nbe_chart_template","","False"
+"a673","Foreign income taxes on the result of prior periods","673","expense","l10n_be.l10nbe_chart_template","","False"
+"a680","Transfer to deferred taxes","680","expense","l10n_be.l10nbe_chart_template","","False"
+"a689","Transfer to untaxed reserves","689","expense","l10n_be.l10nbe_chart_template","","False"
+"a690","Loss brought forward from previous year","690","expense","l10n_be.l10nbe_chart_template","","False"
+"a691","Appropriations to capital and share premium account","691","expense","l10n_be.l10nbe_chart_template","","False"
+"a6920","Appropriations to legal reserve","6920","expense","l10n_be.l10nbe_chart_template","","False"
+"a6921","Appropriations to other reserves","6921","expense","l10n_be.l10nbe_chart_template","","False"
+"a693","Profits to be carried forward","693","expense","l10n_be.l10nbe_chart_template","","False"
+"a694","Dividends","694","expense","l10n_be.l10nbe_chart_template","","False"
+"a695","Directors' or managers' entitlements","695","expense","l10n_be.l10nbe_chart_template","","False"
+"a696","Employees' entitlements","696","expense","l10n_be.l10nbe_chart_template","","False"
+"a697","Other allocations entitlements","697","expense","l10n_be.l10nbe_chart_template","","False"
+"a7000","Sales rendered in Belgium (marchandises)","7000","income","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a7001","Sales rendered in E.E.C. (marchandises)","7001","income","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a7002","Sales rendered for export (marchandises)","7002","income","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a7010","Sales rendered in Belgium (finished goods)","7010","income","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a7011","Sales rendered in E.E.C. (finished goods)","7011","income","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a7012","Sales rendered for export (finished goods)","7012","income","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a7050","Services rendered in Belgium","7050","income","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a7051","Services rendered in E.E.C.","7051","income","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a7052","Services rendered for export","7052","income","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a708","Discounts, allowances and rebates allowed","708","income","l10n_be.l10nbe_chart_template","","False"
+"a71","Increase (decrease) in stocks of finished goods and work and contracts in progress","71","income","l10n_be.l10nbe_chart_template","","False"
+"a712","Increase (decrease) in work in progress","712","income","l10n_be.l10nbe_chart_template","","False"
+"a713","Increase (decrease) in stocks of finished goods","713","income","l10n_be.l10nbe_chart_template","","False"
+"a715","Increase (decrease) in stocks of immovable property constructed for resale","715","income","l10n_be.l10nbe_chart_template","","False"
+"a7170","Increase (decrease) in contracts in progress - Acquisition value","7170","income","l10n_be.l10nbe_chart_template","","False"
+"a7171","Increase (decrease) in contracts in progress - Profit recognized","7171","income","l10n_be.l10nbe_chart_template","","False"
+"a72","Own work capitalised","72","income","l10n_be.l10nbe_chart_template","","False"
+"a730","Contributions from effective members","730","income","l10n_be.l10nbe_chart_template","","False"
+"a731","Contributions from members","731","income","l10n_be.l10nbe_chart_template","","False"
+"a732","Gifts without any recovery right","732","income","l10n_be.l10nbe_chart_template","","False"
+"a733","Gifts with a recovery right","733","income","l10n_be.l10nbe_chart_template","","False"
+"a734","Legacies without any recovery right","734","income","l10n_be.l10nbe_chart_template","","False"
+"a735","Legacies with a recovery right","735","income","l10n_be.l10nbe_chart_template","","False"
+"a736","Contributions, gifts, legacies and grants - Investment grants and interest subsidies","736","income","l10n_be.l10nbe_chart_template","","False"
+"a737","Operating Subsidies","737","income","l10n_be.l10nbe_chart_template","","False"
+"a738","Compensatory amounts meant to reduce wage costs","738","income","l10n_be.l10nbe_chart_template","","False"
+"a740","Operating subsidies and compensatory amounts","740","income","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a741","Gain on ordinary disposal of tangible fixed assets","741","income","l10n_be.l10nbe_chart_template","","False"
+"a742","Gain on ordinary disposal of trade debtors","742","income","l10n_be.l10nbe_chart_template","","False"
+"a750","Income from financial fixed assets","750","income","l10n_be.l10nbe_chart_template","account.account_tag_financing","False"
+"a751","Income from current assets","751","income","l10n_be.l10nbe_chart_template","account.account_tag_financing","False"
+"a752","Gain on disposal of current assets","752","income","l10n_be.l10nbe_chart_template","account.account_tag_financing","False"
+"a753","Investment grants and interest subsidies","753","income","l10n_be.l10nbe_chart_template","account.account_tag_financing","False"
+"a754","Financial income - Exchange differences","754","income","l10n_be.l10nbe_chart_template","account.account_tag_financing","False"
+"a755","Financial income - Foreign currency translation differences","755","income","l10n_be.l10nbe_chart_template","account.account_tag_financing","False"
+"a757000","Discounts Taken","757000","income","l10n_be.l10nbe_chart_template","account.account_tag_financing","False"
+"a7600","Write-back of depreciation and of amounts written off intangible fixed assets","7600","income","l10n_be.l10nbe_chart_template","account.account_tag_investing","False"
+"a7601","Write-back of depreciation and of amounts written off tangible fixed assets","7601","income","l10n_be.l10nbe_chart_template","","False"
+"a761","Write-back of amounts written down financial fixed assets","761","income","l10n_be.l10nbe_chart_template","","False"
+"a7620","Write-back of provisions for non-recurring operating liabilities and charges","7620","income","l10n_be.l10nbe_chart_template","","False"
+"a7621","Write-back of provisions for non-recurring financial liabilities and charges","7621","income","l10n_be.l10nbe_chart_template","","False"
+"a7630","Capital gains on disposal of intangible and tangible fixed asset","7630","income","l10n_be.l10nbe_chart_template","","False"
+"a7631","Capital gains on disposal of financial fixed assets","7631","income","l10n_be.l10nbe_chart_template","","False"
+"a769","Other  non-recurring financial income","769","income","l10n_be.l10nbe_chart_template","","False"
+"a77","Adjustment of income taxes and write-back of tax provisions","77","income","l10n_be.l10nbe_chart_template","","False"
+"a7710","Adjustment of Belgian income taxes - Taxes due or paid","7710","income","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a7711","Adjustment of Belgian income taxes - Estimated taxes","7711","income","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a7712","Adjustment of Belgian income taxes - Tax provisions written back","7712","income","l10n_be.l10nbe_chart_template","","False"
+"a773","Adjustment of foreign income taxes","773","income","l10n_be.l10nbe_chart_template","","False"
+"a780","Transfer from deferred taxes","780","income","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a789","Transfer from untaxed reserves","789","income","l10n_be.l10nbe_chart_template","account.account_tag_operating","False"
+"a790","Profit brought forward from previous year","790","income","l10n_be.l10nbe_chart_template","","False"
+"a791","Withdrawal from the association or foundation funds","791","income","l10n_be.l10nbe_chart_template","","False"
+"a792","Withdrawal from allocated funds","792","income","l10n_be.l10nbe_chart_template","","False"
+"a793","Losses to be carried forward","793","income","l10n_be.l10nbe_chart_template","","False"
+"a794","Owners' contribution in respect of losses","794","income","l10n_be.l10nbe_chart_template","","False"
+
+```
+
+## File: data\account.group.template.csv
+
+```csv
+id,code_prefix_start,code_prefix_end,name,chart_template_id/id
+be_group_1,1,,"Fonds propres, provisions pour risques et charges et dettes à plus d'un an",l10n_be.l10nbe_chart_template
+be_group_10,10,,"Capital",l10n_be.l10nbe_chart_template
+be_group_100,100,,"Capital souscrit",l10n_be.l10nbe_chart_template
+be_group_101,101,,"Capital non appelé (–)",l10n_be.l10nbe_chart_template
+be_group_11,11,,"Primes d'émission",l10n_be.l10nbe_chart_template
+be_group_12,12,,"Plus-values de réévaluation",l10n_be.l10nbe_chart_template
+be_group_120,120,,"Plus-values de réévaluation sur immobilisations incorporelles",l10n_be.l10nbe_chart_template
+be_group_121,121,,"Plus-values de réévaluation sur immobilisations corporelles",l10n_be.l10nbe_chart_template
+be_group_122,122,,"Plus-values de réévaluation sur immobilisations financières",l10n_be.l10nbe_chart_template
+be_group_123,123,,"Plus-values de réévaluation sur stocks",l10n_be.l10nbe_chart_template
+be_group_124,124,,"Reprises de réductions de valeur sur placements de trésorerie",l10n_be.l10nbe_chart_template
+be_group_13,13,,"Réserves",l10n_be.l10nbe_chart_template
+be_group_130,130,,"Réserve légale",l10n_be.l10nbe_chart_template
+be_group_131,131,,"Réserves indisponibles",l10n_be.l10nbe_chart_template
+be_group_132,132,,"Réserves immunisées",l10n_be.l10nbe_chart_template
+be_group_133,133,,"Réserves disponibles",l10n_be.l10nbe_chart_template
+be_group_14,14,,"Bénéfice reporté ou Perte reportée (–)",l10n_be.l10nbe_chart_template
+be_group_15,15,,"Subsides en capital",l10n_be.l10nbe_chart_template
+be_group_16,16,,"Provisions et impôts différés",l10n_be.l10nbe_chart_template
+be_group_160,160,,"Provisions pour pensions et obligations similaires",l10n_be.l10nbe_chart_template
+be_group_161,161,,"Provisions pour charges fiscales",l10n_be.l10nbe_chart_template
+be_group_162,162,,"Provisions pour grosses réparations et gros entretien",l10n_be.l10nbe_chart_template
+be_group_163,163,,"Provisions pour obligations environnementales",l10n_be.l10nbe_chart_template
+be_group_164,164,165,"Provisions pour autres risques et charges",l10n_be.l10nbe_chart_template
+be_group_168,168,,"Impôts différés",l10n_be.l10nbe_chart_template
+be_group_17,17,,"Dettes à plus d'un an",l10n_be.l10nbe_chart_template
+be_group_170,170,,"Emprunts subordonnés",l10n_be.l10nbe_chart_template
+be_group_171,171,,"Emprunts obligataires non subordonnés",l10n_be.l10nbe_chart_template
+be_group_172,172,,"Dettes de location-financement et dettes assimilées",l10n_be.l10nbe_chart_template
+be_group_173,173,,"Etablissements de crédit",l10n_be.l10nbe_chart_template
+be_group_174,174,,"Autres emprunts",l10n_be.l10nbe_chart_template
+be_group_175,175,,"Dettes commerciales",l10n_be.l10nbe_chart_template
+be_group_176,176,,"Acomptes reçus sur commandes",l10n_be.l10nbe_chart_template
+be_group_178,178,,"Cautionnements reçus en numéraire",l10n_be.l10nbe_chart_template
+be_group_179,179,,"Dettes diverses",l10n_be.l10nbe_chart_template
+be_group_19,19,,"Acompte aux associés sur le partage de l'actif net (-)",l10n_be.l10nbe_chart_template
+be_group_2,2,,"Frais d'établissement, actifs immobilisés et créances à plus d'un an",l10n_be.l10nbe_chart_template
+be_group_20,20,,"Frais d'établissement",l10n_be.l10nbe_chart_template
+be_group_200,200,,"Frais de constitution et d'augmentation de capital",l10n_be.l10nbe_chart_template
+be_group_201,201,,"Frais d'émission d'emprunts",l10n_be.l10nbe_chart_template
+be_group_202,202,,"Autres frais d'établissement",l10n_be.l10nbe_chart_template
+be_group_204,204,,"Frais de restructuration",l10n_be.l10nbe_chart_template
+be_group_21,21,,"Immobilisation incorporelles",l10n_be.l10nbe_chart_template
+be_group_210,210,,"Frais de recherche et de développement",l10n_be.l10nbe_chart_template
+be_group_211,211,,"Concessions, brevets, licences, savoir-faire, marques et droits similaires",l10n_be.l10nbe_chart_template
+be_group_212,212,,"Goodwill",l10n_be.l10nbe_chart_template
+be_group_213,213,,"Acomptes versés",l10n_be.l10nbe_chart_template
+be_group_22,22,,"Terrains et constructions",l10n_be.l10nbe_chart_template
+be_group_220,220,,"Terrains",l10n_be.l10nbe_chart_template
+be_group_221,221,,"Constructions",l10n_be.l10nbe_chart_template
+be_group_222,222,,"Terrains bâtis",l10n_be.l10nbe_chart_template
+be_group_223,223,,"Autres droits réels sur des immeubles",l10n_be.l10nbe_chart_template
+be_group_23,23,,"Installations, machines et outillage",l10n_be.l10nbe_chart_template
+be_group_24,24,,"Mobilier et matériel roulant",l10n_be.l10nbe_chart_template
+be_group_25,25,,"Immobilisations détenues en location-financement et droits similaires",l10n_be.l10nbe_chart_template
+be_group_250,250,,"Terrains et construction",l10n_be.l10nbe_chart_template
+be_group_251,251,,"Installations, machines et outillage",l10n_be.l10nbe_chart_template
+be_group_252,252,,"Mobilier et matériel roulant",l10n_be.l10nbe_chart_template
+be_group_26,26,,"Autres immobilisations corporelles",l10n_be.l10nbe_chart_template
+be_group_27,27,,"Immobilisations corporelles en cours et acomptes versés",l10n_be.l10nbe_chart_template
+be_group_28,28,,"Immobilisations financières",l10n_be.l10nbe_chart_template
+be_group_280,280,,"Participations dans des entreprises liées",l10n_be.l10nbe_chart_template
+be_group_281,281,,"Créances sur des entreprises liées",l10n_be.l10nbe_chart_template
+be_group_282,282,,"Participations dans des entreprises avec lesquelles il existe un lien de participation",l10n_be.l10nbe_chart_template
+be_group_283,283,,"Créances sur des entreprises avec lesquelles il existe un lien de participation",l10n_be.l10nbe_chart_template
+be_group_284,284,,"Autres actions et parts",l10n_be.l10nbe_chart_template
+be_group_285,285,,"Autres créances",l10n_be.l10nbe_chart_template
+be_group_288,288,,"Cautionnements versés en numéraire",l10n_be.l10nbe_chart_template
+be_group_29,29,,"Créances à plus d'un an",l10n_be.l10nbe_chart_template
+be_group_290,290,,"Créances commerciales",l10n_be.l10nbe_chart_template
+be_group_291,291,,"Autres créances",l10n_be.l10nbe_chart_template
+be_group_3,3,,"Stocks et commandes en cours d'exécution",l10n_be.l10nbe_chart_template
+be_group_30,30,,"Approvisionnements - Matières premières",l10n_be.l10nbe_chart_template
+be_group_300,300,,"Valeur d'acquisition",l10n_be.l10nbe_chart_template
+be_group_309,309,,"Réductions de valeur actées (–)",l10n_be.l10nbe_chart_template
+be_group_31,31,,"Approvisionnements - Fournitures",l10n_be.l10nbe_chart_template
+be_group_310,310,,"Valeur d'acquisition",l10n_be.l10nbe_chart_template
+be_group_319,319,,"Réductions de valeur actées (–)",l10n_be.l10nbe_chart_template
+be_group_32,32,,"En-cours de fabrication",l10n_be.l10nbe_chart_template
+be_group_320,320,,"Valeur d'acquisition",l10n_be.l10nbe_chart_template
+be_group_329,329,,"Réductions de valeur actées (–)",l10n_be.l10nbe_chart_template
+be_group_33,33,,"Produits finis",l10n_be.l10nbe_chart_template
+be_group_330,330,,"Produits finis",l10n_be.l10nbe_chart_template
+be_group_339,339,,"Réductions de valeur actées (–)",l10n_be.l10nbe_chart_template
+be_group_34,34,,"Marchandises",l10n_be.l10nbe_chart_template
+be_group_340,340,,"Valeur d'acquisition",l10n_be.l10nbe_chart_template
+be_group_349,349,,"Réductions de valeur actées (–)",l10n_be.l10nbe_chart_template
+be_group_35,35,,"Immeubles destinés à la vente",l10n_be.l10nbe_chart_template
+be_group_350,350,,"Valeur d'acquisition",l10n_be.l10nbe_chart_template
+be_group_359,359,,"Réductions de valeur actées (–)",l10n_be.l10nbe_chart_template
+be_group_36,36,,"Acomptes versés sur achats pour stocks",l10n_be.l10nbe_chart_template
+be_group_360,360,,"Acomptes versés",l10n_be.l10nbe_chart_template
+be_group_369,369,,"Réductions de valeur actées (–)",l10n_be.l10nbe_chart_template
+be_group_37,37,,"Commandes en cours d'exécution",l10n_be.l10nbe_chart_template
+be_group_370,370,,"Valeur d'acquisition",l10n_be.l10nbe_chart_template
+be_group_371,371,,"Bénéfice pris en compte",l10n_be.l10nbe_chart_template
+be_group_379,379,,"Réductions de valeur actées (–)",l10n_be.l10nbe_chart_template
+be_group_4,4,,"Créances et dettes à un an au plus",l10n_be.l10nbe_chart_template
+be_group_40,40,,"Créances commerciales",l10n_be.l10nbe_chart_template
+be_group_400,400,,"Clients",l10n_be.l10nbe_chart_template
+be_group_401,401,,"Effets à recevoir",l10n_be.l10nbe_chart_template
+be_group_404,404,,"Produits à recevoir",l10n_be.l10nbe_chart_template
+be_group_406,406,,"Acomptes versés",l10n_be.l10nbe_chart_template
+be_group_407,407,,"Créances douteuses",l10n_be.l10nbe_chart_template
+be_group_409,409,,"Réductions de valeur actées (–)",l10n_be.l10nbe_chart_template
+be_group_41,41,,"Autres créances",l10n_be.l10nbe_chart_template
+be_group_410,410,,"Capital appelé, non versé",l10n_be.l10nbe_chart_template
+be_group_411,411,,"T.V.A. à récupérer",l10n_be.l10nbe_chart_template
+be_group_412,412,,"Impôts et précomptes à récupérer",l10n_be.l10nbe_chart_template
+be_group_414,414,,"Produits à recevoir",l10n_be.l10nbe_chart_template
+be_group_416,416,,"Créances diverses",l10n_be.l10nbe_chart_template
+be_group_417,417,,"Créances douteuses",l10n_be.l10nbe_chart_template
+be_group_418,418,,"Cautionnements versés en numéraire",l10n_be.l10nbe_chart_template
+be_group_419,419,,"Réductions de valeur actées (–)",l10n_be.l10nbe_chart_template
+be_group_42,42,,"Dettes à plus d'un an échéant dans l'année 16 (même subdivision que le 17)",l10n_be.l10nbe_chart_template
+be_group_43,43,,"Dettes financières",l10n_be.l10nbe_chart_template
+be_group_430,430,,"Etablissements de crédit - Emprunts en compte à terme fixe",l10n_be.l10nbe_chart_template
+be_group_431,431,,"Etablissements de crédit - Promesses",l10n_be.l10nbe_chart_template
+be_group_432,432,,"Etablissements de crédit - Crédits d'acceptation",l10n_be.l10nbe_chart_template
+be_group_433,433,,"Etablissements de crédit - Dettes en compte courant",l10n_be.l10nbe_chart_template
+be_group_439,439,,"Autres emprunts",l10n_be.l10nbe_chart_template
+be_group_44,44,,"Dettes commerciales",l10n_be.l10nbe_chart_template
+be_group_440,440,,"Fournisseurs",l10n_be.l10nbe_chart_template
+be_group_441,441,,"Effets à payer",l10n_be.l10nbe_chart_template
+be_group_444,444,,"Factures à recevoir",l10n_be.l10nbe_chart_template
+be_group_45,45,,"Dettes fiscales, salariales et sociales",l10n_be.l10nbe_chart_template
+be_group_450,450,,"Dettes fiscales estimées",l10n_be.l10nbe_chart_template
+be_group_451,451,,"T.V.A. à payer",l10n_be.l10nbe_chart_template
+be_group_452,452,,"Impôts et taxes à payer",l10n_be.l10nbe_chart_template
+be_group_453,453,,"Précomptes retenus",l10n_be.l10nbe_chart_template
+be_group_454,454,,"Office national de la sécurité sociale",l10n_be.l10nbe_chart_template
+be_group_455,455,,"Rémunérations",l10n_be.l10nbe_chart_template
+be_group_456,456,,"Pécules de vacances",l10n_be.l10nbe_chart_template
+be_group_459,459,,"Autres dettes sociales",l10n_be.l10nbe_chart_template
+be_group_46,46,,"Acomptes reçus sur commandes",l10n_be.l10nbe_chart_template
+be_group_47,47,,"Dettes découlant de l'affectation du résultat",l10n_be.l10nbe_chart_template
+be_group_470,470,,"Dividendes et tantièmes d'exercices antérieurs",l10n_be.l10nbe_chart_template
+be_group_471,471,,"Dividendes de l'exercice",l10n_be.l10nbe_chart_template
+be_group_472,472,,"Tantièmes de l'exercice",l10n_be.l10nbe_chart_template
+be_group_473,473,,"Autres allocataires",l10n_be.l10nbe_chart_template
+be_group_48,48,,"Dettes diverses",l10n_be.l10nbe_chart_template
+be_group_480,480,,"Obligations et coupons échus",l10n_be.l10nbe_chart_template
+be_group_488,488,,"Cautionnements reçus en numéraire",l10n_be.l10nbe_chart_template
+be_group_489,489,,"Autres dettes diverses",l10n_be.l10nbe_chart_template
+be_group_49,49,,"Comptes de régularisation et comptes d'attente",l10n_be.l10nbe_chart_template
+be_group_490,490,,"Charges à reporter",l10n_be.l10nbe_chart_template
+be_group_491,491,,"Produits acquis",l10n_be.l10nbe_chart_template
+be_group_492,492,,"Charges à imputer",l10n_be.l10nbe_chart_template
+be_group_493,493,,"Produits à reporter",l10n_be.l10nbe_chart_template
+be_group_499,499,,"Comptes d'attente",l10n_be.l10nbe_chart_template
+be_group_5,5,,"Placements de trésorerie et valeurs disponibles",l10n_be.l10nbe_chart_template
+be_group_50,50,,"Actions propres",l10n_be.l10nbe_chart_template
+be_group_51,51,,"Actions, parts et placements de trésorerie autres que placements à revenu fixe",l10n_be.l10nbe_chart_template
+be_group_510,510,,"Valeur d'acquisition",l10n_be.l10nbe_chart_template
+be_group_5100,5100,,"Actions et parts",l10n_be.l10nbe_chart_template
+be_group_5101,5101,,"Placements de trésorerie autres que placements à revenu fixe",l10n_be.l10nbe_chart_template
+be_group_511,511,,"Montants non appelés (-)",l10n_be.l10nbe_chart_template
+be_group_5110,5110,,"Actions et parts",l10n_be.l10nbe_chart_template
+be_group_519,519,,"Réductions de valeur actées (-)",l10n_be.l10nbe_chart_template
+be_group_5190,5190,,"Actions et parts",l10n_be.l10nbe_chart_template
+be_group_5191,5191,,"Placements de trésorerie autres que placements à revenu fixe",l10n_be.l10nbe_chart_template
+be_group_52,52,,"Titres à revenu fixe",l10n_be.l10nbe_chart_template
+be_group_520,520,,"Valeur d'acquisition",l10n_be.l10nbe_chart_template
+be_group_529,529,,"Réductions de valeur actées (–)",l10n_be.l10nbe_chart_template
+be_group_53,53,,"Dépôts à terme",l10n_be.l10nbe_chart_template
+be_group_530,530,,"De plus d'un an",l10n_be.l10nbe_chart_template
+be_group_531,531,,"De plus d'un mois et à un an au plus",l10n_be.l10nbe_chart_template
+be_group_532,532,,"D'un mois au plus",l10n_be.l10nbe_chart_template
+be_group_539,539,,"Réductions de valeur actées (–)",l10n_be.l10nbe_chart_template
+be_group_54,54,,"Valeurs échues à l'encaissement",l10n_be.l10nbe_chart_template
+be_group_55,55,,"Etablissements de crédit",l10n_be.l10nbe_chart_template
+be_group_550,550,559,"Comptes ouverts auprès des divers établissements, à subdiviser en :",l10n_be.l10nbe_chart_template
+be_group_56,56,,"Office des chèques postaux",l10n_be.l10nbe_chart_template
+be_group_560,560,,"Compte courant",l10n_be.l10nbe_chart_template
+be_group_561,561,,"Chèques émis (–)",l10n_be.l10nbe_chart_template
+be_group_57,57,,"Caisses",l10n_be.l10nbe_chart_template
+be_group_570,570,577,"Caisses-espèces",l10n_be.l10nbe_chart_template
+be_group_578,578,,"Caisses-timbres",l10n_be.l10nbe_chart_template
+be_group_58,58,,"Virements internes",l10n_be.l10nbe_chart_template
+be_group_6,6,,"Charges",l10n_be.l10nbe_chart_template
+be_group_60,60,,"Approvisionnements et marchandises",l10n_be.l10nbe_chart_template
+be_group_600,600,,"Achats de matières premières",l10n_be.l10nbe_chart_template
+be_group_601,601,,"Achats de fournitures",l10n_be.l10nbe_chart_template
+be_group_602,602,,"Achats de services, travaux et études",l10n_be.l10nbe_chart_template
+be_group_603,603,,"Sous-traitances générales",l10n_be.l10nbe_chart_template
+be_group_604,604,,"Achats de marchandises",l10n_be.l10nbe_chart_template
+be_group_605,605,,"Achats d'immeubles destinés à la vente",l10n_be.l10nbe_chart_template
+be_group_608,608,,"Remises, ristournes et rabais obtenus (–)",l10n_be.l10nbe_chart_template
+be_group_609,609,,"Variations des stocks",l10n_be.l10nbe_chart_template
+be_group_61,61,,"Services et biens divers",l10n_be.l10nbe_chart_template
+be_group_617,617,,"Personnel intérimaire et personnes mises à la disposition de l'entreprise",l10n_be.l10nbe_chart_template
+be_group_618,618,,"Rémunérations, primes pour assurances extralégales, pensions de retraite et de survie des administrateurs, gérants et associés actifs qui ne sont pas attribuées en vertu d'un contrat de travail",l10n_be.l10nbe_chart_template
+be_group_62,62,,"Rémunérations, charges sociales et pensions",l10n_be.l10nbe_chart_template
+be_group_620,620,,"Rémunérations et avantages sociaux directs",l10n_be.l10nbe_chart_template
+be_group_621,621,,"Cotisations patronales d'assurances sociales",l10n_be.l10nbe_chart_template
+be_group_622,622,,"Primes patronales pour assurances extra-légales",l10n_be.l10nbe_chart_template
+be_group_623,623,,"Autres frais de personnel",l10n_be.l10nbe_chart_template
+be_group_624,624,,"Pensions de retraite et de survie",l10n_be.l10nbe_chart_template
+be_group_63,63,,"Amortissements, réductions de valeur et provisions pour risques et charges",l10n_be.l10nbe_chart_template
+be_group_630,630,,"Dotations aux amortissements et aux réductions de valeur sur immobilisations",l10n_be.l10nbe_chart_template
+be_group_631,631,,"Réductions de valeur sur stocks",l10n_be.l10nbe_chart_template
+be_group_632,632,,"Réductions de valeur sur commandes en cours",l10n_be.l10nbe_chart_template
+be_group_633,633,,"Réductions de valeur sur créances commerciales à plus d'un an",l10n_be.l10nbe_chart_template
+be_group_634,634,,"Réductions de valeur sur créances commerciales à un an au plus",l10n_be.l10nbe_chart_template
+be_group_635,635,,"Provisions pour pensions et obligations similaires",l10n_be.l10nbe_chart_template
+be_group_636,636,,"Provisions pour grosses réparations et gros entretien",l10n_be.l10nbe_chart_template
+be_group_637,637,,"Provisions pour obligations environnementales",l10n_be.l10nbe_chart_template
+be_group_638,638,,"Provisions pour autres risques et charges",l10n_be.l10nbe_chart_template
+be_group_64,64,,"Autres charges d'exploitation",l10n_be.l10nbe_chart_template
+be_group_640,640,,"Charges fiscales d'exploitation",l10n_be.l10nbe_chart_template
+be_group_641,641,,"Moins-values sur réalisations courantes d'immobilisations corporelles",l10n_be.l10nbe_chart_template
+be_group_642,642,,"Moins-values sur réalisations de créances commerciales",l10n_be.l10nbe_chart_template
+be_group_643,643,648,"Charges d'exploitation diverses",l10n_be.l10nbe_chart_template
+be_group_649,649,,"Charges d'exploitation portées à l'actif au titre de frais de restructuration (–)",l10n_be.l10nbe_chart_template
+be_group_65,65,,"Charges financières",l10n_be.l10nbe_chart_template
+be_group_650,650,,"Charges des dettes",l10n_be.l10nbe_chart_template
+be_group_651,651,,"Réductions de valeur sur actifs circulants",l10n_be.l10nbe_chart_template
+be_group_652,652,,"Moins-values sur réalisation d'actifs circulants",l10n_be.l10nbe_chart_template
+be_group_653,653,,"Charges d'escompte de créances",l10n_be.l10nbe_chart_template
+be_group_654,654,,"Différences de change",l10n_be.l10nbe_chart_template
+be_group_655,655,,"Ecarts de conversion des devises",l10n_be.l10nbe_chart_template
+be_group_656,656,,"Provisions à caractère financier",l10n_be.l10nbe_chart_template
+be_group_657,657,658,"Charges financières diverses",l10n_be.l10nbe_chart_template
+be_group_659,659,,"Charges financières portées à l'actif au titre de frais de restructuration",l10n_be.l10nbe_chart_template
+be_group_66,66,,"Charges d'exploitation ou financières non récurrentes",l10n_be.l10nbe_chart_template
+be_group_660,660,,"Amortissements et réductions de valeur non récurrents (dotations)",l10n_be.l10nbe_chart_template
+be_group_661,661,,"Réductions de valeur sur immobilisations financières (dotations)",l10n_be.l10nbe_chart_template
+be_group_662,662,,"Provisions pour risques et charges non récurrents",l10n_be.l10nbe_chart_template
+be_group_663,663,,"Moins-values sur réalisation d'actifs immobilisés",l10n_be.l10nbe_chart_template
+be_group_664,664,667,"Autres charges d'exploitation non récurrentes",l10n_be.l10nbe_chart_template
+be_group_668,668,,"Autres charges financières non récurrentes",l10n_be.l10nbe_chart_template
+be_group_669,669,,"Charges portées à l'actif au titre de frais de restructuration (-)",l10n_be.l10nbe_chart_template
+be_group_67,67,,"Impôts sur le résultat",l10n_be.l10nbe_chart_template
+be_group_670,670,,"Impôts belges sur le résultat de l'exercice",l10n_be.l10nbe_chart_template
+be_group_671,671,,"Impôts belges sur le résultat d'exercices antérieurs",l10n_be.l10nbe_chart_template
+be_group_672,672,,"Impôts étrangers sur le résultat de l'exercice",l10n_be.l10nbe_chart_template
+be_group_673,673,,"Impôts étrangers sur le résultat d'exercices antérieurs",l10n_be.l10nbe_chart_template
+be_group_68,68,,"Transferts aux impôts différés et aux réserves immunisées",l10n_be.l10nbe_chart_template
+be_group_680,680,,"Transferts aux impôts différés",l10n_be.l10nbe_chart_template
+be_group_689,689,,"Transferts aux réserves immunisées",l10n_be.l10nbe_chart_template
+be_group_69,69,,"Affectations et prélèvements",l10n_be.l10nbe_chart_template
+be_group_690,690,,"Perte reportée de l'exercice précédent",l10n_be.l10nbe_chart_template
+be_group_691,691,,"Affectations au capital et à la prime d'émission",l10n_be.l10nbe_chart_template
+be_group_692,692,,"Dotation aux réserves",l10n_be.l10nbe_chart_template
+be_group_693,693,,"Bénéfice à reporter",l10n_be.l10nbe_chart_template
+be_group_694,694,,"Rémunération du capital",l10n_be.l10nbe_chart_template
+be_group_695,695,,"Administrateurs ou gérants",l10n_be.l10nbe_chart_template
+be_group_696,696,,"Employés",l10n_be.l10nbe_chart_template
+be_group_697,697,,"Autres applications",l10n_be.l10nbe_chart_template
+be_group_7,7,,"Produits",l10n_be.l10nbe_chart_template
+be_group_70,70,,"Chiffre d'affaires",l10n_be.l10nbe_chart_template
+be_group_700,700,707,"Ventes et prestations de services",l10n_be.l10nbe_chart_template
+be_group_708,708,,"Remises, ristournes et rabais accordés (–)",l10n_be.l10nbe_chart_template
+be_group_71,71,,"Variation des stocks et des commandes en cours d'exécution",l10n_be.l10nbe_chart_template
+be_group_712,712,,"Des en-cours de fabrication",l10n_be.l10nbe_chart_template
+be_group_713,713,,"Des produits finis",l10n_be.l10nbe_chart_template
+be_group_715,715,,"Des immeubles construits destinés à la vente",l10n_be.l10nbe_chart_template
+be_group_717,717,,"Des commandes en cours d'exécution",l10n_be.l10nbe_chart_template
+be_group_72,72,,"Production immobilisée",l10n_be.l10nbe_chart_template
+be_group_74,74,,"Autres produits d'exploitation",l10n_be.l10nbe_chart_template
+be_group_740,740,,"Subsides d'exploitation et montants compensatoires",l10n_be.l10nbe_chart_template
+be_group_741,741,,"Plus-values sur réalisations courantes d'immobilisations corporelles",l10n_be.l10nbe_chart_template
+be_group_742,742,,"Plus-values sur réalisation de créances commerciales",l10n_be.l10nbe_chart_template
+be_group_743,743,749,"Produits d'exploitation divers",l10n_be.l10nbe_chart_template
+be_group_75,75,,"Produits financiers",l10n_be.l10nbe_chart_template
+be_group_750,750,,"Produits des immobilisations financières",l10n_be.l10nbe_chart_template
+be_group_751,751,,"Produits des actifs circulants",l10n_be.l10nbe_chart_template
+be_group_752,752,,"Plus-values sur réalisation d'actifs circulants",l10n_be.l10nbe_chart_template
+be_group_753,753,,"Subsides en capital et en intérêts",l10n_be.l10nbe_chart_template
+be_group_754,754,,"Différences de change",l10n_be.l10nbe_chart_template
+be_group_755,755,,"Écart de conversion des devises",l10n_be.l10nbe_chart_template
+be_group_756,756,759,"Produits financiers divers",l10n_be.l10nbe_chart_template
+be_group_76,76,,"Produits d'exploitation ou financiers non récurrents",l10n_be.l10nbe_chart_template
+be_group_760,760,,"Reprises d'amortissements et de réductions de valeur",l10n_be.l10nbe_chart_template
+be_group_761,761,,"Reprises de réductions de valeur sur immobilisations financières",l10n_be.l10nbe_chart_template
+be_group_762,762,,"Reprises de provisions pour risques et charges non récurrents",l10n_be.l10nbe_chart_template
+be_group_763,763,,"Plus-values sur réalisation d'actifs immobilisés",l10n_be.l10nbe_chart_template
+be_group_764,764,768,"Autres produits d'exploitation non récurrents",l10n_be.l10nbe_chart_template
+be_group_769,769,,"Autres produits financiers non récurrents",l10n_be.l10nbe_chart_template
+be_group_77,77,,"Régularisations d'impôts et reprises de provisions fiscales",l10n_be.l10nbe_chart_template
+be_group_771,771,,"Impôts belges sur le résultat",l10n_be.l10nbe_chart_template
+be_group_773,773,,"Impôts étrangers sur le résultat",l10n_be.l10nbe_chart_template
+be_group_78,78,,"Prélèvements sur les réserves immunisées et les impôts différés",l10n_be.l10nbe_chart_template
+be_group_780,780,,"Prélèvements sur les impôts différés",l10n_be.l10nbe_chart_template
+be_group_789,789,,"Prélèvements sur les réserves immunisées",l10n_be.l10nbe_chart_template
+be_group_79,79,,"Affectations et prélèvements",l10n_be.l10nbe_chart_template
+be_group_790,790,,"Bénéfice reporté de l'exercice précédent",l10n_be.l10nbe_chart_template
+be_group_791,791,,"Prélèvement sur le capital et les primes d'émission",l10n_be.l10nbe_chart_template
+be_group_792,792,,"Prélèvement sur les réserves",l10n_be.l10nbe_chart_template
+be_group_793,793,,"Perte à reporter",l10n_be.l10nbe_chart_template
+be_group_794,794,,"Intervention d'associés (ou du propriétaire) dans la perte",l10n_be.l10nbe_chart_template
+be_group_0,0,,"Droits et engagements hors bilan",l10n_be.l10nbe_chart_template
+be_group_00,00,,"Garanties constituées par des tiers pour compte de l'entreprise",l10n_be.l10nbe_chart_template
+be_group_000,000,,"Créanciers de l'entreprise, bénéficiaires de garanties de tiers",l10n_be.l10nbe_chart_template
+be_group_001,001,,"Tiers constituants de garanties pour compte de l'entreprise",l10n_be.l10nbe_chart_template
+be_group_01,01,,"Garanties personnelles constituées pour compte de tiers",l10n_be.l10nbe_chart_template
+be_group_010,010,,"Débiteurs pour engagements sur effets en circulation",l10n_be.l10nbe_chart_template
+be_group_011,011,,"Créanciers d'engagements sur effets en circulation",l10n_be.l10nbe_chart_template
+be_group_012,012,,"Débiteurs pour autres garanties personnelles",l10n_be.l10nbe_chart_template
+be_group_013,013,,"Créanciers d'autres garanties personnelles",l10n_be.l10nbe_chart_template
+be_group_02,02,,"Garanties réelles constituées sur avoirs propres",l10n_be.l10nbe_chart_template
+be_group_020,020,,"Créanciers de l'entreprise, bénéficiaires de garanties réelles",l10n_be.l10nbe_chart_template
+be_group_021,021,,"Garanties réelles constituées pour compte propre",l10n_be.l10nbe_chart_template
+be_group_022,022,,"Créanciers de tiers, bénéficiaires de garanties réelles",l10n_be.l10nbe_chart_template
+be_group_023,023,,"Garanties réelles constituées pour compte de tiers",l10n_be.l10nbe_chart_template
+be_group_03,03,,"Garanties reçues",l10n_be.l10nbe_chart_template
+be_group_030,030,,"Dépôts statutaires",l10n_be.l10nbe_chart_template
+be_group_031,031,,"Déposants statutaires",l10n_be.l10nbe_chart_template
+be_group_032,032,,"Garanties reçues",l10n_be.l10nbe_chart_template
+be_group_033,033,,"Constituants de garanties",l10n_be.l10nbe_chart_template
+be_group_04,04,,"Biens et valeurs détenus par des tiers en leur nom mais aux risques et profits de l'entreprise",l10n_be.l10nbe_chart_template
+be_group_040,040,,"Tiers, détenteurs en leur nom mais aux risques et profits de l'entreprise de biens et de valeurs",l10n_be.l10nbe_chart_template
+be_group_041,041,,"Biens et valeurs détenus par des tiers en leur nom mais aux risques et profits de l'entreprise",l10n_be.l10nbe_chart_template
+be_group_05,05,,"Engagements d'acquisition et de cession d'immobilisations",l10n_be.l10nbe_chart_template
+be_group_050,050,,"Engagements d'acquisition",l10n_be.l10nbe_chart_template
+be_group_051,051,,"Créanciers d'engagements d'acquisition",l10n_be.l10nbe_chart_template
+be_group_052,052,,"Débiteurs pour engagements de cession",l10n_be.l10nbe_chart_template
+be_group_053,053,,"Engagements de cession",l10n_be.l10nbe_chart_template
+be_group_06,06,,"Marchés à terme",l10n_be.l10nbe_chart_template
+be_group_060,060,,"Marchandises achetées à terme - à recevoir",l10n_be.l10nbe_chart_template
+be_group_061,061,,"Créanciers pour marchandises achetées à terme",l10n_be.l10nbe_chart_template
+be_group_062,062,,"Débiteurs pour marchandises vendues à terme",l10n_be.l10nbe_chart_template
+be_group_063,063,,"Marchandises vendues à terme - à livrer",l10n_be.l10nbe_chart_template
+be_group_064,064,,"Devises achetées à terme - à recevoir",l10n_be.l10nbe_chart_template
+be_group_065,065,,"Créanciers pour devises achetées à terme",l10n_be.l10nbe_chart_template
+be_group_066,066,,"Débiteurs pour devises vendues à terme",l10n_be.l10nbe_chart_template
+be_group_067,067,,"Devises vendues à terme - à livrer",l10n_be.l10nbe_chart_template
+be_group_07,07,,"Biens et valeurs de tiers détenus par l'entreprise",l10n_be.l10nbe_chart_template
+be_group_070,070,,"Droits d'usage à long terme",l10n_be.l10nbe_chart_template
+be_group_071,071,,"Créanciers de loyers et redevances",l10n_be.l10nbe_chart_template
+be_group_072,072,,"Biens et valeurs de tiers reçus en dépôt, en consignation ou à façon",l10n_be.l10nbe_chart_template
+be_group_073,073,,"Commettants et déposants de biens et de valeurs",l10n_be.l10nbe_chart_template
+be_group_074,074,,"Biens et valeurs détenus pour compte ou aux risques et profits de tiers",l10n_be.l10nbe_chart_template
+be_group_075,075,,"Créanciers de biens et valeurs détenus pour compte de tiers ou à leurs risques et profits",l10n_be.l10nbe_chart_template
+be_group_09,09,,"Droits et engagements divers",l10n_be.l10nbe_chart_template
+
+```
+
+## File: data\account_chart_template_configure_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <function model="account.chart.template" name="try_loading">
+            <value eval="[ref('l10n_be.l10nbe_chart_template')]"/>
+        </function>
+    </data>
+</odoo>
+
+```
+
+## File: data\account_chart_template_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <!-- Chart template -->
+        <record id="l10nbe_chart_template" model="account.chart.template">
+            <field name="name">Belgian PCMN</field>
+            <field name="bank_account_code_prefix">550</field>
+            <field name="cash_account_code_prefix">570</field>
+            <field name="transfer_account_code_prefix">580</field>
+            <field name="currency_id" ref="base.EUR"/>
+            <field name="spoken_languages" eval="'nl_BE;nl_NL;fr_FR;fr_BE;de_DE'"/>
+            <field name="country_id" ref="base.be"/>
+        </record>
+</odoo>
+
+```
+
+## File: data\account_fiscal_position_tax_template_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <!-- account.fiscal.position.tax.template -->
+        <record id="afpttn_intracom_1" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-00-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-EU-S"/>
+        </record>
+        <record id="afpttn_intracom_2" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-00-L"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-EU-L"/>
+        </record>
+        <record id="afpttn_intracom_3" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-06-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-EU-S"/>
+        </record>
+        <record id="afpttn_intracom_4" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-06-L"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-EU-L"/>
+        </record>
+        <record id="afpttn_intracom_5" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-12-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-EU-S"/>
+        </record>
+        <record id="afpttn_intracom_6" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-12-L"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-EU-L"/>
+        </record>
+        <record id="afpttn_intracom_7" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-21-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-EU-S"/>
+        </record>
+        <record id="afpttn_intracom_8" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-21-L"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-EU-L"/>
+        </record>
+        <record id="afpttn_intracom_9" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V81-00"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V81-00-EU"/>
+        </record>
+        <record id="afpttn_intracom_10" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V81-06"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V81-06-EU"/>
+        </record>
+        <record id="afpttn_intracom_11" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V81-12"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V81-12-EU"/>
+        </record>
+        <record id="afpttn_intracom_12" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V81-21"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V81-21-EU"/>
+        </record>
+        <record id="afpttn_intracom_13" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-00-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-00-EU-S"/>
+        </record>
+        <record id="afpttn_intracom_14" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-00-G"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-00-EU-G"/>
+        </record>
+        <record id="afpttn_intracom_15" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-06-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-06-EU-S"/>
+        </record>
+        <record id="afpttn_intracom_16" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-06-G"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-06-EU-G"/>
+        </record>
+        <record id="afpttn_intracom_17" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-12-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-12-EU-S"/>
+        </record>
+        <record id="afpttn_intracom_18" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-12-G"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-12-EU-G"/>
+        </record>
+        <record id="afpttn_intracom_19" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-21-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-21-EU-S"/>
+        </record>
+        <record id="afpttn_intracom_20" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-21-G"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-21-EU-G"/>
+        </record>
+        <record id="afpttn_intracom_21" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V83-00"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V83-00-EU"/>
+        </record>
+        <record id="afpttn_intracom_22" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V83-06"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V83-06-EU"/>
+        </record>
+        <record id="afpttn_intracom_23" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V83-12"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V83-12-EU"/>
+        </record>
+        <record id="afpttn_intracom_24" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_3"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V83-21"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V83-21-EU"/>
+        </record>
+        <record id="afpttn_extracom_1" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-00-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-ROW"/>
+        </record>
+        <record id="afpttn_extracom_2" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-00-L"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-ROW"/>
+        </record>
+        <record id="afpttn_extracom_3" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-06-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-ROW"/>
+        </record>
+        <record id="afpttn_extracom_4" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-06-L"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-ROW"/>
+        </record>
+        <record id="afpttn_extracom_5" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-12-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-ROW"/>
+        </record>
+        <record id="afpttn_extracom_6" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-12-L"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-ROW"/>
+        </record>
+        <record id="afpttn_extracom_7" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-21-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-ROW"/>
+        </record>
+        <record id="afpttn_extracom_8" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-21-L"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-ROW"/>
+        </record>
+        <record id="afpttn_extracom_9" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V81-06"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V81-06-ROW-CC"/>
+        </record>
+        <record id="afpttn_extracom_10" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V81-12"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V81-12-ROW-CC"/>
+        </record>
+        <record id="afpttn_extracom_11" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V81-21"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V81-21-ROW-CC"/>
+        </record>
+        <record id="afpttn_extracom_12" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-06-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-06-ROW-CC"/>
+        </record>
+        <record id="afpttn_extracom_13" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-06-G"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-06-ROW-CC"/>
+        </record>
+        <record id="afpttn_extracom_14" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-12-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-12-ROW-CC"/>
+        </record>
+        <record id="afpttn_extracom_15" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-12-G"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-12-ROW-CC"/>
+        </record>
+        <record id="afpttn_extracom_16" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-21-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-21-ROW-CC"/>
+        </record>
+        <record id="afpttn_extracom_17" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-21-G"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-21-ROW-CC"/>
+        </record>
+        <record id="afpttn_extracom_18" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V83-06"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V83-06-ROW-CC"/>
+        </record>
+        <record id="afpttn_extracom_19" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V83-12"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V83-12-ROW-CC"/>
+        </record>
+        <record id="afpttn_extracom_20" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_2"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V83-21"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V83-21-ROW-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_1" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-00-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_2" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-00-L"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_3" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-06-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_4" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-06-L"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_5" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-12-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_6" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-12-L"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_7" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-21-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_8" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-OUT-21-L"/>
+            <field name="tax_dest_id" ref="attn_VAT-OUT-00-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_9" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V81-06"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V81-06-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_10" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V81-12"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V81-12-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_11" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V81-21"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V81-21-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_12" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-06-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-06-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_13" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-06-G"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-06-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_14" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-12-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-12-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_15" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-12-G"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-12-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_16" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-21-S"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-21-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_17" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V82-21-G"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V82-21-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_18" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V83-06"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V83-06-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_19" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V83-12"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V83-12-CC"/>
+        </record>
+        <record id="afpttn_cocontractant_20" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_4"/>
+            <field name="tax_src_id" ref="attn_VAT-IN-V83-21"/>
+            <field name="tax_dest_id" ref="attn_VAT-IN-V83-21-CC"/>
+        </record>
+</odoo>
+
+```
+
+## File: data\account_pcmn_belgium_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="l10nbe_chart_template" model="account.chart.template">
+            <field name="name">Belgian PCMN</field>
+            <field name="code_digits">6</field>
+            <field name="property_account_receivable_id" ref="a400"/>
+            <field name="property_account_payable_id" ref="a440"/>
+            <field name="property_account_expense_categ_id" ref="a600"/>
+            <field name="property_account_income_categ_id" ref="a7000"/>
+            <field name="expense_currency_exchange_account_id" ref="a654"/>
+            <field name="income_currency_exchange_account_id" ref="a754"/>
+            <field name="property_tax_payable_account_id" ref="a4512"/>
+            <field name="property_tax_receivable_account_id" ref="a4112"/>
+            <field name="default_pos_receivable_account_id" ref="a4001"/>
+            <field name="account_journal_suspense_account_id" ref="a499"/>
+            <field name="account_journal_early_pay_discount_loss_account_id" ref="a657000"/>
+            <field name="account_journal_early_pay_discount_gain_account_id" ref="a757000"/>
+        </record>
+</odoo>
+
+```
+
+## File: data\account_reconcile_model_template.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="escompte_template" model="account.reconcile.model.template">
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="name">Escompte</field>
+    </record>
+    <record id="escompte_line_template" model="account.reconcile.model.line.template">
+        <field name="model_id" ref="l10n_be.escompte_template"/>
+        <field name="account_id" ref="a653"/>
+        <field name="amount_type">percentage</field>
+        <field name="amount_string">100</field>
+        <field name="label">Escompte accordé</field>
+    </record>
+    <record id="frais_bancaires_htva_template" model="account.reconcile.model.template">
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="name">Frais bancaires HTVA</field>
+    </record>
+    <record id="frais_bancaires_htva_line_template" model="account.reconcile.model.line.template">
+        <field name="model_id" ref="l10n_be.frais_bancaires_htva_template"/>
+        <field name="account_id" ref="a6560" />
+        <field name="amount_type">percentage</field>
+        <field name="amount_string">100</field>
+        <field name="label">Frais bancaires HTVA</field>
+    </record>
+    <record id="frais_bancaires_tva21_template" model="account.reconcile.model.template">
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="name">Frais bancaires TVA21</field>
+    </record>
+    <record id="frais_bancaires_tva21_line_template" model="account.reconcile.model.line.template">
+        <field name="model_id" ref="l10n_be.frais_bancaires_tva21_template"/>
+        <field name="account_id" ref="a6560"/>
+        <field name="amount_type">percentage</field>
+        <field name="tax_ids" eval="[(6, 0, [ref('l10n_be.attn_TVA-21-inclus-dans-prix')])]"/>
+        <field name="amount_string">100</field>
+        <field name="label">Frais bancaires TVA21</field>
+    </record>
+    <record id="virements_internes_template" model="account.reconcile.model.template">
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="name">Virements internes</field>
+        <field name="to_check" eval="False"/>
+    </record>
+    <record id="virements_internes_line_template" model="account.reconcile.model.line.template">
+        <field name="model_id" ref="l10n_be.virements_internes_template"/>
+        <field name="account_id" search="[('code', '=like', obj().env.ref('l10n_be.l10nbe_chart_template').transfer_account_code_prefix + '%'), ('chart_template_id', '=', obj().env.ref('l10n_be.l10nbe_chart_template').id)]"/>
+        <field name="amount_type">percentage</field>
+        <field name="amount_string">100</field>
+        <field name="label">Virements internes</field>
+    </record>
+</odoo>
+
+```
+
+## File: data\account_tax_group_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="tax_group_tva_21" model="account.tax.group">
+            <field name="name">TVA 21%</field>
+            <field name="country_id" ref="base.be"/>
+        </record>
+
+        <record id="tax_group_tva_12" model="account.tax.group">
+            <field name="name">TVA 12%</field>
+            <field name="country_id" ref="base.be"/>
+        </record>
+
+        <record id="tax_group_tva_6" model="account.tax.group">
+            <field name="name">TVA 6%</field>
+            <field name="country_id" ref="base.be"/>
+        </record>
+
+        <record id="tax_group_tva_0" model="account.tax.group">
+            <field name="name">TVA 0%</field>
+            <field name="country_id" ref="base.be"/>
+        </record>
+    </data>
+</odoo>
+
+```
+
+## File: data\account_tax_report_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="tax_report_vat" model="account.report">
+        <field name="name">VAT Return</field>
+        <field name="root_report_id" ref="account.generic_tax_report"/>
+        <field name="country_id" ref="base.be"/>
+        <field name="filter_fiscal_position" eval="True"/>
+        <field name="availability_condition">country</field>
+        <field name="column_ids">
+            <record id="tax_report_vat_balance" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="expression_label">balance</field>
+            </record>
+        </field>
+        <field name="line_ids">
+            <record id="tax_report_title_operations" model="account.report.line">
+                <field name="name">Operations</field>
+                <field name="hierarchy_level">0</field>
+                <field name="children_ids">
+                    <record id="tax_report_title_operations_sortie" model="account.report.line">
+                        <field name="name">II Outgoing</field>
+                        <field name="hierarchy_level">1</field>
+                        <field name="children_ids">
+                            <record id="tax_report_line_00" model="account.report.line">
+                                <field name="name">00 - Operations subject to a special regulation</field>
+                                <field name="code">c00</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_00_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">00</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_01" model="account.report.line">
+                                <field name="name">01 - Operations subject to 6% VAT</field>
+                                <field name="code">c01</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_01_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">01</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_02" model="account.report.line">
+                                <field name="name">02 - Operations subject to 12% VAT</field>
+                                <field name="code">c02</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_02_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">02</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_03" model="account.report.line">
+                                <field name="name">03 - Operations subject to 21% VAT</field>
+                                <field name="code">c03</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_03_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">03</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_44" model="account.report.line">
+                                <field name="name">44 - Intra-Community services</field>
+                                <field name="code">c44</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_44_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">44</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_45" model="account.report.line">
+                                <field name="name">45 - Operations subject to VAT due by the co-contractor</field>
+                                <field name="code">c45</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_45_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">45</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_title_operations_sortie_46" model="account.report.line">
+                                <field name="name">46 - Exempted intra-Community deliveries and ABC sales</field>
+                                <field name="code">c46</field>
+                                <field name="aggregation_formula">c46L.balance + c46T.balance</field>
+                                <field name="children_ids">
+                                    <record id="tax_report_line_46L" model="account.report.line">
+                                        <field name="name">46L - Exempted intra-Community deliveries</field>
+                                        <field name="code">c46L</field>
+                                        <field name="expression_ids">
+                                            <record id="tax_report_line_46L_tag" model="account.report.expression">
+                                                <field name="label">balance</field>
+                                                <field name="engine">tax_tags</field>
+                                                <field name="formula">46L</field>
+                                            </record>
+                                        </field>
+                                    </record>
+                                    <record id="tax_report_line_46T" model="account.report.line">
+                                        <field name="name">46T - ABC sales</field>
+                                        <field name="code">c46T</field>
+                                        <field name="expression_ids">
+                                            <record id="tax_report_line_46T_tag" model="account.report.expression">
+                                                <field name="label">balance</field>
+                                                <field name="engine">tax_tags</field>
+                                                <field name="formula">46T</field>
+                                            </record>
+                                        </field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_47" model="account.report.line">
+                                <field name="name">47 - Other exempted operations and operations carried out abroad</field>
+                                <field name="code">c47</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_47_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">47</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_title_operations_sortie_48" model="account.report.line">
+                                <field name="name">48 - Credit notes for operations in grids [44] and [46]</field>
+                                <field name="code">c48</field>
+                                <field name="aggregation_formula">c48s44.balance + c48s46L.balance + c48s46T.balance</field>
+                                <field name="children_ids">
+                                    <record id="tax_report_line_48s44" model="account.report.line">
+                                        <field name="name">48s44 - Credit notes for operations in grid [44]</field>
+                                        <field name="code">c48s44</field>
+                                        <field name="expression_ids">
+                                            <record id="tax_report_line_48s44_tag" model="account.report.expression">
+                                                <field name="label">balance</field>
+                                                <field name="engine">tax_tags</field>
+                                                <field name="formula">48s44</field>
+                                            </record>
+                                        </field>
+                                    </record>
+                                    <record id="tax_report_line_48s46L" model="account.report.line">
+                                        <field name="name">48s46L - Credit notes for operations in grid [46L]</field>
+                                        <field name="code">c48s46L</field>
+                                        <field name="expression_ids">
+                                            <record id="tax_report_line_48s46L_tag" model="account.report.expression">
+                                                <field name="label">balance</field>
+                                                <field name="engine">tax_tags</field>
+                                                <field name="formula">48s46L</field>
+                                            </record>
+                                        </field>
+                                    </record>
+                                    <record id="tax_report_line_48s46T" model="account.report.line">
+                                        <field name="name">48s46T - Credit notes for operations in grid [46T]</field>
+                                        <field name="code">c48s46T</field>
+                                        <field name="expression_ids">
+                                            <record id="tax_report_line_48s46T_tag" model="account.report.expression">
+                                                <field name="label">balance</field>
+                                                <field name="engine">tax_tags</field>
+                                                <field name="formula">48s46T</field>
+                                            </record>
+                                        </field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_49" model="account.report.line">
+                                <field name="name">49 - Credit notes for other operations in part II</field>
+                                <field name="code">c49</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_49_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">49</field>
+                                    </record>
+                                </field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_title_operations_entree" model="account.report.line">
+                        <field name="name">III Incoming</field>
+                        <field name="hierarchy_level">1</field>
+                        <field name="children_ids">
+                            <record id="tax_report_line_81" model="account.report.line">
+                                <field name="name">81 - Trade goods, raw materials and consumables</field>
+                                <field name="code">c81</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_81_tag" model="account.report.expression">
+                                        <field name="label">tag</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">81</field>
+                                    </record>
+                                    <record id="tax_report_line_81_applied_carryover" model="account.report.expression">
+                                        <field name="label">_applied_carryover_balance</field>
+                                        <field name="engine">external</field>
+                                        <field name="formula">most_recent</field>
+                                        <field name="date_scope">previous_tax_period</field>
+                                    </record>
+                                    <record id="tax_report_line_81_balance_unbound" model="account.report.expression">
+                                        <field name="label">balance_unbound</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">c81._applied_carryover_balance + c81.tag</field>
+                                    </record>
+                                    <record id="tax_report_line_81_carryover" model="account.report.expression">
+                                        <field name="label">_carryover_balance</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">c81.balance_unbound</field>
+                                        <field name="subformula">if_below(EUR(0))</field>
+                                    </record>
+                                    <record id="tax_report_line_81_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">c81.balance_unbound</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_82" model="account.report.line">
+                                <field name="name">82 - Services and miscellaneous goods</field>
+                                <field name="code">c82</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_82_tag" model="account.report.expression">
+                                        <field name="label">tag</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">82</field>
+                                    </record>
+                                    <record id="tax_report_line_82_applied_carryover" model="account.report.expression">
+                                        <field name="label">_applied_carryover_balance</field>
+                                        <field name="engine">external</field>
+                                        <field name="formula">most_recent</field>
+                                        <field name="date_scope">previous_tax_period</field>
+                                    </record>
+                                    <record id="tax_report_line_82_balance_unbound" model="account.report.expression">
+                                        <field name="label">balance_unbound</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">c82._applied_carryover_balance + c82.tag</field>
+                                    </record>
+                                    <record id="tax_report_line_82_carryover" model="account.report.expression">
+                                        <field name="label">_carryover_balance</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">c82.balance_unbound</field>
+                                        <field name="subformula">if_below(EUR(0))</field>
+                                    </record>
+                                    <record id="tax_report_line_82_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">c82.balance_unbound</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_83" model="account.report.line">
+                                <field name="name">83 - Investment goods</field>
+                                <field name="code">c83</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_83_tag" model="account.report.expression">
+                                        <field name="label">tag</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">83</field>
+                                    </record>
+                                    <record id="tax_report_line_83_applied_carryover" model="account.report.expression">
+                                        <field name="label">_applied_carryover_balance</field>
+                                        <field name="engine">external</field>
+                                        <field name="formula">most_recent</field>
+                                        <field name="date_scope">previous_tax_period</field>
+                                    </record>
+                                    <record id="tax_report_line_83_balance_unbound" model="account.report.expression">
+                                        <field name="label">balance_unbound</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">c83._applied_carryover_balance + c83.tag</field>
+                                    </record>
+                                    <record id="tax_report_line_83_carryover" model="account.report.expression">
+                                        <field name="label">_carryover_balance</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">c83.balance_unbound</field>
+                                        <field name="subformula">if_below(EUR(0))</field>
+                                    </record>
+                                    <record id="tax_report_line_83_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">c83.balance_unbound</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_84" model="account.report.line">
+                                <field name="name">84 - Credit notes for operations in grids [86] and [88]</field>
+                                <field name="code">c84</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_84_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">84</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_85" model="account.report.line">
+                                <field name="name">85 - Credit notes received relating to other operations in part III</field>
+                                <field name="code">c85</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_85_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">85</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_86" model="account.report.line">
+                                <field name="name">86 - Intra-Community acquisitions and ABC sales</field>
+                                <field name="code">c86</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_86_tag" model="account.report.expression">
+                                        <field name="label">tag</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">86</field>
+                                    </record>
+                                    <record id="tax_report_line_86_applied_carryover" model="account.report.expression">
+                                        <field name="label">_applied_carryover_balance</field>
+                                        <field name="engine">external</field>
+                                        <field name="formula">most_recent</field>
+                                        <field name="date_scope">previous_tax_period</field>
+                                    </record>
+                                    <record id="tax_report_line_86_balance_unbound" model="account.report.expression">
+                                        <field name="label">balance_unbound</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">c86._applied_carryover_balance + c86.tag</field>
+                                    </record>
+                                    <record id="tax_report_line_86_carryover" model="account.report.expression">
+                                        <field name="label">_carryover_balance</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">c86.balance_unbound</field>
+                                        <field name="subformula">if_below(EUR(0))</field>
+                                    </record>
+                                    <record id="tax_report_line_86_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">c86.balance_unbound</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_87" model="account.report.line">
+                                <field name="name">87 - Other operations subject to VAT</field>
+                                <field name="code">c87</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_87_tag" model="account.report.expression">
+                                        <field name="label">tag</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">87</field>
+                                    </record>
+                                    <record id="tax_report_line_87_applied_carryover" model="account.report.expression">
+                                        <field name="label">_applied_carryover_balance</field>
+                                        <field name="engine">external</field>
+                                        <field name="formula">most_recent</field>
+                                        <field name="date_scope">previous_tax_period</field>
+                                    </record>
+                                    <record id="tax_report_line_87_balance_unbound" model="account.report.expression">
+                                        <field name="label">balance_unbound</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">c87._applied_carryover_balance + c87.tag</field>
+                                    </record>
+                                    <record id="tax_report_line_87_carryover" model="account.report.expression">
+                                        <field name="label">_carryover_balance</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">c87.balance_unbound</field>
+                                        <field name="subformula">if_below(EUR(0))</field>
+                                    </record>
+                                    <record id="tax_report_line_87_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">c87.balance_unbound</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_88" model="account.report.line">
+                                <field name="name">88 - Intra-Community services with reverse charge</field>
+                                <field name="code">c88</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_88_tag" model="account.report.expression">
+                                        <field name="label">tag</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">88</field>
+                                    </record>
+                                    <record id="tax_report_line_88_applied_carryover" model="account.report.expression">
+                                        <field name="label">_applied_carryover_balance</field>
+                                        <field name="engine">external</field>
+                                        <field name="formula">most_recent</field>
+                                        <field name="date_scope">previous_tax_period</field>
+                                    </record>
+                                    <record id="tax_report_line_88_balance_unbound" model="account.report.expression">
+                                        <field name="label">balance_unbound</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">c88._applied_carryover_balance + c88.tag</field>
+                                    </record>
+                                    <record id="tax_report_line_88_carryover" model="account.report.expression">
+                                        <field name="label">_carryover_balance</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">c88.balance_unbound</field>
+                                        <field name="subformula">if_below(EUR(0))</field>
+                                    </record>
+                                    <record id="tax_report_line_88_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">c88.balance_unbound</field>
+                                    </record>
+                                </field>
+                            </record>
+                        </field>
+                    </record>
+                </field>
+            </record>
+            <record id="tax_report_title_taxes" model="account.report.line">
+                <field name="name">Taxes</field>
+                <field name="hierarchy_level">0</field>
+                <field name="children_ids">
+                    <record id="tax_report_title_taxes_dues" model="account.report.line">
+                        <field name="name">IV Due</field>
+                        <field name="hierarchy_level">1</field>
+                        <field name="children_ids">
+                            <record id="tax_report_line_54" model="account.report.line">
+                                <field name="name">54 - VAT on operations in grids [01], [02] and [03]</field>
+                                <field name="code">c54</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_54_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">54</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_55" model="account.report.line">
+                                <field name="name">55 - VAT on operations in grids [86] and [88]</field>
+                                <field name="code">c55</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_55_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">55</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_56" model="account.report.line">
+                                <field name="name">56 - VAT on operations in grid [87], with the exception of imports with reverse charge</field>
+                                <field name="code">c56</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_56_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">56</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_57" model="account.report.line">
+                                <field name="name">57 - VAT on import with reverse charge</field>
+                                <field name="code">c57</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_57_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">57</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_61" model="account.report.line">
+                                <field name="name">61 - Various VAT regularizations in favor of the State</field>
+                                <field name="code">c61</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_61_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">61</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_63" model="account.report.line">
+                                <field name="name">63 - VAT to be paid back on credit notes received</field>
+                                <field name="code">c63</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_63_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">63</field>
+                                    </record>
+                                </field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_title_taxes_deductibles" model="account.report.line">
+                        <field name="name">V Deductible</field>
+                        <field name="hierarchy_level">1</field>
+                        <field name="children_ids">
+                            <record id="tax_report_line_59" model="account.report.line">
+                                <field name="name">59 - Deductible VAT</field>
+                                <field name="code">c59</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_59_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">59</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_62" model="account.report.line">
+                                <field name="name">62 - Various VAT regularizations in favor of the declarant</field>
+                                <field name="code">c62</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_62_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">62</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_64" model="account.report.line">
+                                <field name="name">64 - VAT to be recovered on credit notes issued</field>
+                                <field name="code">c64</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_64_tag" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">tax_tags</field>
+                                        <field name="formula">64</field>
+                                    </record>
+                                </field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="tax_report_title_taxes_soldes" model="account.report.line">
+                        <field name="name">VI Balance</field>
+                        <field name="hierarchy_level">1</field>
+                        <field name="children_ids">
+                            <record id="tax_report_line_71" model="account.report.line">
+                                <field name="name">71 - Taxes due to the State</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_71_formula" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">(c54.balance + c55.balance + c56.balance + c57.balance + c61.balance + c63.balance) - (c59.balance + c62.balance + c64.balance)</field>
+                                        <field name="subformula">if_above(EUR(0))</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="tax_report_line_72" model="account.report.line">
+                                <field name="name">72 - Amount owed by the State</field>
+                                <field name="expression_ids">
+                                    <record id="tax_report_line_72_formula" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">aggregation</field>
+                                        <field name="formula">(c59.balance + c62.balance + c64.balance) - (c54.balance + c55.balance + c56.balance + c57.balance + c61.balance + c63.balance)</field>
+                                        <field name="subformula">if_above(EUR(0))</field>
+                                    </record>
+                                </field>
+                            </record>
+                        </field>
+                    </record>
+                </field>
+            </record>
+        </field>
+    </record>
+</odoo>
+
+```
+
+## File: data\account_tax_template_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="attn_VAT-OUT-21-L" model="account.tax.template">
+        <field name="sequence">10</field>
+        <field name="description">21%</field>
+        <field name="name">21%</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">21</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_21"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_03_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a451'),
+                'plus_report_expression_ids': [ref('tax_report_line_54_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_49_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a451'),
+                'plus_report_expression_ids': [ref('tax_report_line_64_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-OUT-21-S" model="account.tax.template">
+        <field name="sequence">11</field>
+        <field name="description">21%</field>
+        <field name="name">21% S</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">21</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_21"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_03_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a451'),
+                'plus_report_expression_ids': [ref('tax_report_line_54_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_49_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a451'),
+                'plus_report_expression_ids': [ref('tax_report_line_64_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-OUT-12-S" model="account.tax.template">
+        <field name="sequence">20</field>
+        <field name="description">12%</field>
+        <field name="name">12% S</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">12</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_12"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_02_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a451'),
+                'plus_report_expression_ids': [ref('tax_report_line_54_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_49_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a451'),
+                'plus_report_expression_ids': [ref('tax_report_line_64_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-OUT-12-L" model="account.tax.template">
+        <field name="sequence">21</field>
+        <field name="description">12%</field>
+        <field name="name">12%</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">12</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_12"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_02_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a451'),
+                'plus_report_expression_ids': [ref('tax_report_line_54_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_49_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a451'),
+                'plus_report_expression_ids': [ref('tax_report_line_64_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-OUT-06-S" model="account.tax.template">
+        <field name="sequence">30</field>
+        <field name="description">6%</field>
+        <field name="name">6% S</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">6</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_6"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_01_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a451'),
+                'plus_report_expression_ids': [ref('tax_report_line_54_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_49_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a451'),
+                'plus_report_expression_ids': [ref('tax_report_line_64_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-OUT-06-L" model="account.tax.template">
+        <field name="sequence">31</field>
+        <field name="description">6%</field>
+        <field name="name">6%</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">6</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_6"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_01_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a451'),
+                'plus_report_expression_ids': [ref('tax_report_line_54_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_49_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a451'),
+                'plus_report_expression_ids': [ref('tax_report_line_64_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-OUT-00-S" model="account.tax.template">
+        <field name="sequence">40</field>
+        <field name="description">0%</field>
+        <field name="name">0% S</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_00_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_49_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_VAT-OUT-00-L" model="account.tax.template">
+        <field name="sequence">41</field>
+        <field name="description">0%</field>
+        <field name="name">0%</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_00_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_49_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_VAT-OUT-00-CC" model="account.tax.template">
+        <field name="sequence">50</field>
+        <field name="description">0%</field>
+        <field name="name">0% Cocont</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_45_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_49_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_VAT-OUT-00-EU-S" model="account.tax.template">
+        <field name="sequence">60</field>
+        <field name="description">0%</field>
+        <field name="name">0% EU S</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_44_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_48s44_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_VAT-OUT-00-EU-L" model="account.tax.template">
+        <field name="sequence">61</field>
+        <field name="description">0%</field>
+        <field name="name">0% EU M</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_46L_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_48s46L_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_VAT-OUT-00-EU-T" model="account.tax.template">
+        <field name="sequence">62</field>
+        <field name="description">0%</field>
+        <field name="name">0% EU T</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_46T_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_48s46T_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_VAT-OUT-00-ROW" model="account.tax.template">
+        <field name="sequence">70</field>
+        <field name="description">0%</field>
+        <field name="name">0% EX</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_47_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_49_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V81-21" model="account.tax.template">
+        <field name="sequence">110</field>
+        <field name="description">21%</field>
+        <field name="name">21% M</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">21</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_21"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_81_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_81_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_63_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V81-12" model="account.tax.template">
+        <field name="sequence">120</field>
+        <field name="description">12%</field>
+        <field name="name">12% M</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">12</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_12"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_81_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_81_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_63_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V81-06" model="account.tax.template">
+        <field name="sequence">130</field>
+        <field name="description">6%</field>
+        <field name="name">6% M</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">6</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_6"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_81_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_81_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_63_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V81-00" model="account.tax.template">
+        <field name="sequence">140</field>
+        <field name="description">0%</field>
+        <field name="name">0% M</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_81_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_81_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_TVA-21-inclus-dans-prix" model="account.tax.template">
+        <field name="sequence">150</field>
+        <field name="description">21%</field>
+        <field name="name">21% S.TTC</field>
+        <field name="price_include" eval="1"/>
+        <field name="amount">21</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_21"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_63_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-21-S" model="account.tax.template">
+        <field name="sequence">210</field>
+        <field name="description">21%</field>
+        <field name="name">21% S</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">21</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_21"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_63_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-21-G" model="account.tax.template">
+        <field name="sequence">220</field>
+        <field name="description">21%</field>
+        <field name="name">21% G</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">21</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_21"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_63_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-12-S" model="account.tax.template">
+        <field name="sequence">230</field>
+        <field name="description">12%</field>
+        <field name="name">12% S</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">12</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_12"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_63_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-12-G" model="account.tax.template">
+        <field name="sequence">240</field>
+        <field name="description">12%</field>
+        <field name="name">12% G</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">12</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_12"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_63_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-06-S" model="account.tax.template">
+        <field name="sequence">250</field>
+        <field name="description">6%</field>
+        <field name="name">6% S</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">6</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_6"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_63_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-06-G" model="account.tax.template">
+        <field name="sequence">260</field>
+        <field name="description">6%</field>
+        <field name="name">6% G</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">6</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_6"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_63_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-00-S" model="account.tax.template">
+        <field name="sequence">270</field>
+        <field name="description">0%</field>
+        <field name="name">0% S</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-00-G" model="account.tax.template">
+        <field name="sequence">280</field>
+        <field name="description">0%</field>
+        <field name="name">0% G</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V83-21" model="account.tax.template">
+        <field name="sequence">310</field>
+        <field name="description">21%</field>
+        <field name="name">21% IG</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">21</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_21"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_83_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_83_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_63_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V83-12" model="account.tax.template">
+        <field name="sequence">320</field>
+        <field name="description">12%</field>
+        <field name="name">12% IG</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">12</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_12"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_83_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_83_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_63_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V83-06" model="account.tax.template">
+        <field name="sequence">330</field>
+        <field name="description">6%</field>
+        <field name="name">6% IG</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">6</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_6"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_83_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_83_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_63_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V83-00" model="account.tax.template">
+        <field name="sequence">340</field>
+        <field name="description">0%</field>
+        <field name="name">0% IG</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_83_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_83_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V81-21-CC" model="account.tax.template">
+        <field name="sequence">410</field>
+        <field name="description">21%</field>
+        <field name="name">21% M.Cocont</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">21</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_21"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451056'),
+                'minus_report_expression_ids': [ref('tax_report_line_56_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451056'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V81-12-CC" model="account.tax.template">
+        <field name="sequence">420</field>
+        <field name="description">12%</field>
+        <field name="name">12% M.Cocont</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount_type">percent</field>
+        <field name="amount">12</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_12"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451056'),
+                'minus_report_expression_ids': [ref('tax_report_line_56_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451056'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V81-06-CC" model="account.tax.template">
+        <field name="sequence">430</field>
+        <field name="description">6%</field>
+        <field name="name">6% M.Cocont</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount_type">percent</field>
+        <field name="amount">6</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_6"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451056'),
+                'minus_report_expression_ids': [ref('tax_report_line_56_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451056'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V81-00-CC" model="account.tax.template">
+        <field name="sequence">440</field>
+        <field name="description">0%</field>
+        <field name="name">0% M.Cocont</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-21-CC" model="account.tax.template">
+        <field name="sequence">510</field>
+        <field name="description">21%</field>
+        <field name="name">21% S.Cocont</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">21</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_21"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451056'),
+                'minus_report_expression_ids': [ref('tax_report_line_56_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451056'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-12-CC" model="account.tax.template">
+        <field name="sequence">520</field>
+        <field name="description">12%</field>
+        <field name="name">12% S.Cocont</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">12</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_12"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451056'),
+                'minus_report_expression_ids': [ref('tax_report_line_56_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451056'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-06-CC" model="account.tax.template">
+        <field name="sequence">530</field>
+        <field name="description">6%</field>
+        <field name="name">6% S.Cocont</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">6</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_6"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451056'),
+                'minus_report_expression_ids': [ref('tax_report_line_56_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451056'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-00-CC" model="account.tax.template">
+        <field name="sequence">540</field>
+        <field name="description">0%</field>
+        <field name="name">0% S.Cocont</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V83-21-CC" model="account.tax.template">
+        <field name="sequence">610</field>
+        <field name="description">21%</field>
+        <field name="name">21% IG.Cocont</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">21</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_21"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451056'),
+                'minus_report_expression_ids': [ref('tax_report_line_56_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451056'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V83-12-CC" model="account.tax.template">
+        <field name="sequence">620</field>
+        <field name="description">12%</field>
+        <field name="name">12% IG.Cocont</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">12</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_12"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451056'),
+                'minus_report_expression_ids': [ref('tax_report_line_56_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451056'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V83-06-CC" model="account.tax.template">
+        <field name="sequence">630</field>
+        <field name="description">6%</field>
+        <field name="name">6% IG.Cocont</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">6</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_6"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451056'),
+                'minus_report_expression_ids': [ref('tax_report_line_56_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451056'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V83-00-CC" model="account.tax.template">
+        <field name="sequence">640</field>
+        <field name="description">0%</field>
+        <field name="name">0% IG.Cocont</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-CAR-EXC" model="account.tax.template">
+        <field name="sequence">720</field>
+        <field name="description">21%</field>
+        <field name="name">21% Car</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">21</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_21"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag')],
+            }),
+            (0,0, {
+                'factor_percent': 50,
+                'repartition_type': 'tax',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag')],
+            }),
+            (0,0, {
+                'factor_percent': 50,
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag')],
+            }),
+            (0,0, {
+                'factor_percent': 50,
+                'repartition_type': 'tax',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'factor_percent': 50,
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_63_tag')],
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V81-21-EU" model="account.tax.template">
+        <field name="sequence">1110</field>
+        <field name="description">21%</field>
+        <field name="name">21% EU M</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">21</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_21"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_86_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+                'minus_report_expression_ids': [ref('tax_report_line_55_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_86_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_84_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V81-12-EU" model="account.tax.template">
+        <field name="sequence">1120</field>
+        <field name="description">12%</field>
+        <field name="name">12% EU M</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">12</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_12"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_86_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+                'minus_report_expression_ids': [ref('tax_report_line_55_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_86_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_84_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V81-06-EU" model="account.tax.template">
+        <field name="sequence">1130</field>
+        <field name="description">6%</field>
+        <field name="name">6% EU M</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">6</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_6"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_86_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+                'minus_report_expression_ids': [ref('tax_report_line_55_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_86_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_84_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V81-00-EU" model="account.tax.template">
+        <field name="sequence">1140</field>
+        <field name="description">0%</field>
+        <field name="name">0% EU M</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0.0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_86_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_86_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_84_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-21-EU-S" model="account.tax.template">
+        <field name="sequence">1210</field>
+        <field name="description">21%</field>
+        <field name="name">21% EU S</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">21</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_21"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_88_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+                'minus_report_expression_ids': [ref('tax_report_line_55_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_88_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_84_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-21-EU-G" model="account.tax.template">
+        <field name="sequence">1220</field>
+        <field name="description">21%</field>
+        <field name="name">21% EU G</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">21</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_21"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_86_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+                'minus_report_expression_ids': [ref('tax_report_line_55_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_86_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_84_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-12-EU-S" model="account.tax.template">
+        <field name="sequence">1230</field>
+        <field name="description">12%</field>
+        <field name="name">12% EU S</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">12</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_12"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_88_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+                'minus_report_expression_ids': [ref('tax_report_line_55_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_88_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_84_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-12-EU-G" model="account.tax.template">
+        <field name="sequence">1240</field>
+        <field name="description">12%</field>
+        <field name="name">12% EU G</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">12</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_12"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_86_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+                'minus_report_expression_ids': [ref('tax_report_line_55_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_86_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_84_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-06-EU-S" model="account.tax.template">
+        <field name="sequence">1250</field>
+        <field name="description">6%</field>
+        <field name="name">6% EU S</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount_type">percent</field>
+        <field name="amount">6</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_6"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_88_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+                'minus_report_expression_ids': [ref('tax_report_line_55_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_88_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_84_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-06-EU-G" model="account.tax.template">
+        <field name="sequence">1260</field>
+        <field name="description">6%</field>
+        <field name="name">6% EU G</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">6</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_6"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_86_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+                'minus_report_expression_ids': [ref('tax_report_line_55_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_86_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_84_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-00-EU-S" model="account.tax.template">
+        <field name="sequence">1270</field>
+        <field name="description">0%</field>
+        <field name="name">0% EU S</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0.0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_88_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_88_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_84_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V83-21-EU" model="account.tax.template">
+        <field name="sequence">1310</field>
+        <field name="description">21%</field>
+        <field name="name">21% EU IG</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">21</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_21"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_86_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+                'minus_report_expression_ids': [ref('tax_report_line_55_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_86_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_84_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-00-EU-G" model="account.tax.template">
+        <field name="sequence">1280</field>
+        <field name="description">0%</field>
+        <field name="name">0% EU G</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_86_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_86_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_84_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V83-12-EU" model="account.tax.template">
+        <field name="sequence">1320</field>
+        <field name="description">12%</field>
+        <field name="name">12% EU IG</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount_type">percent</field>
+        <field name="amount">12</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_12"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_86_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+                'minus_report_expression_ids': [ref('tax_report_line_55_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_86_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_84_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V83-06-EU" model="account.tax.template">
+        <field name="sequence">1330</field>
+        <field name="description">6%</field>
+        <field name="name">6% EU IG</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount_type">percent</field>
+        <field name="amount">6</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_6"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'plus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_86_tag')],
+                'repartition_type': 'base',
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+                'minus_report_expression_ids': [ref('tax_report_line_55_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_86_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_84_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451055'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V83-00-EU" model="account.tax.template">
+        <field name="sequence">1340</field>
+        <field name="description">0%</field>
+        <field name="name">0% EU IG</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0.0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_86_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_86_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_84_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V81-21-ROW-CC" model="account.tax.template">
+        <field name="sequence">2110</field>
+        <field name="description">21%</field>
+        <field name="name">21% EX M</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">21</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_21"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451057'),
+                'minus_report_expression_ids': [ref('tax_report_line_57_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451057'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V81-12-ROW-CC" model="account.tax.template">
+        <field name="sequence">2120</field>
+        <field name="description">12%</field>
+        <field name="name">12% EX M</field>
+        <field name="amount">12</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_12"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451057'),
+                'minus_report_expression_ids': [ref('tax_report_line_57_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451057'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V81-06-ROW-CC" model="account.tax.template">
+        <field name="sequence">2130</field>
+        <field name="description">6%</field>
+        <field name="name">6% EX M</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">6</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_6"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451057'),
+                'minus_report_expression_ids': [ref('tax_report_line_57_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451057'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V81-00-ROW-CC" model="account.tax.template">
+        <field name="sequence">2140</field>
+        <field name="description">0%</field>
+        <field name="name">0% EX M</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0.0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_81_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-21-ROW-CC" model="account.tax.template">
+        <field name="sequence">2210</field>
+        <field name="description">21%</field>
+        <field name="name">21% EX S</field>
+        <field name="amount">21</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_21"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451057'),
+                'minus_report_expression_ids': [ref('tax_report_line_57_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451057'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-12-ROW-CC" model="account.tax.template">
+        <field name="sequence">2220</field>
+        <field name="description">12%</field>
+        <field name="name">12% EX S</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount_type">percent</field>
+        <field name="amount">12</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_12"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451057'),
+                'minus_report_expression_ids': [ref('tax_report_line_57_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451057'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-06-ROW-CC" model="account.tax.template">
+        <field name="sequence">2230</field>
+        <field name="description">6%</field>
+        <field name="name">6% EX S</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount">6</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_6"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451057'),
+                'minus_report_expression_ids': [ref('tax_report_line_57_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451057'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V82-00-ROW-CC" model="account.tax.template">
+        <field name="sequence">2240</field>
+        <field name="description">0%</field>
+        <field name="name">0% EX S</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0.0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_82_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V83-21-ROW-CC" model="account.tax.template">
+        <field name="sequence">2310</field>
+        <field name="description">21%</field>
+        <field name="name">21% EX IG</field>
+        <field name="amount">21</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_21"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451057'),
+                'minus_report_expression_ids': [ref('tax_report_line_57_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451057'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V83-12-ROW-CC" model="account.tax.template">
+        <field name="sequence">2320</field>
+        <field name="description">12%</field>
+        <field name="name">12% EX IG</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount_type">percent</field>
+        <field name="amount">12</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_12"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451057'),
+                'minus_report_expression_ids': [ref('tax_report_line_57_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451057'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V83-06-ROW-CC" model="account.tax.template">
+        <!--merged group-->
+        <field name="sequence">2330</field>
+        <field name="description">6%</field>
+        <field name="name">6% EX IG</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount">6</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_6"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+                'plus_report_expression_ids': [ref('tax_report_line_59_tag')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451057'),
+                'minus_report_expression_ids': [ref('tax_report_line_57_tag')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {
+                'repartition_type': 'tax',
+                'account_id': ref('a411'),
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('a451057'),
+            }),
+        ]"/>
+    </record>
+    <record id="attn_VAT-IN-V83-00-ROW-CC" model="account.tax.template">
+        <field name="sequence">2340</field>
+        <field name="description">0%</field>
+        <field name="name">0% EX IG</field>
+        <field name="price_include" eval="0"/>
+        <field name="amount">0.0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="active" eval="False"/>
+        <field name="chart_template_id" ref="l10nbe_chart_template"/>
+        <field name="tax_group_id" ref="tax_group_tva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'plus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_87_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'repartition_type': 'base',
+                'minus_report_expression_ids': [ref('tax_report_line_83_tag'), ref('tax_report_line_87_tag')],
+                'plus_report_expression_ids': [ref('tax_report_line_85_tag')],
+            }),
+            (0,0, {'repartition_type': 'tax'}),
+        ]"/>
+    </record>
+</odoo>
+
+```
+
+## File: data\fiscal_templates_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Fiscal Position Templates -->
+
+    <record id="fiscal_position_template_1" model="account.fiscal.position.template">
+            <field name="sequence">1</field>
+            <field name="name">Régime National</field>
+            <field name="chart_template_id" ref="l10nbe_chart_template"/>
+            <field name="auto_apply" eval="True"/>
+            <field name="vat_required" eval="True"/>
+            <field name="country_id" ref="base.be"/>
+    </record>
+
+    <record id="fiscal_position_template_5" model="account.fiscal.position.template">
+            <field name="sequence">2</field>
+            <field name="name">EU privé</field>
+            <field name="chart_template_id" ref="l10nbe_chart_template"/>
+            <field name="auto_apply" eval="True"/>
+            <field name="country_group_id" ref="base.europe"/>
+    </record>
+
+    <record id="fiscal_position_template_2" model="account.fiscal.position.template">
+            <field name="sequence">4</field>
+            <field name="name">Régime Extra-Communautaire</field>
+            <field name="chart_template_id" ref="l10nbe_chart_template"/>
+            <field name="auto_apply" eval="True"/>
+    </record>
+
+    <record id="fiscal_position_template_3" model="account.fiscal.position.template">
+            <field name="sequence">3</field>
+            <field name="name">Régime Intra-Communautaire</field>
+            <field name="chart_template_id" ref="l10nbe_chart_template"/>
+            <field name="auto_apply" eval="True"/>
+            <field name="vat_required" eval="True"/>
+            <field name="country_group_id" ref="base.europe"/>
+    </record>
+
+    <record id="fiscal_position_template_4" model="account.fiscal.position.template">
+            <field name="name">Régime Cocontractant</field>
+            <field name="sequence">5</field>
+            <field name="chart_template_id" ref="l10nbe_chart_template"/>
+    </record>
+
+    <!-- Fiscal Position Account Templates -->
+
+    <record id="fiscal_position_account_template_3" model="account.fiscal.position.account.template">
+            <field name="position_id" ref="fiscal_position_template_3"  />
+            <field name="account_src_id" ref="l10n_be.a7000" />
+            <field name="account_dest_id" ref="l10n_be.a7001" />
+    </record>
+
+    <record id="fiscal_position_account_template_4" model="account.fiscal.position.account.template">
+            <field name="position_id" ref="fiscal_position_template_3"  />
+            <field name="account_src_id" ref="l10n_be.a7010" />
+            <field name="account_dest_id" ref="l10n_be.a7011" />
+    </record>
+
+    <record id="fiscal_position_account_template_6" model="account.fiscal.position.account.template">
+            <field name="position_id" ref="fiscal_position_template_3"  />
+            <field name="account_src_id" ref="l10n_be.a7050" />
+            <field name="account_dest_id" ref="l10n_be.a7051" />
+    </record>
+
+    <record id="fiscal_position_account_template_7" model="account.fiscal.position.account.template">
+            <field name="position_id" ref="fiscal_position_template_2"  />
+            <field name="account_src_id" ref="l10n_be.a7000" />
+            <field name="account_dest_id" ref="l10n_be.a7002" />
+    </record>
+    <record id="fiscal_position_account_template_8" model="account.fiscal.position.account.template">
+            <field name="position_id" ref="fiscal_position_template_2"  />
+            <field name="account_src_id" ref="l10n_be.a7010" />
+            <field name="account_dest_id" ref="l10n_be.a7012" />
+    </record>
+    <record id="fiscal_position_account_template_10" model="account.fiscal.position.account.template">
+            <field name="position_id" ref="fiscal_position_template_2"  />
+            <field name="account_src_id" ref="l10n_be.a7050" />
+            <field name="account_dest_id" ref="l10n_be.a7052" />
+    </record>
+</odoo>
+
+```
+
+## File: data\l10n_be_sequence_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <!--
+    Sequences for declarantnum will be used in wizard for "Listing of VAT Customers"..in creating xml file
+        -->
+    <record model="ir.sequence" id="seq_declarantnum">
+        <field name="name">Declarantnum</field>
+        <field name="code">declarantnum</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>
+
+```
+
+## File: data\menuitem_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="account_reports_be_statements_menu" name="Belgium" parent="account.menu_finance_reports" sequence="5" groups="account.group_account_readonly"/>
+</odoo>
+
+```
+
+## File: models\account_chart_template.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import api, models
+
+
+class AccountChartTemplate(models.Model):
+    _inherit = 'account.chart.template'
+
+    @api.model
+    def _prepare_all_journals(self, acc_template_ref, company, journals_dict=None):
+        journal_data = super(AccountChartTemplate, self)._prepare_all_journals(
+            acc_template_ref, company, journals_dict)
+        for journal in journal_data:
+            if journal['type'] in ('sale', 'purchase') and company.country_id.code == "BE":
+                journal.update({'refund_sequence': True})
+        return journal_data
+
+```
+
+## File: models\account_journal.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+from odoo import fields, models
+
+
+class AccountJournal(models.Model):
+    _inherit = 'account.journal'
+
+    invoice_reference_model = fields.Selection(selection_add=[
+        ('be', 'Belgium')
+        ], ondelete={'be': lambda recs: recs.write({'invoice_reference_model': 'odoo'})})
+
+```
+
+## File: models\account_move.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+# Copyright (c) 2011 Noviat nv/sa (www.noviat.be). All rights reserved.
+
+import random
+import re
+
+from odoo import api, fields, models, _
+from odoo.exceptions import UserError
+
+"""
+account.move object: add support for Belgian structured communication
+"""
+
+
+class AccountMove(models.Model):
+    _inherit = 'account.move'
+
+    def _get_invoice_reference_be_partner(self):
+        """ This computes the reference based on the belgian national standard
+            “OGM-VCS”.
+            For instance, if an invoice is issued for the partner with internal
+            reference 'food buyer 654', the digits will be extracted and used as
+            the data. This will lead to a check number equal to 72 and the
+            reference will be '+++000/0000/65472+++'.
+            If no reference is set for the partner, its id in the database will
+            be used.
+        """
+        self.ensure_one()
+        bbacomm = (re.sub(r'\D', '', self.partner_id.ref or '') or str(self.partner_id.id))[-10:].rjust(10, '0')
+        base = int(bbacomm)
+        mod = base % 97 or 97
+        reference = '+++%s/%s/%s%02d+++' % (bbacomm[:3], bbacomm[3:7], bbacomm[7:], mod)
+        return reference
+
+    def _get_invoice_reference_be_invoice(self):
+        """ This computes the reference based on the belgian national standard
+            “OGM-VCS”.
+            The data of the reference is the database id number of the invoice.
+            For instance, if an invoice is issued with id 654, the check number
+            is 72 so the reference will be '+++000/0000/65472+++'.
+        """
+        self.ensure_one()
+        base = self.id
+        bbacomm = str(base).rjust(10, '0')
+        base = int(bbacomm)
+        mod = base % 97 or 97
+        reference = '+++%s/%s/%s%02d+++' % (bbacomm[:3], bbacomm[3:7], bbacomm[7:], mod)
+        return reference
+
+```
+
+## File: models\res_partner.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+# Copyright (c) 2011 Noviat nv/sa (www.noviat.be). All rights reserved.
+
+from odoo import api, models
+
+
+class ResPartner(models.Model):
+    _inherit = 'res.partner'
+
+    @api.depends('vat', 'country_id')
+    def _compute_company_registry(self):
+        # OVERRIDE
+        # If a belgian company has a VAT number then it's company registry is it's VAT Number (without country code).
+        super()._compute_company_registry()
+        for partner in self.filtered(lambda p: p.country_id.code == 'BE' and p.vat):
+            vat_country, vat_number = self._split_vat(partner.vat)
+            if vat_country == 'be' and self.simple_vat_check(vat_country, vat_number):
+                partner.company_registry = vat_number
+
+```
+
+## File: models\__init__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from . import account_chart_template
+from . import account_journal
+from . import account_move
+from . import res_partner
+
+```
+
+## File: static\description\icon.svg
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 106 106">
+  <defs>
+    <mask id="a" x="0" y="0" width="106" height="106" maskUnits="userSpaceOnUse">
+      <path d="M6.06,0H98.43C104.49,0,106,1.51,106,7.57V98.43c0,6.06-1.51,7.57-7.57,7.57H6.06C1.51,106,0,104.49,0,98.43V7.57C0,1.51,1.51,0,6.06,0Z" style="fill: #fff;fill-rule: evenodd"/>
+    </mask>
+    <mask id="b" x="4.15" y="0.91" width="48.45" height="45.52" maskUnits="userSpaceOnUse">
+      <rect x="4.15" y="7.48" width="48.45" height="31.57" rx="1" style="fill: #fff"/>
+    </mask>
+    <symbol id="c" data-name="account icon" viewBox="0 0 106 106">
+      <g style="mask: url(#a)">
+        <g>
+          <path d="M0,0H106V106H0Z" style="fill: #5a5a64;fill-rule: evenodd"/>
+          <path d="M6.06,1.51H98.43q6.06,0,7.57,3V0H0V4.54Q1.52,1.51,6.06,1.51Z" style="fill: #fff;fill-opacity: 0.382999986410141;fill-rule: evenodd"/>
+          <path d="M6.06,104.49H98.43q6.06,0,7.57-4.55V106H0V99.94Q1.52,104.49,6.06,104.49Z" style="fill-opacity: 0.382999986410141;fill-rule: evenodd"/>
+          <g>
+            <path d="M70.38,104.49H6.06C3,104.49,0,103,0,98.43V61.28L28.77,19.69H59.06a77.33,77.33,0,0,0,21.2,13.87c.07,11.31.07,4.86,0,16.17h3.12l.21,36.82Z" style="fill: #393939;fill-rule: evenodd;opacity: 0.324000000953674;isolation: isolate"/>
+            <g style="opacity: 0.30000000000000004">
+              <g>
+                <path d="M68.77,58.54H76c.76,0,1,.12,1,.46v2.45c0,.31-.24.43-.93.43H61.44c-.66,0-.92-.12-.92-.42,0-.83,0-1.67,0-2.51,0-.29.26-.4.92-.41Z"/>
+                <path d="M64.33,77.42c.42.39.76.66,1,1a.89.89,0,0,1,0,1.31.92.92,0,0,1-1.32,0,4.25,4.25,0,0,1-.48-.47c-.14-.15-.26-.31-.49-.6-.32.37-.54.66-.79.91-.53.53-1.08.58-1.5.15s-.36-.94.15-1.45c.26-.26.54-.5.91-.83-.38-.34-.72-.61-1-.91a.9.9,0,0,1,0-1.36.91.91,0,0,1,1.36,0c.29.28.54.6.93,1A12.1,12.1,0,0,1,64,75.18a.91.91,0,0,1,1.36,0,.87.87,0,0,1,0,1.31C65.07,76.79,64.73,77.06,64.33,77.42Z"/>
+                <path d="M62.13,66.9c0-.47,0-.88,0-1.28a.92.92,0,0,1,.92-1,.91.91,0,0,1,1,1c0,.41,0,.81,0,1.3h1.14a1.16,1.16,0,0,1,1.22,1c0,.55-.42.85-1.18.86H64.12c0,.49,0,.91,0,1.34a.94.94,0,1,1-1.88,0c0-.41,0-.81,0-1.3H60.92a.94.94,0,1,1,0-1.88C61.3,66.89,61.68,66.9,62.13,66.9Z"/>
+                <path d="M74.31,76H72.23c-.67,0-1-.34-1-.93a.89.89,0,0,1,1-1q2.18,0,4.35,0a1,1,0,1,1,0,1.91c-.74,0-1.47,0-2.21,0Z"/>
+                <path d="M74.28,68.61c-.71,0-1.43,0-2.14,0a.86.86,0,0,1-1-.9.85.85,0,0,1,.92-1c1.5,0,3,0,4.48,0a.93.93,0,0,1,1,1,.91.91,0,0,1-1,.91c-.75,0-1.51,0-2.27,0Z"/>
+                <path d="M74.36,78.09c.72,0,1.44,0,2.15,0a1,1,0,0,1,1,1c0,.57-.38.93-1,.94H72.28c-.75,0-1.09-.32-1.09-.94s.37-1,1.09-1,1.39,0,2.08,0Z"/>
+                <path d="M81.29,90.55H56.14a4,4,0,0,1-4-4V53.73a4,4,0,0,1,4-4H81.29a4,4,0,0,1,4,4V86.55A4,4,0,0,1,81.29,90.55ZM56.14,53.73V86.55H81.29V53.73Z"/>
+              </g>
+              <path d="M43.49,83.26H31.8V25.71H56v10.6q0,4.55,4.54,4.55H75.71v5.78h4.55V34.8c-4.55-3-16.66-12.11-19.69-13.63H30.29a2.68,2.68,0,0,0-3,3V84.77a2.68,2.68,0,0,0,3,3H48.45V83.26ZM60.57,25.71l15.14,10.6H60.57Z"/>
+            </g>
+            <path d="M60.57,18.68H30.29a2.68,2.68,0,0,0-3,3V82.28a2.68,2.68,0,0,0,3,3H48.45V80.77H31.8V23.22H56v10.6q0,4.55,4.54,4.55H75.71v5.78h4.55V32.31C75.71,29.28,63.6,20.2,60.57,18.68Zm0,15.14V23.22l15.14,10.6Z" style="fill: #a8a9ab"/>
+            <g>
+              <path d="M68.77,55.78H76c.76,0,1,.13,1,.53v2.85c0,.37-.24.5-.93.5q-7.3,0-14.61,0c-.66,0-.92-.14-.92-.48,0-1,0-2,0-2.93,0-.34.26-.47.92-.47Z" style="fill: #a8a9ab"/>
+              <path d="M64.33,76.53c.42.38.76.65,1,1a.89.89,0,0,1,0,1.31.92.92,0,0,1-1.32,0,5.44,5.44,0,0,1-.48-.48c-.14-.14-.26-.31-.49-.59-.32.36-.54.65-.79.91-.53.53-1.08.57-1.5.14s-.36-.94.15-1.45c.26-.26.54-.49.91-.82-.38-.35-.72-.61-1-.92a.9.9,0,0,1,0-1.36.92.92,0,0,1,1.36,0c.29.28.54.61.93,1A13.78,13.78,0,0,1,64,74.28a.91.91,0,0,1,1.36,0,.88.88,0,0,1,0,1.32C65.07,75.89,64.73,76.16,64.33,76.53Z" style="fill: #a8a9ab"/>
+              <path d="M62.13,65.88c0-.48,0-.88,0-1.29a1,1,0,1,1,1.91,0c0,.4,0,.81,0,1.3h1.14a1.15,1.15,0,0,1,1.22,1c0,.54-.42.85-1.18.85H64.12c0,.49,0,.92,0,1.34a.94.94,0,1,1-1.88,0c0-.4,0-.81,0-1.3H60.92a.94.94,0,1,1,0-1.88Z" style="fill: #a8a9ab"/>
+              <path d="M74.31,75.11c-.69,0-1.38,0-2.08,0s-1-.35-1-.94a.89.89,0,0,1,1-1q2.18,0,4.35,0a.91.91,0,0,1,1,1,.93.93,0,0,1-1,1c-.74,0-1.47,0-2.21,0Z" style="fill: #a8a9ab"/>
+              <path d="M74.28,67.76H72.14a.87.87,0,0,1-1-.9.84.84,0,0,1,.92-1c1.5,0,3,0,4.48,0a.94.94,0,0,1,1,1,.91.91,0,0,1-1,.91H74.28Z" style="fill: #a8a9ab"/>
+              <path d="M74.36,77.2c.72,0,1.44,0,2.15,0a1,1,0,0,1,1,1c0,.56-.38.93-1,.93q-2.12,0-4.23,0c-.75,0-1.09-.32-1.09-.94s.37-.94,1.09-1,1.39,0,2.08,0Z" style="fill: #a8a9ab"/>
+              <path d="M81.29,88.06H56.14a4,4,0,0,1-4-4V51.24a4,4,0,0,1,4-4H81.29a4,4,0,0,1,4,4V84.06A4,4,0,0,1,81.29,88.06ZM56.14,51.24V84.06H81.29V51.24Z" style="fill: #a8a9ab"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </symbol>
+  </defs>
+  <g>
+    <use width="106" height="106" xlink:href="#c"/>
+    <rect x="4.15" y="10.57" width="48.45" height="31.57" rx="1" style="fill: #393939;opacity: 0.44;isolation: isolate"/>
+    <g style="mask: url(#b)">
+      <image width="241" height="209" transform="translate(4.15 0.91) scale(0.2 0.22)" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPEAAADjCAYAAABU1fKZAAAACXBIWXMAADcOAAA3DgECDDKTAAAC20lEQVR4Xu3TsWnDABRF0a9kAHfZI2DwNh7SS7jPMCmChDxBEHblC+fUr3pwl5nZh5fdb+e5fJ9m3dz4tM+Z9Web3+vfLF9HY/7zcTQA3puIIU7EECdiiBMxxIkY4kQMcSKGOBFDnIghTsQQJ2KIEzHEiRjiRAxxIoY4EUOciCFOxBAnYogTMcSJGOJEDHEihjgRQ5yIIU7EECdiiBMxxIkY4kQMcSKGOBFDnIghTsQQJ2KIEzHEiRjiRAxxIoY4EUOciCFOxBAnYogTMcSJGOJEDHEihjgRQ5yIIU7EECdiiBMxxIkY4kQMcSKGOBFDnIghTsQQJ2KIEzHEiRjiRAxxIoY4EUOciCFOxBAnYogTMcSJGOJEDHEihjgRQ5yIIU7EECdiiBMxxIkY4kQMcSKGOBFDnIghTsQQJ2KIEzHEiRjiRAxxIoY4EUOciCFOxBAnYogTMcSJGOJEDHEihjgRQ5yIIU7EECdiiBMxxIkY4kQMcSKGOBFDnIghTsQQJ2KIEzHEiRjiRAxxIoY4EUOciCFOxBAnYogTMcSJGOJEDHEihjgRQ5yIIU7EECdiiBMxxIkY4kQMcSKGOBFDnIghTsQQJ2KIEzHEiRjiRAxxIoY4EUOciCFOxBAnYogTMcSJGOJEDHEihjgRQ5yIIU7EECdiiBMxxIkY4kQMcSKGOBFDnIghTsQQJ2KIEzHEiRjiRAxxIoY4EUOciCFOxBAnYogTMcSJGOJEDHEihjgRQ5yIIU7EECdiiBMxxIkY4kQMcSKGOBFDnIghTsQQJ2KIEzHEiRjiRAxxIoY4EUOciCFOxBAnYogTMcSJGOJEDHEihjgRQ5yIIU7EECdiiBMxxIkY4kQMcSKGOBFDnIghTsQQJ2KIEzHEiRjiRAxxIoY4EUOciCFOxBAnYogTMcSJGOJEDHEihjgRQ5yIIU7EECdiiBMxxIkY4kQMcSKGOBFD3LLv+9EGeGMPU00QEGRR3dkAAAAASUVORK5CYII="/>
+    </g>
+  </g>
+</svg>
+
+```
+
