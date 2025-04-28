@@ -1,0 +1,780 @@
+# Odoo Module: l10n_uk
+
+Category: Accounting/Localizations/Account Charts
+
+This file contains the source code of the Odoo module.
+
+## File: __init__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+# Copyright (C) 2011 Smartmode LTD (<http://www.smartmode.co.uk>).
+
+```
+
+## File: __manifest__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+# Copyright (C) 2011 Smartmode LTD (<http://www.smartmode.co.uk>).
+
+{
+    'name': 'United Kingdom - Accounting',
+    'version': '1.0',
+    'category': 'Accounting/Localizations/Account Charts',
+    'description': """
+This is the latest UK Odoo localisation necessary to run Odoo accounting for UK SME's with:
+=================================================================================================
+    - a CT600-ready chart of accounts
+    - VAT100-ready tax structure
+    - InfoLogic UK counties listing
+    - a few other adaptations""",
+    'author': 'SmartMode LTD',
+    'website': 'https://www.odoo.com/app/accounting',
+    'depends': [
+        'account',
+        'base_iban',
+        'base_vat',
+    ],
+    'data': [
+        'data/l10n_uk_chart_data.xml',
+        'data/account.account.template.csv',
+        'data/account.chart.template.csv',
+        'data/account.tax.group.csv',
+        'data/account_tax_report_data.xml',
+        'data/account_tax_data.xml',
+        'data/account_chart_template_data.xml',
+    ],
+    'demo': [
+        'demo/l10n_uk_demo.xml',
+        'demo/demo_company.xml',
+    ],
+    'license': 'LGPL-3',
+}
+
+```
+
+## File: data\account.account.template.csv
+
+```csv
+"id","code","name","user_type_id:id","reconcile","chart_template_id:id"
+"0010","0010","Software","account.data_account_type_fixed_assets","FALSE","l10n_uk"
+"0011","0011","Software Depreciation","account.data_account_type_fixed_assets","FALSE","l10n_uk"
+"0020","0020","Patents & Trademarks","account.data_account_type_fixed_assets","FALSE","l10n_uk"
+"0021","0021","Patents & Trademarks Depreciation","account.data_account_type_fixed_assets","FALSE","l10n_uk"
+"0030","0030","Fixtures and fittings","account.data_account_type_fixed_assets","FALSE","l10n_uk"
+"0031","0031","Fixtures and fittings Depreciation","account.data_account_type_fixed_assets","FALSE","l10n_uk"
+"0040","0040","Land and buildings","account.data_account_type_fixed_assets","FALSE","l10n_uk"
+"0041","0041","Land and buildings Depreciation","account.data_account_type_fixed_assets","FALSE","l10n_uk"
+"0050","0050","Motor vehicles","account.data_account_type_fixed_assets","FALSE","l10n_uk"
+"0051","0051","Motor vehicles Depreciation","account.data_account_type_fixed_assets","FALSE","l10n_uk"
+"0060","0060","Office equipment (inc computer equipment)","account.data_account_type_fixed_assets","FALSE","l10n_uk"
+"0061","0061","Office equipment (inc computer equipment) Depreciation","account.data_account_type_fixed_assets","FALSE","l10n_uk"
+"0070","0070","Plant and machinery","account.data_account_type_fixed_assets","FALSE","l10n_uk"
+"0071","0071","Plant and machinery Depreciation","account.data_account_type_fixed_assets","FALSE","l10n_uk"
+"1001","1001","Stock","account.data_account_type_current_assets","TRUE","l10n_uk"
+"1002","1002","Work in Progress","account.data_account_type_current_assets","FALSE","l10n_uk"
+"1003","1003","Finished Goods","account.data_account_type_current_assets","FALSE","l10n_uk"
+"1100","1100","Debtors Control Account","account.data_account_type_receivable","TRUE","l10n_uk"
+"1101","1101","Sundry Debtors","account.data_account_type_receivable","TRUE","l10n_uk"
+"1102","1102","Other Debtors","account.data_account_type_current_assets","FALSE","l10n_uk"
+"1104","1104","Debtors Control Account (PoS)","account.data_account_type_receivable","TRUE","l10n_uk"
+"1240","1240","Company Credit Card","account.data_account_type_current_assets","TRUE","l10n_uk"
+"1103","1103","Prepayments","account.data_account_type_current_assets","FALSE","l10n_uk"
+"2100","2100","Creditors Control Account","account.data_account_type_payable","TRUE","l10n_uk"
+"2101","2101","Sundry Creditors","account.data_account_type_current_liabilities","FALSE","l10n_uk"
+"2102","2102","Other Creditors","account.data_account_type_current_liabilities","FALSE","l10n_uk"
+"2200","2200","Sales Tax Control Account","account.data_account_type_current_liabilities","FALSE","l10n_uk"
+"2201","2201","Purchase Tax Control Account","account.data_account_type_current_assets","FALSE","l10n_uk"
+"2202","2202","HMRC - VAT Account","account.data_account_type_payable","TRUE","l10n_uk"
+"2204","2204","Manual Adjustments ﾖ VAT","account.data_account_type_current_liabilities","FALSE","l10n_uk"
+"2210","2210","P.A.Y.E. & NI","account.data_account_type_payable","TRUE","l10n_uk"
+"2220","2220","Net Wages","account.data_account_type_payable","TRUE","l10n_uk"
+"2230","2230","Pension Fund","account.data_account_type_payable","TRUE","l10n_uk"
+"2150","2150","Bad debt provision","account.data_account_type_current_liabilities","FALSE","l10n_uk"
+"2109","2109","Accruals","account.data_account_type_current_liabilities","FALSE","l10n_uk"
+"2320","2320","Corporation Tax","account.data_account_type_payable","TRUE","l10n_uk"
+"2300","2300","Loans","account.data_account_type_current_liabilities","FALSE","l10n_uk"
+"2310","2310","Hire Purchase","account.data_account_type_current_liabilities","FALSE","l10n_uk"
+"2330","2330","Mortgages","account.data_account_type_current_liabilities","FALSE","l10n_uk"
+"3000","3000","Called up share capital","account.data_account_type_equity","FALSE","l10n_uk"
+"3010","3010","Share premium account","account.data_account_type_equity","FALSE","l10n_uk"
+"3020","3020","Revaluation reserve","account.data_account_type_equity","FALSE","l10n_uk"
+"3030","3030","Other reserves","account.data_account_type_equity","FALSE","l10n_uk"
+"4000","4000","Sales category 1","account.data_account_type_revenue","FALSE","l10n_uk"
+"4001","4001","Sales category 2","account.data_account_type_revenue","FALSE","l10n_uk"
+"4002","4002","Sales category 3","account.data_account_type_revenue","FALSE","l10n_uk"
+"4003","4003","Sales category 4","account.data_account_type_revenue","FALSE","l10n_uk"
+"5000","5000","Cost of sales 1","account.data_account_type_expenses","FALSE","l10n_uk"
+"5001","5001","Cost of sales 2","account.data_account_type_expenses","FALSE","l10n_uk"
+"5002","5002","Cost of sales 3","account.data_account_type_expenses","FALSE","l10n_uk"
+"5003","5003","Cost of sales 4","account.data_account_type_expenses","FALSE","l10n_uk"
+"6000","6000","Marketing, POS","account.data_account_type_expenses","FALSE","l10n_uk"
+"6001","6001","Exhibitions and events","account.data_account_type_expenses","FALSE","l10n_uk"
+"6002","6002","PR","account.data_account_type_expenses","FALSE","l10n_uk"
+"6010","6010","Distribution vehicles","account.data_account_type_expenses","FALSE","l10n_uk"
+"6020","6020","Distribution salaries and wages","account.data_account_type_expenses","FALSE","l10n_uk"
+"6030","6030","Shipping","account.data_account_type_expenses","FALSE","l10n_uk"
+"7000","7000","Directors pension","account.data_account_type_expenses","FALSE","l10n_uk"
+"7001","7001","Directors remuneration","account.data_account_type_expenses","FALSE","l10n_uk"
+"7010","7010","Admin gross salaries","account.data_account_type_expenses","FALSE","l10n_uk"
+"7011","7011","Management gross salaries","account.data_account_type_expenses","FALSE","l10n_uk"
+"7012","7012","Employers NIC","account.data_account_type_expenses","FALSE","l10n_uk"
+"7020","7020","Subcontractors payments","account.data_account_type_expenses","FALSE","l10n_uk"
+"7610","7610","Consultancy","account.data_account_type_expenses","FALSE","l10n_uk"
+"7620","7620","Legal and professional charges","account.data_account_type_expenses","FALSE","l10n_uk"
+"7601","7601","Accounting","account.data_account_type_expenses","FALSE","l10n_uk"
+"7602","7602","Auditing","account.data_account_type_expenses","FALSE","l10n_uk"
+"7110","7110","Light, heat and power","account.data_account_type_expenses","FALSE","l10n_uk"
+"7100","7100","Rent and rates","account.data_account_type_expenses","FALSE","l10n_uk"
+"7120","7120","Repairs, renewals and maintenance","account.data_account_type_expenses","FALSE","l10n_uk"
+"7300","7300","Car hire","account.data_account_type_expenses","FALSE","l10n_uk"
+"7301","7301","Car fuel","account.data_account_type_expenses","FALSE","l10n_uk"
+"7302","7302","Car maintenance","account.data_account_type_expenses","FALSE","l10n_uk"
+"7502","7502","Telephone","account.data_account_type_expenses","FALSE","l10n_uk"
+"7503","7503","Internet & hosting","account.data_account_type_expenses","FALSE","l10n_uk"
+"7504","7504","Mobiles","account.data_account_type_expenses","FALSE","l10n_uk"
+"7505","7505","Stationery","account.data_account_type_expenses","FALSE","l10n_uk"
+"7506","7506","Office consumables","account.data_account_type_expenses","FALSE","l10n_uk"
+"7507","7507","Postage and Carriage","account.data_account_type_expenses","FALSE","l10n_uk"
+"7508","7508","Books","account.data_account_type_expenses","FALSE","l10n_uk"
+"7509","7509","Network costs","account.data_account_type_expenses","FALSE","l10n_uk"
+"7510","7510","Software expenses","account.data_account_type_expenses","FALSE","l10n_uk"
+"7511","7511","Other computer costs","account.data_account_type_expenses","FALSE","l10n_uk"
+"7512","7512","Recruitment fees","account.data_account_type_expenses","FALSE","l10n_uk"
+"7513","7513","Other admin expenses","account.data_account_type_expenses","FALSE","l10n_uk"
+"7700","7700","Exchange gains/losses","account.data_account_type_expenses","FALSE","l10n_uk"
+"7710","7710","Other sundry expenses","account.data_account_type_expenses","FALSE","l10n_uk"
+"7850","7850","Bad debts","account.data_account_type_expenses","FALSE","l10n_uk"
+"7910","7910","Bank, credit card and other financial charges","account.data_account_type_expenses","FALSE","l10n_uk"
+"8000","8000","Intangible assets depn","account.data_account_type_expenses","FALSE","l10n_uk"
+"8001","8001","Tangible assets depn","account.data_account_type_expenses","FALSE","l10n_uk"
+"8200","8200","Donations","account.data_account_type_expenses","FALSE","l10n_uk"
+"8300","8300","Entertaining","account.data_account_type_expenses","FALSE","l10n_uk"
+"8400","8400","Insurance","account.data_account_type_expenses","FALSE","l10n_uk"
+"8500","8500","Travel and subsistence","account.data_account_type_expenses","FALSE","l10n_uk"
+"9000","9000","Profits/Losses on disposals of assets","account.data_account_type_revenue","FALSE","l10n_uk"
+"4900","4900","Bank Interest received","account.data_account_type_revenue","FALSE","l10n_uk"
+"4910","4910","Investment Interest received","account.data_account_type_revenue","FALSE","l10n_uk"
+"7900","7900","Interest paid","account.data_account_type_expenses","FALSE","l10n_uk"
+"8800","8800","Corporation tax expense","account.data_account_type_expenses","FALSE","l10n_uk"
+
+```
+
+## File: data\account.chart.template.csv
+
+```csv
+"id","name","property_account_receivable_id:id","property_account_payable_id:id","property_account_expense_categ_id:id","property_account_income_categ_id:id","income_currency_exchange_account_id:id","expense_currency_exchange_account_id:id","default_pos_receivable_account_id:id","use_anglo_saxon"
+"l10n_uk","UK Tax and Account Chart Template (by SmartMode)","1100","2100","5000","4000","7700","7700","1104","True"
+
+```
+
+## File: data\account.tax.group.csv
+
+```csv
+id,name,country_id/id
+tax_group_0,TAX 0%,base.uk
+tax_group_5,TAX 5%,base.uk
+tax_group_175,TAX 17.5%,base.uk
+tax_group_20,TAX 20%,base.uk
+
+```
+
+## File: data\account_chart_template_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <function model="account.chart.template" name="try_loading">
+            <value eval="[ref('l10n_uk.l10n_uk')]"/>
+        </function>
+    </data>
+</odoo>
+
+```
+
+## File: data\account_tax_data.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="ST0" model="account.tax.template">
+        <field name="description">ST0</field>
+        <field name="chart_template_id" ref="l10n_uk"/>
+        <field name="type_tax_use">sale</field>
+        <field name="name">Zero rated sales</field>
+        <field name="amount_type">percent</field>
+        <field name="amount">0</field>
+        <field name="tax_group_id" ref="tax_group_0"/>
+		<field name="invoice_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_report_line_ids': [ref('account_tax_report_line_exd_vat_box6')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_report_line_ids': [ref('account_tax_report_line_exd_vat_box6')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+
+    <record id="ST2" model="account.tax.template">
+        <field name="description">ST2</field>
+        <field name="chart_template_id" ref="l10n_uk"/>
+        <field name="type_tax_use">sale</field>
+        <field name="name">Exempt sales</field>
+        <field name="amount_type">percent</field>
+        <field name="amount">0</field>
+        <field name="tax_group_id" ref="tax_group_0"/>
+		<field name="invoice_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_report_line_ids': [ref('account_tax_report_line_exd_vat_box6')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_report_line_ids': [ref('account_tax_report_line_exd_vat_box6')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+
+    <record id="PT0" model="account.tax.template">
+        <field name="description">PT0</field>
+        <field name="chart_template_id" ref="l10n_uk"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="name">Zero rated purchases</field>
+        <field name="amount_type">percent</field>
+        <field name="amount">0</field>
+        <field name="tax_group_id" ref="tax_group_0"/>
+		<field name="invoice_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_report_line_ids': [ref('account_tax_report_line_exd_vat_box7')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_report_line_ids': [ref('account_tax_report_line_exd_vat_box7')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+
+    <record id="PT2" model="account.tax.template">
+        <field name="description">PT2</field>
+        <field name="chart_template_id" ref="l10n_uk"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="name">Exempt purchases</field>
+        <field name="amount_type">percent</field>
+        <field name="amount">0</field>
+        <field name="tax_group_id" ref="tax_group_0"/>
+		<field name="invoice_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_report_line_ids': [ref('account_tax_report_line_exd_vat_box7')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_report_line_ids': [ref('account_tax_report_line_exd_vat_box7')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+
+    <record id="PT8" model="account.tax.template">
+        <field name="description">PT8</field>
+        <field name="chart_template_id" ref="l10n_uk"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="name">Standard rated purchases from EC</field>
+        <field name="amount_type">percent</field>
+        <field name="amount">20</field>
+        <field name="tax_group_id" ref="tax_group_0"/>
+		<field name="invoice_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_report_line_ids': [ref('account_tax_report_line_exd_vat_box9'), ref('account_tax_report_line_exd_vat_box7')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('2201'),
+                'plus_report_line_ids': [ref('account_tax_report_line_vat_box2')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('2201'),
+                'minus_report_line_ids': [ref('account_tax_report_line_vat_box4')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_report_line_ids': [ref('account_tax_report_line_exd_vat_box9'), ref('account_tax_report_line_exd_vat_box7')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('2201'),
+                'minus_report_line_ids': [ref('account_tax_report_line_vat_box2')],
+            }),
+            (0,0, {
+                'factor_percent': -100,
+                'repartition_type': 'tax',
+                'account_id': ref('2201'),
+                'plus_report_line_ids': [ref('account_tax_report_line_vat_box4')],
+            }),
+        ]"/>
+    </record>
+
+    <record id="PT5" model="account.tax.template">
+        <field name="description">PT5</field>
+        <field name="chart_template_id" ref="l10n_uk"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="name">Lower rate purchases (5%)</field>
+        <field name="amount_type">percent</field>
+        <field name="amount">5</field>
+        <field name="tax_group_id" ref="tax_group_5"/>
+		<field name="invoice_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_report_line_ids': [ref('account_tax_report_line_exd_vat_box7')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('2201'),
+                'plus_report_line_ids': [ref('account_tax_report_line_vat_box4')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_report_line_ids': [ref('account_tax_report_line_exd_vat_box7')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('2201'),
+                'minus_report_line_ids': [ref('account_tax_report_line_vat_box4')],
+            }),
+        ]"/>
+    </record>
+
+	<record id="ST5" model="account.tax.template">
+        <field name="description">ST5</field>
+        <field name="chart_template_id" ref="l10n_uk"/>
+        <field name="type_tax_use">sale</field>
+        <field name="name">Lower rate sales (5%)</field>
+        <field name="amount_type">percent</field>
+        <field name="amount">5</field>
+        <field name="tax_group_id" ref="tax_group_0"/>
+		<field name="invoice_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_report_line_ids': [ref('account_tax_report_line_exd_vat_box6')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('2200'),
+                'plus_report_line_ids': [ref('account_tax_report_line_vat_box1')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_report_line_ids': [ref('account_tax_report_line_exd_vat_box6')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('2200'),
+                'minus_report_line_ids': [ref('account_tax_report_line_vat_box1')],
+            }),
+        ]"/>
+    </record>
+
+    <record id="ST4" model="account.tax.template">
+        <field name="description">ST4</field>
+        <field name="chart_template_id" ref="l10n_uk"/>
+        <field name="type_tax_use">sale</field>
+        <field name="name">Sales to customers in EC</field>
+        <field name="amount_type">percent</field>
+        <field name="amount">0</field>
+        <field name="tax_group_id" ref="tax_group_0"/>
+		<field name="invoice_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_report_line_ids': [ref('account_tax_report_line_exd_vat_box8'), ref('account_tax_report_line_exd_vat_box6')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_report_line_ids': [ref('account_tax_report_line_exd_vat_box8'), ref('account_tax_report_line_exd_vat_box6')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+
+    <record id="PT7" model="account.tax.template">
+        <field name="description">PT7</field>
+        <field name="chart_template_id" ref="l10n_uk"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="name">Zero rated purchases from EC</field>
+        <field name="amount_type">percent</field>
+        <field name="amount">0</field>
+        <field name="tax_group_id" ref="tax_group_0"/>
+		<field name="invoice_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_report_line_ids': [ref('account_tax_report_line_exd_vat_box9'), ref('account_tax_report_line_exd_vat_box7')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_report_line_ids': [ref('account_tax_report_line_exd_vat_box9'), ref('account_tax_report_line_exd_vat_box7')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+
+    <record id="ST11" model="account.tax.template">
+        <field name="description">ST11</field>
+        <field name="chart_template_id" ref="l10n_uk"/>
+        <field name="type_tax_use">sale</field>
+        <field name="name">Standard rate sales (20%)</field>
+        <field name="amount_type">percent</field>
+        <field name="amount">20</field>
+        <field name="tax_group_id" ref="tax_group_20"/>
+		<field name="invoice_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_report_line_ids': [ref('account_tax_report_line_exd_vat_box6')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('2200'),
+                'plus_report_line_ids': [ref('account_tax_report_line_vat_box1')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_report_line_ids': [ref('account_tax_report_line_exd_vat_box6')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('2200'),
+                'minus_report_line_ids': [ref('account_tax_report_line_vat_box1')],
+            }),
+        ]"/>
+    </record>
+
+    <record id="PT11" model="account.tax.template">
+        <field name="description">PT11</field>
+        <field name="chart_template_id" ref="l10n_uk"/>
+        <field name="type_tax_use">purchase</field>
+        <field name="name">Standard rate purchases (20%)</field>
+        <field name="amount_type">percent</field>
+        <field name="amount">20</field>
+        <field name="tax_group_id" ref="tax_group_20"/>
+		<field name="invoice_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'plus_report_line_ids': [ref('account_tax_report_line_exd_vat_box7')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('2201'),
+                'plus_report_line_ids': [ref('account_tax_report_line_vat_box4')],
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5,0,0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+                'minus_report_line_ids': [ref('account_tax_report_line_exd_vat_box7')],
+            }),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('2201'),
+                'minus_report_line_ids': [ref('account_tax_report_line_vat_box4')],
+            }),
+        ]"/>
+    </record>
+
+</odoo>
+```
+
+## File: data\account_tax_report_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="tax_report" model="account.tax.report">
+        <field name="name">Tax Report</field>
+        <field name="country_id" ref="base.uk"/>
+    </record>
+
+    <record id="account_tax_report_line_vat_cal" model="account.tax.report.line">
+        <field name="name">VAT calculations</field>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence" eval="1"/>
+    </record>
+
+    <record id="account_tax_report_line_vat_box1" model="account.tax.report.line">
+        <field name="name">[BOX 1] VAT due on sales and other outputs</field>
+        <field name="tag_name">1</field>
+        <field name="code">UKTAX_1</field>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence" eval="1"/>
+        <field name="parent_id" ref="account_tax_report_line_vat_cal"/>
+    </record>
+
+    <record id="account_tax_report_line_vat_box2" model="account.tax.report.line">
+        <field name="name">[BOX 2] VAT due on acquisitions from EC</field>
+        <field name="tag_name">2</field>
+        <field name="code">UKTAX_2</field>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence" eval="2"/>
+        <field name="parent_id" ref="account_tax_report_line_vat_cal"/>
+    </record>
+
+    <record id="account_tax_report_line_vat_box3" model="account.tax.report.line">
+        <field name="name">[BOX 3] Total VAT due (box 1 + box 2)</field>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence" eval="3"/>
+        <field name="formula">UKTAX_1 + UKTAX_2</field>
+        <field name="parent_id" ref="account_tax_report_line_vat_cal"/>
+    </record>
+
+    <record id="account_tax_report_line_vat_box4" model="account.tax.report.line">
+        <field name="name">[BOX 4] VAT reclaimed on purchases and other inputs (including acquisitions from EC)</field>
+        <field name="tag_name">4</field>
+        <field name="code">UKTAX_4</field>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence" eval="4"/>
+        <field name="parent_id" ref="account_tax_report_line_vat_cal"/>
+    </record>
+
+    <record id="account_tax_report_line_vat_box5" model="account.tax.report.line">
+        <field name="name">[BOX 5] VAT to pay/reclaim</field>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence" eval="5"/>
+        <field name="formula">UKTAX_1 + UKTAX_2 - UKTAX_4</field>
+        <field name="parent_id" ref="account_tax_report_line_vat_cal"/>
+    </record>
+
+    <record id="account_tax_report_line_exd_vat" model="account.tax.report.line">
+        <field name="name">Sales and Purchases Excluding VAT</field>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence" eval="2"/>
+    </record>
+
+    <record id="account_tax_report_line_exd_vat_box6" model="account.tax.report.line">
+        <field name="name">[BOX 6] Total value of sales and other outputs excluding VAT (including EC supplies)</field>
+        <field name="tag_name">6</field>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence" eval="1"/>
+        <field name="parent_id" ref="account_tax_report_line_exd_vat"/>
+    </record>
+
+    <record id="account_tax_report_line_ec_exd_vat" model="account.tax.report.line">
+        <field name="name">EC Sales and Purchases excluding VAT</field>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence" eval="3"/>
+    </record>
+
+    <record id="account_tax_report_line_exd_vat_box7" model="account.tax.report.line">
+        <field name="name">[BOX 7] Total value of purchases and inputs excluding VAT (including EC acquisitions)</field>
+        <field name="tag_name">7</field>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence" eval="2"/>
+        <field name="parent_id" ref="account_tax_report_line_exd_vat"/>
+    </record>
+
+    <record id="account_tax_report_line_exd_vat_box8" model="account.tax.report.line">
+        <field name="name">[BOX 8] Total value of EC sales excluding VAT</field>
+        <field name="tag_name">8</field>
+        <field name="code">UKTAX_8</field>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence" eval="1"/>
+        <field name="parent_id" ref="account_tax_report_line_ec_exd_vat"/>
+    </record>
+
+    <record id="account_tax_report_line_exd_vat_box9" model="account.tax.report.line">
+        <field name="name">[BOX 9] Total value of EC purchases excluding VAT</field>
+        <field name="tag_name">9</field>
+        <field name="code">UKTAX_9</field>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence" eval="2"/>
+        <field name="parent_id" ref="account_tax_report_line_ec_exd_vat"/>
+    </record>
+
+</odoo>
+```
+
+## File: data\l10n_uk_chart_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="account_reports_uk_statements_menu" name="United Kingdom" parent="account.menu_finance_reports" sequence="0" groups="account.group_account_readonly"/>
+
+        <!-- Chart template -->
+        <record id="l10n_uk" model="account.chart.template">
+            <field name="name">UK Tax and Account Chart Template (by SmartMode)</field>
+            <field name="bank_account_code_prefix">1200</field>
+            <field name="cash_account_code_prefix">1210</field>
+            <field name="transfer_account_code_prefix">1220</field>
+            <field name="code_digits">6</field>
+            <field name="currency_id" ref="base.GBP"/>
+            <field name="country_id" ref="base.uk"/>
+        </record>
+</odoo>
+
+```
+
+## File: static\description\icon.svg
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 106 106">
+  <defs>
+    <mask id="a" x="0" y="0" width="106" height="106" maskUnits="userSpaceOnUse">
+      <path d="M6.06,0H98.43C104.49,0,106,1.51,106,7.57V98.43c0,6.06-1.51,7.57-7.57,7.57H6.06C1.51,106,0,104.49,0,98.43V7.57C0,1.51,1.51,0,6.06,0Z" style="fill: #fff;fill-rule: evenodd"/>
+    </mask>
+    <mask id="b" x="4.8" y="7.94" width="50.4" height="31.13" maskUnits="userSpaceOnUse">
+      <rect x="6.29" y="8.2" width="48.45" height="30.24" rx="1" style="fill: #fff"/>
+    </mask>
+    <symbol id="c" data-name="account icon" viewBox="0 0 106 106">
+      <g style="mask: url(#a)">
+        <g>
+          <path d="M0,0H106V106H0Z" style="fill: #5a5a64;fill-rule: evenodd"/>
+          <path d="M6.06,1.51H98.43q6.06,0,7.57,3V0H0V4.54Q1.52,1.51,6.06,1.51Z" style="fill: #fff;fill-opacity: 0.382999986410141;fill-rule: evenodd"/>
+          <path d="M6.06,104.49H98.43q6.06,0,7.57-4.55V106H0V99.94Q1.52,104.49,6.06,104.49Z" style="fill-opacity: 0.382999986410141;fill-rule: evenodd"/>
+          <g>
+            <path d="M70.38,104.49H6.06C3,104.49,0,103,0,98.43V61.28L28.77,19.69H59.06a77.33,77.33,0,0,0,21.2,13.87c.07,11.31.07,4.86,0,16.17h3.12l.21,36.82Z" style="fill: #393939;fill-rule: evenodd;opacity: 0.324000000953674;isolation: isolate"/>
+            <g style="opacity: 0.30000000000000004">
+              <g>
+                <path d="M68.77,58.54H76c.76,0,1,.12,1,.46v2.45c0,.31-.24.43-.93.43H61.44c-.66,0-.92-.12-.92-.42,0-.83,0-1.67,0-2.51,0-.29.26-.4.92-.41Z"/>
+                <path d="M64.33,77.42c.42.39.76.66,1,1a.89.89,0,0,1,0,1.31.92.92,0,0,1-1.32,0,4.25,4.25,0,0,1-.48-.47c-.14-.15-.26-.31-.49-.6-.32.37-.54.66-.79.91-.53.53-1.08.58-1.5.15s-.36-.94.15-1.45c.26-.26.54-.5.91-.83-.38-.34-.72-.61-1-.91a.9.9,0,0,1,0-1.36.91.91,0,0,1,1.36,0c.29.28.54.6.93,1A12.1,12.1,0,0,1,64,75.18a.91.91,0,0,1,1.36,0,.87.87,0,0,1,0,1.31C65.07,76.79,64.73,77.06,64.33,77.42Z"/>
+                <path d="M62.13,66.9c0-.47,0-.88,0-1.28a.92.92,0,0,1,.92-1,.91.91,0,0,1,1,1c0,.41,0,.81,0,1.3h1.14a1.16,1.16,0,0,1,1.22,1c0,.55-.42.85-1.18.86H64.12c0,.49,0,.91,0,1.34a.94.94,0,1,1-1.88,0c0-.41,0-.81,0-1.3H60.92a.94.94,0,1,1,0-1.88C61.3,66.89,61.68,66.9,62.13,66.9Z"/>
+                <path d="M74.31,76H72.23c-.67,0-1-.34-1-.93a.89.89,0,0,1,1-1q2.18,0,4.35,0a1,1,0,1,1,0,1.91c-.74,0-1.47,0-2.21,0Z"/>
+                <path d="M74.28,68.61c-.71,0-1.43,0-2.14,0a.86.86,0,0,1-1-.9.85.85,0,0,1,.92-1c1.5,0,3,0,4.48,0a.93.93,0,0,1,1,1,.91.91,0,0,1-1,.91c-.75,0-1.51,0-2.27,0Z"/>
+                <path d="M74.36,78.09c.72,0,1.44,0,2.15,0a1,1,0,0,1,1,1c0,.57-.38.93-1,.94H72.28c-.75,0-1.09-.32-1.09-.94s.37-1,1.09-1,1.39,0,2.08,0Z"/>
+                <path d="M81.29,90.55H56.14a4,4,0,0,1-4-4V53.73a4,4,0,0,1,4-4H81.29a4,4,0,0,1,4,4V86.55A4,4,0,0,1,81.29,90.55ZM56.14,53.73V86.55H81.29V53.73Z"/>
+              </g>
+              <path d="M43.49,83.26H31.8V25.71H56v10.6q0,4.55,4.54,4.55H75.71v5.78h4.55V34.8c-4.55-3-16.66-12.11-19.69-13.63H30.29a2.68,2.68,0,0,0-3,3V84.77a2.68,2.68,0,0,0,3,3H48.45V83.26ZM60.57,25.71l15.14,10.6H60.57Z"/>
+            </g>
+            <path d="M60.57,18.68H30.29a2.68,2.68,0,0,0-3,3V82.28a2.68,2.68,0,0,0,3,3H48.45V80.77H31.8V23.22H56v10.6q0,4.55,4.54,4.55H75.71v5.78h4.55V32.31C75.71,29.28,63.6,20.2,60.57,18.68Zm0,15.14V23.22l15.14,10.6Z" style="fill: #a8a9ab"/>
+            <g>
+              <path d="M68.77,55.78H76c.76,0,1,.13,1,.53v2.85c0,.37-.24.5-.93.5q-7.3,0-14.61,0c-.66,0-.92-.14-.92-.48,0-1,0-2,0-2.93,0-.34.26-.47.92-.47Z" style="fill: #a8a9ab"/>
+              <path d="M64.33,76.53c.42.38.76.65,1,1a.89.89,0,0,1,0,1.31.92.92,0,0,1-1.32,0,5.44,5.44,0,0,1-.48-.48c-.14-.14-.26-.31-.49-.59-.32.36-.54.65-.79.91-.53.53-1.08.57-1.5.14s-.36-.94.15-1.45c.26-.26.54-.49.91-.82-.38-.35-.72-.61-1-.92a.9.9,0,0,1,0-1.36.92.92,0,0,1,1.36,0c.29.28.54.61.93,1A13.78,13.78,0,0,1,64,74.28a.91.91,0,0,1,1.36,0,.88.88,0,0,1,0,1.32C65.07,75.89,64.73,76.16,64.33,76.53Z" style="fill: #a8a9ab"/>
+              <path d="M62.13,65.88c0-.48,0-.88,0-1.29a1,1,0,1,1,1.91,0c0,.4,0,.81,0,1.3h1.14a1.15,1.15,0,0,1,1.22,1c0,.54-.42.85-1.18.85H64.12c0,.49,0,.92,0,1.34a.94.94,0,1,1-1.88,0c0-.4,0-.81,0-1.3H60.92a.94.94,0,1,1,0-1.88Z" style="fill: #a8a9ab"/>
+              <path d="M74.31,75.11c-.69,0-1.38,0-2.08,0s-1-.35-1-.94a.89.89,0,0,1,1-1q2.18,0,4.35,0a.91.91,0,0,1,1,1,.93.93,0,0,1-1,1c-.74,0-1.47,0-2.21,0Z" style="fill: #a8a9ab"/>
+              <path d="M74.28,67.76H72.14a.87.87,0,0,1-1-.9.84.84,0,0,1,.92-1c1.5,0,3,0,4.48,0a.94.94,0,0,1,1,1,.91.91,0,0,1-1,.91H74.28Z" style="fill: #a8a9ab"/>
+              <path d="M74.36,77.2c.72,0,1.44,0,2.15,0a1,1,0,0,1,1,1c0,.56-.38.93-1,.93q-2.12,0-4.23,0c-.75,0-1.09-.32-1.09-.94s.37-.94,1.09-1,1.39,0,2.08,0Z" style="fill: #a8a9ab"/>
+              <path d="M81.29,88.06H56.14a4,4,0,0,1-4-4V51.24a4,4,0,0,1,4-4H81.29a4,4,0,0,1,4,4V84.06A4,4,0,0,1,81.29,88.06ZM56.14,51.24V84.06H81.29V51.24Z" style="fill: #a8a9ab"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </symbol>
+  </defs>
+  <g>
+    <use width="106" height="106" transform="translate(-0.07 0)" xlink:href="#c"/>
+    <rect x="6.2" y="10.57" width="48.45" height="31.57" rx="1" style="fill: #393939;opacity: 0.44;isolation: isolate"/>
+    <g style="mask: url(#b)">
+      <image width="1200" height="600" transform="translate(4.8 7.94) scale(0.04 0.05)" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABLAAAALlCAYAAADUsh+xAAAACXBIWXMAAQeYAAEHmAEWNs1oAAAgAElEQVR4XuzdQcit61XY8feY2EG1QmiFqCNFMtFAUGhBB+lIk8mdFmwnHUiLVSM4bKCTBAfSQaAtBgQ7UjIq3FEoOHBQKEghEJzEYGcSURCEpAMTvw5udnLvOc86+/v23utd63me328on5p77rffZz3/d2WfV9/4hX/99JHP/8bxj/7lvzjg4s++/lfH57/4x8cffelPj+Pb/3DtxwEo9vSXX7j2I6W+/uqnrv0IE/vpp7+49iOlXv34Z679CADVfuDV8Uuf/tnjd37r08fP/cxPXPvpHr71/45v/vf/cfzNf/hvx98ff3ntp7nRP/mFXzg+8vnfOF79+fGTT+//HwhZvJ+QBTAHAYtKAhYANxOuCLzeqb4XsKIfgOMQsgC6E7CoJGAB8GLCFYGoS/1A8PMAAAAA0MIbG1gXNrEYsYkF0JMNLCrZwALg2WxeEbjWocKAdXHt/wB7ErIAehGwqCRgAXCVcEXgud3pasC6eO7/QfYiZAH0IGBRScACICRcEXhpZ3p2wLp46f8D9iBkAdQSsKgkYAHwBuGKwK1dyZe4AwAAANDaizewLm4tZqzNJhZADRtYVLKBBcD32LwicG9HujlgXdz7H4A1CVkA5xKwqCRgASBcEXlUN7o7YF086j8QaxGyAM4hYFFJwALYmHBF4NGd6GEB6+LR/wFZg5AFkEvAopKABbAh4YpAVhfyJe4AAAAAtPbwDayLrOLG3GxiAeSwgUUlG1gAG7F5RSC7A6UFrIvsfwDmJGQBPJaARSUBC2ADwhWBs7pPesC6OOsfiLkIWQCPIWBRScACWJhwReDsznNawLo4+x+QOQhZAPcRsKgkYAEsSLgiUNV1fIk7AAAAAK2dvoF1UVXs6M0mFsBtbGBRyQYWwEJsXhGo7jhlAeui+g+AnoQsgJcRsKgkYAEsQLgi0KXblAesiy5/IPQiZAE8j4BFJQELYGLCFYFunaZNwLro9gdED0IWwNsJWFQSsAAmJFwR6Npl2gWsi65/YNQSsgDGBCwqCVgAExGuCHTvMP4WQgAAAABaa7uBddG9AFLDJhbAB9nAopINLIAJ2LwiMEt3aR+wLmb5A+VcQhbAewQsKglYAI0JVwRm6yzTBKyL2f6AOYeQBexOwKKSgAXQkHBFYNauMl3Aupj1D5xcQhawKwGLSgIWQCPCFYHZO4ovcQcAAACgtWk3sC5mL4jksIkF7MYGFpVsYAE0YPOKwCrdZPqAdbHKvxAeS8gCdiFgUUnAAigkXBFYrZMsE7AuVvsXxGMIWcDqBCwqCVgABYQrAqt2keUC1sWq/8K4j5AFrErAopKABXAi4YrA6h3El7gDAAAA0NqyG1gXqxdIbmMTC1iNDSwq2cACOIHNKwK7dI/lA9bFLv9CeRkhC1iFgEUlAQsgkXBFYLfOsU3AutjtXzDPI2QBsxOwqCRgASQQrgjs2jW2C1gXu/4L5+2ELGBWAhaVBCyABxKuCOzeMXyJOwAAAACtbbuBdbF7wWTMJhYwGxtYVLKBBfAANq8I6Bbv2T5gXfiFYETIAmYhYFFJwAK4g3BFQKf4IAHrNX5BGBGygO4ELCoJWAA3EK4I6BJjAlbgRz75yeMjn//14wd/8eev/SgbEbKArgQsKglYAC8wYbh6+ua3jm9+8UvH3/z27x3fPv762o9zIx3i7QSsK5RPRoQsoBsBi0oCFsAzTBiubFydQ3d4Hn8LIQAAAACt2cB6JkWUEZtYQBc2sKhkAwvgLWxeEdAZXkbAeiG/YIwIWUA1AYtKAhbAgHBFQFe4jYB1I79wjAhZQBUBi0oCFsD7CFcEdIT7CFh38gvIiJAFnE3AopKABXAIV4R0g8fwJe4AAAAAtGYD60EUVUZsYgFnsYFFJRtYwNZsXhHQCR5LwHowv6CMCFlANgGLSgIWsCXhioAukEPASuIXlhEhC8giYFFJwAK2IlwR0AFyvfq/xz9/+vbx19d+jhv9yCc/eXzk879+/OAv/vy1H2UjQhbwaAIWlQQsYAsThqunb37r+OYXv3T8zW//3uHen8e9/xy+xB0AAACA1l49ffNbT1YJ81klZMQmFvAoNrCoZAMLWNqEm1f+K4PncM8/16unp6f3vgPLL/gp/IIzImQB9xKwqCRgAUsSrgi419f4fsC68At/Cr/wjAhZwK0ELCoJWMBShCsC7vG13gxYFz4Ap/ABYETIAl5KwKKSgAUsQbgi4N7egy9xBwAAAKC1eAPrQtE9haLLiE0s4LlsYFHJBhYwNZtXBNzTe7kesC58QE7hA8KIkAVcI2BRScACpiRcEXAv7+n5AevCB+YUPjCMCFlARMCikoAFTEW4IuAe3tvLA9aFD9ApfIAYEbKA1wlYVBKwgCkIVwTcu+dwe8C68IE6hQ8UI1/92jeOz37hy8e7737lOL5z30cZmJuARSUBC2jtQ6+Od975xPG5z3zq+PjHPnrtp3twzz6Fe/Zc/C2EAAAAALR2/wbWhUJ8CoWYEf+VQsAGFpVsYAEt+a8MEnCvntPjAtaFD9wpfOAYEbJgXwIWlQQsoBXhioB79NweH7AufABP4QPIiJAF+xGwqCRgAS0IVwTcm9eQF7AufCBP4QPJiJAF+xCwqCRgAaWEKwLuyWvxJe4AAAAAtJa/gXWhMJ9CYWbEJhaszwYWlWxgASVsXhFwL17TeQHrwgf2FD6wjAhZsC4Bi0oCFnAq4YqAe/Dazg9YFz7Ap/ABZkTIgvUIWFQSsIBTCFcE3Hv3UBewLnygT+EDzYiQBesQsKgkYAGphCsC7rl78SXuAAAAALRWv4F1oVCfQqFmxCYWzM8GFpVsYAEpbF4RcK/dU5+AdeEDfwofeEaELJiXgEUlAQt4KOGKgHvs3voFrAsPgFN4ADAiZMF8BCwqCVjAQwhXBNxbOY7OAevCA+EUHgiMCFkwDwGLSgIWcBfhioB7Ku/nS9wBAAAAaK3/BtaFwn0KhZsRm1jQnw0sKtnAAm5i84qAeykjr975tT94+txnPnV8/GMfvfazPXhgnMIDg5Gvfu0bx2e/8OXj3Xe/chzfmaN9wy4ELCoJWMCLfOjV8c47nzjcQ3mdeygjl3voq+PHfvNJ+SbiAcKIjSzoR8CikoAFPIt7JwH3TkZev3e+F7AuPFAIeKAwImRBHwIWlQQs4K3cMwm4ZzIS3TM/GLAuPGAIeMAwImRBPQGLSgIWMOReScC9kpFr90p/CyEAAAAArY03sC4UcwKKOSPXijmQxwYWlWxgAR/gHknAPZKR594j3x6wLjyACHgAMfLcBxDwOAIWlQQs4DgO90ZC7o2MvPTe+LyAdeGBRMADiZGXPpCA2wlYVBKwYHPuiQTcExm59Z74soB14QFFwAOKkVsfUMDzCVhUErBgU+6FBNwLGbn3XuhL3AEAAABo7bYNrAvFnYDizsi9xR2I2cCikg0s2Ix7IAH3QEYedQ+8L2BdeIAR8ABj5FEPMOD7BCwqCViwCfc+Au59jDz63veYgHXhgUbAA42RRz/QYGcCFpUELFicex4B9zxGsu55jw1YFx5wBDzgGMl6wMFOBCwqCViwKPc6Au51jGTf63yJOwAAAACt5WxgXSj2BBR7RrKLPazMBhaVbGDBYtzjCLjHMXLWPS43YF14ABLwAGTkrAcgrETAopKABYtwbyPg3sbI2fe2cwLWhQciAQ9ERs5+IMLMBCwqCVgwOfc0Au5pjFTd084NWBcekAQ8IBmpekDCTAQsKglYMCn3MgLuZYxU38t8iTsAAAAArdVsYF0o/gQUf0aqiz90ZgOLSjawYDLuYQTcwxjpcg+rDVgXHqAEPEAZ6fIAhU4ELCoJWDAJ9y4C7l2MdLt39QhYFx6oBDxQGen2QIVKAhaVBCxozj2LgHsWI13vWb0C1oUHLAEPWEa6PmDhTAIWlQQsaMq9ioB7FSPd71U9A9aFBy4BD1xGuj9wIZOARSUBC5pxjyLgHsXILPcofwshAAAAAK313sC68AaBgDcIjMzyBgEeyQYWlWxgQRPuTQTcmxiZ7d40R8C68EAm4IHMyGwPZLiHgEUlAQuKuScRcE9iZNZ70lwB68IDmoAHNCOzPqDhJQQsKglYUMS9iIB7ESOz34vmDFgXHtgEPLAZmf2BDW8jYFFJwIKTuQcRcA9iZJV7kC9xBwAAAKC1uTewLryBIOANBCOrvIGA97OBRSUbWHAS9x4C7j2MrHbvWSNgXXigE/BAZ2S1Bzp7E7CoJGBBMvccAu45jKx6z1krYF14wBPwgGdk1Qc8exGwqCRgQRL3GgLuNYysfq9ZM2BdeOAT8MBnZPUHPmsTsKgkYMGDuccQcI9hZJd7jC9xBwAAAKC1tTewLrzBIOANBiO7vMFgLTawqGQDCx7EvYWAewsju91b9ghYFw4EAg4ERnY7EJibgEUlAQvu5J5CwD2FkV3vKXsFrAsHBAEHBCO7HhDMRcCikoAFN3IvIeBewsju95I9A9aFA4OAA4OR3Q8MehOwqCRgwQu5hxBwD2HEPeQ9vsQdAAAAgNb23sC68AaEgDcgjHgDQkc2sKhkAwueyb2DgHsHI+4dHyRgvZ8DhYADhREHCp0IWFQSsOAK9wwC7hmMuGeMCVgjDhgCDhhGHDB0IGBRScCCgHsFAfcKRtwr3k7AehsHDgEHDiMOHCoJWFQSsOA17hEE3CMYcY94HgHrORxABBxAjDiAqCBgUUnAgu9ybyDg3sCIe8PL+FsIAQAAAGjNBtZLeKNCwBsVRrxR4Uw2sKhkA4vtuScQcE9gxD3hNgLWLRxQBBxQjDigOIOARSUBi225FxBwL2DEveA+AtY9HFgEHFiMOLDIJGBRScBiO+4BBNwDGHEPeAwB6xEcYAQcYIw4wMggYFFJwGIb5n4C5n5GzP2P5UvcAQAAAGjNBtYjeSNDwBsZRryR4ZFsYFHJBhbLM+cTMOczYs7PIWBlcMARcMAx4oDjEQQsKglYLMtcT8Bcz4i5PpeAlcmBR8CBx4gDj3sIWFQSsFiOOZ6AOZ4Rc/w5BKwzOAAJOAAZcQByCwGLSgIWyzC3EzC3M2JuP5cvcQcAAACgNRtYZ/JGh4A3Oox4o8NL2MCikg0spmdOJ2BOZ8ScXkPAquCAJOCAZMQByXMIWFQSsJiWuZyAuZwRc3ktAauSA5OAA5MRByZvI2BRScBiOuZwAuZwRszhPQhYHThACThAGXGAMiJgUUnAYhrmbgLmbkbM3b0IWJ04UAk4UBlxoPJ+AhaVBCzaM2cTMGczYs7uyd9CCAAAAEBrNrA68oaIgDdEjHhDxHHYwKKWDSzaMlcTMFczYq7uTcDqzIFLwIHLiAN3bwIWlQQs2jFHEzBHM2KOnoOANQMHMAEHMCMO4D0JWFQSsGjD3EzA3MyIuXkuAtZMHMgEHMiMOJD3ImBRScCinDmZgDmZEXPynHyJOwAAAACt2cCakTdMBLxhYsQbpj3YwKKSDSzKmIsJmIsZMRfPTcCamQObgAObEQf22gQsKglYnM4cTMAczIg5eA0C1goc4AQc4Iw4wNckYFFJwOI05l4C5l5GzL1rEbBW4kAn4EBnxIG+FgGLSgIW6cy5BMy5jJhz1+RL3AEAAABozQbWiryhIuANFSPeUK3BBhaVbGCRxlxLwFzLiLl2bQLWyhz4BBz4jDjw5yZgUUnA4uHMsQTMsYyYY/cgYO3AAEDAAMCIAWBOAhaVBCwextxKwNzKiLl1LwLWTgwEBAwEjBgI5iJgUUnA4m7mVALmVEbMqXvyJe4AAAAAtGYDa0fecBHwhosRb7jmYAOLSjawuJm5lIC5lBFz6d4ErJ0ZGAgYGBgxMPQmYFFJwOLFzKEEzKGMmEM5DgGL4zBAEDJAMGKA6EnAopKAxbOZOwmYOxkxd/J+AhbfZ6AgYKBgxEDRi4BFJQGLq8yZBMyZjJgzGRGweJMBg4ABgxEDRg8CFpUELELmSgLmSkbMlbyNv4UQAAAAgNZsYBHzxoyAN2aMeGNWywYWlWxg8QZzJAFzJCPmSJ5DwOI6AwgBAwgjBpAaAhaVBCy+x9xIwNzIiLmRlxCweD4DCQEDCSMGknMJWFQSsDAnEjEnMmJO5BYCFi9nQCFgQGHEgHIOAYtKAtbGzIUEzIWMmAu5hy9xBwAAAKA1G1jczhs3At64MeKNWy4bWFSygbUhcyABcyAj5kAeQcDifgYYAgYYRgwwOQQsKglYGzH3ETD3MWLu45EELB7HQEPAQMOIgeaxBCwqCVgbMOcRMOcxYs4jg4DF4xlwCBhwGDHgPIaARSUBa2HmOgLmOkbMdWTyJe4AAAAAtGYDizze2BHwxo4Rb+zuYwOLSjawFmSOI2COY8QcxxkELPIZgAgYgBgxAN1GwKKSgLUQcxsBcxsj5jbOJGBxHgMRAQMRIwailxGwqCRgLcCcRsCcxog5jQoCFuczIBEwIDFiQHoeAYtKAtbEzGUEzGWMmMuo5EvcAQAAAGjNBhZ1vPEj4I0fI974vZ0NLCrZwJqQOYyAOYwRcxgdCFjUM0ARMEAxYoAaE7CoJGBNxNxFwNzFiLmLTgQs+jBQETBQMWKg+iABi0oC1gTMWQTMWYyYs+hIwKIfAxYBAxYjBqz3CFhUErAaM1cRMFcxYq6iMwGLvgxcBAxcjOw+cAlYVBKwGjJHETBHMbL7HMUc/C2EAAAAALRmA4v+vEEk4A0iI7u+QbSBRSUbWI2YmwiYmxjZdW5iTgIW8zCQETCQMbLbQCZgUUnAasCcRMCcxMhucxJrELCYjwGNgAGNkV0GNAGLSgJWIXMRAXMRI7vMRaxJwGJeBjYCBjZGVh/YBCwqCVgFzEEEzEGMrD4HsQdf4g4AAABAazawmJ83kAS8gWRk1TeQNrCoZAPrROYeAuYeRlade9iTgMU6DHQEDHSMrDbQCVhUErBOYM4hYM5hZLU5B45DwGJFBjwCBjxGVhnwBCwqCViJzDUEzDWMrDLXwIiAxboMfAQMfIzMPvAJWFQSsBKYYwiYYxiZfY6B5/Al7gAAAAC0ZgOL9XmDScAbTEZmfYNpA4tKNrAeyNxCwNzCyKxzC9xCwGIfBkICBkJGZhsIBSwqCVgPYE4hYE5hZLY5BR5BwGI/BkQCBkRGZhkQBSwqCVh3MJcQMJcwMstcAhkELPZlYCRgYGSk+8AoYFFJwLqBOYSAOYSR7nMInMGXuAMAAADQmg0s8AaUgDegjHR9A2oDi0o2sF7A3EHA3MFI17kDKghYcGGgJGCgZKTbQClgUUnAegZzBgFzBiPd5gzoQMCC1xkwCRgwGekyYApYVBKw3sJcQcBcwUiXuQI6ErAgYuAkYOBkpHrgFLCoJGANmCMImCMYqZ4jYAYCFlxjACVgAGWkagAVsKgkYL2PuYGAuYGRqrkBZuRvIQQAAACgNRtY8FzeqBLwRpWRs9+o2sCikg2sw5xAyJzAyNlzAqxAwIKXMqASMKAyctaAKmBRaeuAZS4gYC5g5Ky5AFYkYMGtDKwEDKyMZA+sAhaVtgxY5gAC5gBGsucA2IGABfcywBIwwDKSNcAKWFTaKmA59wk49xnJOvdhR77EHQAAAIDWbGDBo3gjS8AbWUYe/UbWBhaVttjAcs4TcM4z8uhzHhCw4PEMuAQMuIw8asAVsKi0dMByrhNwrjPyqHMdeJOABVkMvAQMvIzcO/AKWFRaMmA5xwk4xxm59xwHrhOwIJsBmIABmJFbB2ABi0pLBSznNgHnNiO3ntvAy/kSdwAAAABas4EFZ/FGl4A3uoy89I2uDSwqLbGB5Zwm4Jxm5KXnNHA/AQvOZkAmYEBm5LkDsoBFpakDlnOZgHOZkeeey8DjCVhQxcBMwMDMyLWBWcCi0pQByzlMwDnMyLVzGMgnYEE1AzQBAzQj0QAtYFFpqoDl3CXg3GVEuII+fIk7AAAAAK3ZwIIuvBEm4I0wI6+/EbaBRaUpNrCcswScs4zYvIJ+BCzoxoBNwIDNyGXA/sPf/ZVrP1pKwFpb94D1y7/6+85V3uBcZUS4gr4ELOhKyCJg4GZGAtbaugesaThHT+EcZUS4gv4ELOhOyCJgAGcmAtbaBKw7OTdP4dxkRLiCeQhYMAshi4CBnBkIWGsTsG7knDyFc5IR4Qrm428hBAAAAKA1G1gwG5tYBLxhpjMbWGuzgfVCzsVTOBcZsXkF8xKwYFZCFgEDOx0JWGsTsJ7JOXgK5yAjwhXMT8CC2QlZBAzwdCJgrU3AusK5dwrnHiPCFaxDwIJVCFkEDPR0IGCtTcAKOOdO4ZxjRLiC9fgSdwAAAABas4EFq7GJRcAbairZwFqbDazXONdO4VxjxOYVrEvAglUJWQQM/FQQsNYmYH2Xc+wUzjFGhCtYn4AFqxOyCLgAcCYBa23bByzn1imcW4wIV7APAQt2IWQRcCHgDALW2rYNWM6pUzinGBGuYD++xB0AAACA1mxgwW5sYhHwhptMNrDWtt0GlnPpFM4lRmxewb4ELNiVkEXAhYEMAtbatglYzqFTOIcYEa4AAQt2J2QRcIHgkQSstS0fsJw7p3DuMCJcARcCFvAeIYuACwWPIGCtbdmA5Zw5hXOGEeEKeJ0vcQcAAACgNRtYwAfZxCLgDTn3sIG1tuU2sJwrp3CuMGLzCogIWMCYkEXAhYNbCFhrWyZgOUdO4RxhRLgCrnn19PQkYAEAqQSstS0TsACAtnwHFgAAAACtCVgAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYAAAAALQmYAEAAADQmoAFAAAAQGsCFgAAAACtCVgAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYAAAAALQmYAEAAADQmoAFAAAAQGsCFgAAAACtCVgAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYAAAAALQmYAEAAADQmoAFAAAAQGsCFgAAAACtCVgAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYAAAAALQmYAEAAADQmoAFAAAAQGuv/vz4yadrPwQAAAAAVWxgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYAAAAALQmYAEAAADQmoAFAAAAQGsCFgAAAACtCVgAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYAAAAALQmYAEAAADQmoAFAAAAQGsCFgAAAACtCVgAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYAAAAALQmYAEAAADQmoAFAAAAQGsCFgAAAACtCVgAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYAAAAALQmYAEAAADQmoAFAAAAQGsCFgAAAACtCVgAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYAAAAALQmYAEAAADQmoAFAAAAQGsCFgAAAACtCVgAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYAAAAALQmYAEAAADQmoAFAAAAQGsCFgAAAACtCVgAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYAAAAALQmYAEAAADQmoAFAAAAQGsCFgAAAACtCVgAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYAAAAALQmYAEAAADQmoAFAAAAQGsCFgAAAACtCVgAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYAAAAALQmYAEAAADQmoAFAAAAQGsCFgAAAACtCVgAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYAAAAALQmYAEAAADQmoAFAAAAQGsCFgAAAACtCVgAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYAAAAALQmYAEAAADQmoAFAAAAQGsCFgAAAACtCVgAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYAAAAALQmYAEAAADQmoAFAAAAQGsCFgAAAACtCVgAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC09urp6enp2g8BANzj669+6tqPMLGffvqLaz8CAHAXG1gAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYAAAAALQmYAEAAADQmoAFAAAAQGsCFgAAAACtCVgAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYAAAAALQmYAEAAADQmoAFAAAAQGsCFgAAAACtCVgAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYALEAHZYAABlpSURBVAAAALQmYAEAAADQmoAFAAAAQGsCFgAAAACtCVgAAAAAtCZgAQAAANCagAUAAABAawIWAAAAAK0JWAAAAAC0JmABAAAA0JqABQAAAEBrAhYAAAAArQlYAAAAALQmYAEAAADQmoAFAAAAQGsCFgAAAACtffjVj3/m2s8AO/qBV8cvffpnj9/5rU8fP/czP3Htp9nI3//vrxx/+5/+6/F3//OPr/0oN/rw8aPHP/3cvz1++Df+zfHqR3742o8DTMU5km/Gc+TPvv5Xx+e/+MfHH33pT4/j2/9w7ceBDb06fuw3n679ELAR4YqAC0e+GS8cz/X1Vz917UeY2E8//cW1H4E3OFfyzXiuCFlARMAC3iNcEXDByDfjBeOlBKy1CVjcwzmTb8ZzRsgCXuc7sAAAAABozQYW7M7mFQFvxPPN+Eb8Vjaw1mYDi0dw7uSb8dyxiQVcCFiwK+GKgAtEvhkvEPcSsNYmYPFIzqF8M55DQhYgYMFuhCsCLgz5ZrwwPIqAtTYBiwzOpXwznktCFuxLwIJdCFcEXBDyzXhBeDQBa20CFpmcU/lmPKeELNiPL3EHAAAAoDUbWLA6m1cEvNHON+Mb7Sw2sNZmA4szOLfyzXhu2cSCfQhYsCrhioALQL4ZLwDZBKy1CVicyTmWb8ZzTMiC9QlYsBrhioCBP9+MA/9ZBKy1CVhUcK7lm/FcE7JgXQIWrEK4ImDAzzfjgH82AWttAhaVnHP5ZjznhCxYjy9xBwAAAKA1G1gwO5tXBLyRzjfjG+kqNrDWZgOLDpx7+WY892xiwToELJiVcEXAAJ9vxgG+moC1NgGLTpyD+WY8B4UsmJ+ABbMRrggY2PPNOLB3IWCtTcCiI+divhnPRSEL5iVgwSyEKwIG9HwzDujdCFhrE7DozDmZb8ZzUsiC+fgSdwAAAABas4EF3dm8IuCNcr4Z3yh3ZQNrbTawmIFzM9+M56ZNLJiHgAVdCVcEDOD5ZhzAuxOw1iZgMRPnaL4Zz1EhC/oTsKAb4YqAgTvfzAP3H/7ur1z70VIC1tq6B6xf/tXfd67yBudqvpnPVSEL+hGwoAvhioABO98KA/bTX37h2v9KKQFrbd0D1qsf/4xzlpBzNt8K5yxQT8CCagZqAgbqfCsN1AIWlaYIWBfOXQLO3XwrnbvA+fwthAAAAAC0ZgMLqngDTMAb4HwrvgG2gUWlqTawLpzDBJzD+VY8h4F8AhaczcBMwMCcb+WBWcCi0pQB68K5TMC5nG/lcxl4PAELzmJAJmBAzrfDgCxgUWnqgHXhnCbgnM63wzkN3E/AgmwGYgIG4nw7DcQCFpWWCFgXzm0Czu18O53bwMv5EncAAAAAWrOBBVm8wSXgDW6+Hd/g2sCi0lIbWBfOcQLO8Xw7nuPAdQIWPJqBl4CBN9/OA6+ARaUlA9aFc52Acz3fzuc68CYBCx7FgEvAgJvPgCtgUWvpgHXhnCfgnM/nnAeOQ8CC+xloCRho8xlov0/AotIWAevCuU/AuZ/PuQ978yXuAAAAALRmAwtu5Q0sAW9g83kD+yYbWFTaagPrwhxAwByQzxwAexKw4KUMrAQMrPkMrDEBi0pbBqwLcwEBc0E+cwHsRcCC5zKgEjCg5jOgXidgUWnrgHVhTiBgTshnToA9CFhwjYGUgIE0n4H0+QQsKglY72NuIGBuyGdugLX5EncAAAAAWrOBBRFvUAl4g5rPG9SXs4FFJRtYA+YIAuaIfOYIWJOABa8zcBIwcOYzcN5OwKKSgPUW5goC5op85gpYi4AFFwZMAgbMfAbM+wlYVBKwnsGcQcCckc+cAWsQsMBAScBAmc9A+TgCFpUErBcwdxAwd+Qzd8DcBCz2ZYAkYIDMZ4B8PAGLSgLWDcwhBMwh+cwhMCd/CyEAAAAArdnAYj/eeBLwxjOfN555bGBRyQbWHcwlBMwl+cwlMBcBi30YEAkYEPMZEPMJWFQSsB7AnELAnJLPnAJzELBYn4GQgIEwn4HwPAIWlQSsBzK3EDC35DO3QG8CFusyABIwAOYzAJ5PwKKSgJXAHEPAHJPPHAM9+RJ3AAAAAFqzgcV6vLEk4I1lPm8s69jAopINrETmGgLmmnzmGuhFwGIdBjwCBrx8Brx6AhaVBKwTmHMImHPymXOgBwGL+RnoCBjo8hno+hCwqCRgncjcQ8Dck8/cA7UELOZlgCNggMtngOtHwKKSgFXAHETAHJTPHAQ1fIk7AAAAAK3ZwGI+3jgS8MYxnzeOfdnAopINrELmIgLmonzmIjiXgMU8DGgEDGj5DGj9CVhUErAaMCcRMCflMyfBOQQs+jOQETCQ5TOQzUPAopKA1Yi5iYC5KZ+5CXIJWPRlACNgAMtnAJuPgEUlAashcxQBc1Q+cxTk8CXuAAAAALRmA4t+vDEk4I1hPm8M52UDi0o2sBozVxEwV+UzV8FjCVj0YcAiYMDKZ8Can4BFJQFrAuYsAuasfOYseAwBi3oGKgIGqnwGqnUIWFQSsCZi7iJg7spn7oL7CFjUMUARMEDlM0CtR8CikoA1IXMYAXNYPnMY3EbA4nwGJgIGpnwGpnUJWFQSsCZmLiNgLstnLoOX8bcQAgAAANCaDSzO4w0fAW/48nnDtz4bWFSygbUAcxoBc1o+cxo8j4BFPgMRAQNRPgPRPgQsKglYCzG3ETC35TO3wdsJWOQxABEwAOUzAO1HwKKSgLUgcxwBc1w+cxyMCVg8noGHgIEnn4FnXwIWlQSshZnrCJjr8pnr4IN8iTsAAAAArdnA4nG8oSPgDV0+b+iwgUUlG1gbMOcRMOflM+fBewQs7megIWCgyWeg4ULAopKAtRFzHwFzXz5zH7sTsLidAYaAASafAYbXCVhUErA2ZA4kYA7MZw5kVwIWL2dgIWBgyWdgISJgUUnA2pi5kIC5MJ+5kN34EncAAAAAWrOBxfN5w0bAG7Z83rBxjQ0sKtnAwpxIxJyYz5zILgQsrjOQEDCQ5DOQ8FwCFpUELL7H3EjA3JjP3MjqBCxiBhACBpB8BhBeSsCikoDFG8yRBMyR+cyRrErA4k0GDgIGjnwGDm4lYFFJwCJkriRgrsxnrmQ1vsQdAAAAgNZsYPF93pAR8IYsnzdk3MsGFpVsYHGVOZOAOTOfOZNVCFgYKAgZKPIZKHgUAYtKAhbPZu4kYO7MZ+5kdgLWzgwQBAwQ+QwQPJqARSUBixczhxIwh+YzhzIrAWtHBgYCBoZ8BgayCFhUErC4mbmUgLk0n7mU2QhYOzEgEDAg5DMgkE3AopKAxd3MqQTMqfnMqczC30IIAAAAQGs2sHbgjRYBb7TyeaPFWWxgUckGFg9jbiVgbs1nbqU7AWtlBgACBoB8BgDOJmBRScDi4cyxBMyx+cyxdCVgrciBT8CBn8+BTxUBi0oCFmnMtQTMtfnMtXQjYK3EAU/AAZ/PAU81AYtKAhbpzLkEzLn5zLl04UvcAQAAAGjNBtYKvJEi4I1UPm+k6MIGFpVsYHEacy8Bc28+cy/VBKyZOcAJOMDzOcDpRsCikoDF6czBBMzB+czBVBGwZuTAJuDAzufApisBi0oCFmXMxQTMxfnMxZxNwJqJA5qAAzqfA5ruBCwqCViUMycTMCfnMydzFl/iDgAAAEBrNrBm4I0SAW+U8nmjxCxsYFHJBhZtmJsJmJvzmZvJJmB15gAm4ADO5wBmNgIWlQQs2jFHEzBH5zNHk0XA6siBS8CBm8+By6wELCoJWLRlriZgrs5nrubRBKxOHLAEHLD5HLDMTsCikoBFe+ZsAubsfOZsHsWXuAMAAADQmg2sDrwRIuCNUD5vhFiFDSwq2cBiGuZuAubufOZu7iVgVXKAEnCA5nOAshoBi0oCFtMxhxMwh+czh3MrAauCA5OAAzOfA5NVCVhUErCYlrmcgLk8n7mclxKwzuSAJOCAzOeAZHUCFpUELKZnTidgTs9nTue5BKwzOBAJOBDzORDZhYBFJQGLZZjbCZjb85nbucbfQggAAABAazawMnmDQ8AbnHze4LAbG1hUsoHFcszxBMzx+czxRASsDA48Ag68fA48diVgUUnAYlnmegLm+nzmel4nYD2SA46AAy6fA47dCVhUErBYnjmfgDk/nzmfCwHrERxoBBxo+Rxo8B4Bi0oCFtsw9xMw9+cz9+NL3AEAAABozQbWPbyBIeANTD5vYOCDbGBRyQYW23EPIOAekM89YF8C1i0cWAQcWPkcWDAmYFFJwGJb7gUE3AvyuRfsR8B6CQcUAQdUPgcUvJ2ARSUBi+25JxBwT8jnnrAPAes5HEgEHEj5HEjwPAIWlQQs+C73BgLuDfncG9bnS9wBAAAAaM0G1tt4g0LAG5R83qDAy9jAopINLHiNewQB94h87hHrErBGHDgEHDj5HDhwGwGLSgIWBNwrCLhX5HOvWI+A9X4OGAIOmHwOGLiPgEUlAQuucM8g4J6Rzz1jHQLWcThQCDlQ8jlQ4DEELCoJWPBM7h0E3DvyuXfMz5e4AwAAANDa3htY3oAQ8AYknzcg8Fg2sKhkAwteyD2EgHtIPveQee0ZsBwYBBwY+RwYkEPAopKABTdyLyHgXpLPvWQ+ewUsBwQBB0Q+BwTkErCoJGDBndxTCLin5HNPmcceAcuBQMCBkM+BAOcQsKgkYMGDuLcQcG/J597S39oBywFAwAGQzwEA5xKwqCRgwYO5xxBwj8nnHtOXv4UQAAAAgNbW3MDyxoKANxb5vLGAGjawqGQDC5K41xBwr8nnXtPPWgHLA56AB3w+D3ioJWBRScCCZO45BNxz8rnn9LFGwPJAJ+CBns8DHXoQsKgkYMFJ3HsIuPfkc++pN3fA8gAn4AGezwMcehGwqCRgwcncgwi4B+VzD6rjS9wBAAAAaG3ODSxvHAh445DPGwfoyQYWlWxgQRH3IgLuRfnci843V8DygCbgAZ3PAxp6E7CoJGBBMfckAu5J+dyTzjNHwPJAJuCBnM8DGeYgYFFJwIIm3JsIuDflc2/K1ztgeQAT8ADO5wEMcxGwqCRgQTPuUQTco/K5R+XxJe4AAAAAtNZzA8sbAwLeGOTzxgDmZAOLSjawoCn3KgLuVfncqx6vV8DygCXgAZvPAxbmJmBRScCC5tyzCLhn5XPPepweAcsDlYAHaj4PVFiDgEUlAQsm4d5FwL0rn3vX/WoDlgcoAQ/QfB6gsBYBi0oCFkzGPYyAe1g+97Db+RJ3AAAAAFqr2cBS/Ako/vkUf1iTDSwq2cCCSbmXEXAvy+de9nLnBiwPSAIekPk8IGFtAhaVBCyYnHsaAfe0fO5pz3dOwPJAJOCBmM8DEfYgYFFJwIJFuLcRcG/L5952XW7A8gAk4AGYzwMQ9iJgUUnAgsW4xxFwj8vnHhfLCVgeeAQ88PJ54MGeBCwqCViwKPc6Au51+dzr3uRvIQQAAACgtcduYCn0BBT6fAo97M0GFpVsYMHi3PMIuOflc8/7vscELA80Ah5o+TzQgOMQsKglYMEm3PsIuPflc++7N2B5gBHwAMvnAQa8n4BFJQELNuMeSMA9MN/O98DbApYHFgEPrHw7P7CAmIBFJQELNuVeSMC9MN+O90Jf4g4AAABAay/bwFLYCSjs+XYs7MDz2cCikg0s2Jx7IgH3xHw73ROfF7A8kAh4IOXb6YEE3E7AopKABRzH4d5IyL0x3w73xrcHLA8gAh5A+XZ4AAGPI2BRScACPsA9koB7ZL6V75HjgOWBQ8ADJ9/KDxwgj4BFJQELGHKvJOBemW/Fe6UvcQcAAACgtQ9uYCnkBBTyfCsWcuA8NrCoZAMLeCv3TALumflWume+F7A8UAh4oORb6YEC1BGwqCRgAc/i3knAvTPfCvfOV+/82h88fe4znzo+/rGPXvvfZSMeIPlmfIB89WvfOD77hS8f7777leP4zvW/wBQ4j4BFJQELeJEPvTreeecTh3sor3MPzTfzPfTV09OTWyjf44GRb8YHho0r6E/AopKABdzERhYB99J8M95LBSyO4/CAOMOMDwjhCuYhYFFJwALuImQRcE/NN9M91d9CCAAAAEBrNrA2p2jnm6loX9i8gvnYwKKSDSzgIWxiEXBvzTfDvVXA2pQHQL4ZHgCvE65gXgIWlQQs4KGELALusfk632MFrM34wOfr/IGPCFcwPwGLSgIWkELIIuBem6/jvVbA2oQPeL6OH/BrhCtYh4BFJQELSCVkEXDPzdfpnutL3AEAAABozQbW4hTpfJ2K9HPZvIL12MCikg0s4BQ2sQi49+brcO8VsBblA5yvwwf4pYQrWJeARSUBCziVkEXAPThf5T1YwFqMD2y+yg/srYQrWJ+ARSUBCyghZBFwL85XcS8WsBbhA5qv4gN6L+EK9iFgUUnAAkoJWQTck/OdeU/2Je4AAAAAtGYDa3KKcr4zi/Kj2LyC/djAopINLKAFm1gE3JvznXFvFrAm5QOY74wP4KMJV7AvAYtKAhbQipBFwD06X+Y9WsCajA9cvswPXBbhChCwqCRgAS0JWQTcq/Nl3KsFrEn4gOXL+IBl++rXvnF89gtfPt599yvH8R0fZdiZgEUlAQto7UOvjnfe+cTxuc986vj4xz567afZiHt2vkfes32JOwAAAACt2cBqThHO98gifBb/lUHgdTawqGQDC5iC/0ohAffufI+4dwtYTfkA5XvEB+hswhUQEbCoJGABUxGyCLiH57vnHi5gNeMDk++eD0wV4Qq4RsCikoAFTEnIIuBenu+We7mA1YQPSL5bPiDVhCvguQQsKglYwNSELALu6fleck8XsIr5QOR7yQeiC+EKeCkBi0oCFrAEIYuAe3u+59zb/S2EAAAAALRmA6uIgpvvOQW3G5tXwK1sYFHJBhawFJtYBNzj873tHi9gncwvfD7hCtiRgEUlAQtYkpBFwL0+3+heL2CdxC94PuEK2JmARSUBC1iakEXAPT/fB+75Alauv/9f/+f42//4X46/+5M/ufaj3OjDx48e/+w///vjh/7dvzpe/dA/vvbjLQhXwKMJWFQSsIAtCFkE3Pvzffj4UV/iDgAAAEBvNrCSWCXM578yCPB9NrCoZAML2IpNLAI6QC4B68H8wuYTrgDeJGBRScACtiRkEdAFcghYD+IXNJ9wBRATsKgkYAFbE7II6ASPJWDdyS9kPuEK4DoBi0oCFsAhZBHSDR7Dl7gDAAAA0JoNrBspqPlsXgE8nw0sKtnAAngfm1gEdIT7CFgv5Bcun3AF8HICFpUELIABIYuArnAbAeuZ/ILlE64AbidgUUnAAngLIYuAzvAyAtYVfqHyCVcA9xOwqCRgATyDkEVAd3geX+IOAAAAQGs2sAIKaD6bVwCPYwOLSjawAF7AJhYBHeLtBKzX+IXJJ1wBPJ6ARSUBC+AGQhYBXWJMwPouvyD5hCuAPAIWlQQsgDsIWQR0ig/aPmD5hcgnXAHkE7CoJGABPICQRUC3eM+2AcsvQD7hCuA8AhaVBCyABxKyCOzeMfwthAAAAAC0tt0G1u7F8gw2rwDOZwOLSjawABLYxCKwa9fYJmDt+i/4TMIVQB0Bi0oCFkAiIYvAbp1j+YC127/QCsIVQD0Bi0oCFsAJhCwCu3SPZQPWLv8CKwlXAH0IWFQSsABOJGQRWL2D+BJ3AAAAAFpbbgNr9eLYgc0rgH5sYFHJBhZAAZtYBFbtIssErFX/BXUiXAH0JWBRScACKCRkEVitk0wfsFb7F9KRcAXQn4BFJQELoAEhi8Aq3WTagLXKv4DOhCuAeQhYVBKwABoRsgjM3lF8iTsAAAAArU23gTV7MZyBzSuA+djAopINLICGbGIRmLWrTBOwZv0DnolwBTAvAYtKAhZAY0IWgdk6S/uANdsf6IyEK4D5CVhUErAAJiBkEZilu7QNWLP8Ac5MuAJYh4BFJQELYCJCFoHuHcaXuAMAAADQWrsNrO7FbwU2rwDWYwOLSjawACZkE4tA1y7TJmB1/QNaiXAFsC4Bi0oCFsDEhCwC3TpNecDq9geyIuEKYH0CFpUELIAFCFkEunSbsoDV5Q9gZcIVwD4ELCoJWAALEbIIVHec0wNW9T/wDoQrgP0IWFQSsAAWJGQRqOo6/hZCAAAAAFo7bQOrqtDtxOYVwL5sYFHJBhbAwmxiETi786QHrLP/gXYkXAEgYFFJwALYgJBF4KzukxawzvoH2JlwBcCFgEUlAQtgI0IWgewO9PCAlf0fGOEKgDcJWFQSsAA2JGQRyOpCvsQdAAAAgNYetoGVVdj4PptXAERsYPH/27l7mwaCKIyiY4kIp1AbJUAPrsGZG7IEGdRiiRAHduaA1dP8WrOIc+Kd3YmvPu1MFlgA/5glFoHRnag7YI2+EEvCFQA5AhYzCVgACFlERnWj5oA16gLEhCsASglYzCRgAXAjZBHo7UjVAav3g+QJVwDUErCYScACYEHIItDalfzEHQAAAIBVK15gtRYyylleAdDKAouZLLAACFliEajtTNmAVftC6glXAPQSsJhJwAIgS8giUNqdwoBV+gLaCVcAjCJgMZOABUAxIYtArkMtAlbuAP2EKwBGE7CYScACoJqQRSDqUn7iDgAAAMCq3RZYllf3Z3kFwL1YYDGTBRYAzSyxCPzuVJuf98/LaXdI38dj5iitHtJzetq/pe3rS9psH3OPr4JwBfC3CFjMJGAB0E3IInD++Eqn3SFdAZvLXsOOqn2UAAAAAElFTkSuQmCC"/>
+    </g>
+  </g>
+</svg>
+
+```
+

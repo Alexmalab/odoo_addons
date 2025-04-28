@@ -1,0 +1,2614 @@
+# Odoo Module: l10n_co
+
+Category: Accounting/Localizations/Account Charts
+
+This file contains the source code of the Odoo module.
+
+## File: __init__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+# Copyright (C) David Arnold (devCO).
+# Author        David Arnold (devCO), dar@devco.co
+# Co-Authors    Juan Pablo Aries (devCO), jpa@devco.co
+#               Hector Ivan Valencia Muñoz (TIX SAS)
+#               Nhomar Hernandez (Vauxoo)
+#               Humberto Ochoa (Vauxoo)
+
+from . import models
+
+```
+
+## File: __manifest__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+# Copyright (C) David Arnold (XOE Solutions).
+# Author        David Arnold (XOE Solutions), dar@xoe.solutions
+# Co-Authors    Juan Pablo Aries (devCO), jpa@devco.co
+#               Hector Ivan Valencia Muñoz (TIX SAS)
+#               Nhomar Hernandez (Vauxoo)
+#               Humberto Ochoa (Vauxoo)
+
+{
+    'name': 'Colombia - Accounting',
+    'version': '0.9',
+    'category': 'Accounting/Localizations/Account Charts',
+    'description': 'Colombian Accounting and Tax Preconfiguration',
+    'author': 'David Arnold (XOE Solutions)',
+    'website': 'https://www.odoo.com/colombia',
+    'depends': [
+        'account',
+        'base_address_city',
+        'account_debit_note',
+        'l10n_latam_base',
+    ],
+    'data': [
+        'data/l10n_co_chart_data.xml',
+        'data/account.account.template.csv',
+        'data/account_chart_template_data.xml',
+        'data/account.tax.group.csv',
+        'data/account_tax_template.xml',
+        'data/account_chart_template_configure_data.xml',
+        'data/l10n_latam.identification.type.csv',
+    ],
+    'demo': [
+        'demo/demo_company.xml',
+    ],
+    'license': 'LGPL-3',
+}
+
+```
+
+## File: data\account.account.template.csv
+
+```csv
+id,code,name,reconcile,user_type_id:id,chart_template_id:id
+co_puc_110505,110505,Caja General,FALSE,account.data_account_type_liquidity,l10n_co_chart_template_generic
+co_puc_120535,120535,Comercio al Por Mayor y al Por Menor,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_129595,129595,Diversas,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_130505,130505,Nacionales,TRUE,account.data_account_type_receivable,l10n_co_chart_template_generic
+co_puc_130507,130507,Nacionales,TRUE,account.data_account_type_receivable,l10n_co_chart_template_generic
+co_puc_130510,130510,Del Exterior,TRUE,account.data_account_type_receivable,l10n_co_chart_template_generic
+co_puc_131010,131010,Compañías Vinculadas,TRUE,account.data_account_type_receivable,l10n_co_chart_template_generic
+co_puc_132510,132510,a Accionistas,TRUE,account.data_account_type_receivable,l10n_co_chart_template_generic
+co_puc_133005,133005,a Proveedores,TRUE,account.data_account_type_receivable,l10n_co_chart_template_generic
+co_puc_133010,133010,a Contratistas,TRUE,account.data_account_type_receivable,l10n_co_chart_template_generic
+co_puc_133015,133015,a Trabajadores,TRUE,account.data_account_type_receivable,l10n_co_chart_template_generic
+co_puc_133505,133505,Para Importaciones,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_135505,135505,Anticipo de Impuestos de Renta y Complementarios,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_135510,135510,Anticipo de Impuestos de Industria y Comercio,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_135515,135515,Retención en la Fuente,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_135517,135517,Impuesto a Las Ventas Retenido,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_135518,135518,Impuesto de Industria y Comercio Retenido,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_135520,135520,Sobrantes en Liquidación Privada de Impuestos,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_136005,136005,a Compañías Aseguradoras,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_136010,136010,a Transportadores,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_136015,136015,Por Tiquetes Aéreos,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_136515,136515,Educación,TRUE,account.data_account_type_receivable,l10n_co_chart_template_generic
+co_puc_136525,136525,Calamidad Doméstica,TRUE,account.data_account_type_receivable,l10n_co_chart_template_generic
+co_puc_138095,138095,Otros,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_139005,139005,Deudas de Difícil Cobro,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_139905,139905,Clientes,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_143005,143005,Productos Manufacturados,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_149905,149905,Para Obsolescencia,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_150405,150405,Urbanos,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_151605,151605,Edificios,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_152099,152099,Ajustes Por Inflación,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_152405,152405,Muebles y Enseres,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_152499,152499,Ajustes Por Inflación,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_152805,152805,Equipos de Procesamiento de Datos,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_152899,152899,Ajustes Por Inflación,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_154005,154005,"Autos, Camionetas y Camperos",false,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_154008,154008,"Camiones, Volquetas y Furgones",false,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_154020,154020,Montacargas,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_154040,154040,Estibas y Carretas,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_154099,154099,Ajustes Por Inflación,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_159205,159205,Construcciones y Edificaciones,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_159210,159210,Maquinaria y Equipo,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_159215,159215,Equipo de Oficina,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_159220,159220,Equipo de Computación y Comunicación,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_159235,159235,Flota y Equipo de Transporte,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_170520,170520,Seguros y Fianzas,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_189510,189510,Bienes Entregados en Comodato,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_189515,189515,Amortización Acumulada de Bienes Entregados en Comodato (cr),FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_190505,190505,Acciones,FALSE,account.data_account_type_current_assets,l10n_co_chart_template_generic
+co_puc_220505,220505,Nacionales,TRUE,account.data_account_type_payable,l10n_co_chart_template_generic
+co_puc_221005,221005,Del Exterior,TRUE,account.data_account_type_payable,l10n_co_chart_template_generic
+co_puc_231505,231505,a Compañías Vinculadas,TRUE,account.data_account_type_payable,l10n_co_chart_template_generic
+co_puc_233550,233550,Servicios Públicos,TRUE,account.data_account_type_payable,l10n_co_chart_template_generic
+co_puc_233560,233560,Gastos de Viaje,TRUE,account.data_account_type_payable,l10n_co_chart_template_generic
+co_puc_233570,233570,Servicios Aduaneros,TRUE,account.data_account_type_payable,l10n_co_chart_template_generic
+co_puc_233595,233595,Otros,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_235510,235510,Socios,TRUE,account.data_account_type_payable,l10n_co_chart_template_generic
+co_puc_236005,236005,Dividendos,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_236505,236505,Salarios y Pagos Laborales,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_236510,236510,Dividendos y/o Participaciones,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23651505,23651505,Retencion en la fuente por honorarios persona natural 10%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23651510,23651510,Retencion en la fuente por honorarios persona Juridica 11%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23651515,23651515,Retencion en la fuente por servicios de licencias software 3.5%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23651520,23651520,Retencion en la fuente por servicios de diseño web y consultorí informática 3.5%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23652005,23652005,Retencion en la fuente por comisiones persona natural 10%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23652010,23652010,Retencion en la fuente por comisiones persona juridica 11%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23652505,23652505,Retencion en la fuente por servicios en general 4%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23652510,23652510,Retencion en la fuente por servicios en general personas naturales no declarantes Renta 6%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23652515,23652515,Retencion en la fuente por servicio transporte nacional carga 1%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23652520,23652520,Retencion en la fuente por servicio transporte terrestre nacional pasajeros 3.5%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23652525,23652525,Retencion en la fuente por servicio transporte aereo y maritimo nacional pasajeros 1%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23652530,23652530,Retencion en la fuente por servicio temporales de empleo (sobre AIU) 1%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23652535,23652535,Retencion en la fuente por servicio de vigilancia y aseo (sobre AIU) 2%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23652540,23652540,Retencion en la fuente por servicio integrales de salud 2%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23652545,23652545,Retencion en la fuente por servicio de hoteles y restaurantes 3.5%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23652550,23652550,Retencion en la fuente por contratos de obra inmuebles 2%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23653005,23653005,Retencion en la fuente por arrendamientos Bienes Muebles 4%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23653010,23653010,Retencion en la fuente por arrendamientos Bienes Inmuebles 3.5%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23653510,23653510,Retencion en la fuente por rendimientos financieros generales 7%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23654005,23654005,Retencion en la fuente por compras declarantes 2.5%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23654010,23654010,Retencion en la fuente por compras no declarantes 3.5%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23654015,23654015,Retencion en la fuente por compras bienes agricolas 1.5%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23654020,23654020,Retencion en la fuente por compra cafe 0.5%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23654025,23654025,Retencion en la fuente por compra combustibles 0.1%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23654030,23654030,Retencion en la fuente por adquisicion de vehiculos 1%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23654035,23654035,Retencion en la fuente por adquisicion de bienes raices comerciales 2.5%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23654040,23654040,Retencion en la fuente por ventas de activos fijos 1%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_23655005,23655005,Retencion en la fuente por consultorias servicios tecnicos y asistencia tecnica pagos al exterior 10%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_236575,236575,Autorretenciones,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_236705,236705,Impuesto a Las Ventas Retenido,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_236805,236805,Impuesto de Industria y Comercio Retenido,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_237005,237005,"Aportes a Entidades Promotoras de Salud, Eps",false,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_237006,237006,"Aportes a Administradoras de Riesgos Profesionales, Arp",false,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_237010,237010,"Aportes al Icbf, Sena y Cajas de Compensación",false,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_237025,237025,Embargos Judiciales,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_237030,237030,Libranzas,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_237035,237035,Sindicatos,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_238030,238030,Fondos de Cesantías y/o Pensiones,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_238095,238095,Otros,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_240405,240405,Vigencia Fiscal Corriente,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_2408050505,2408050505,Ventas Iva 19%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_2408050510,2408050510,Ventas Iva 5%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_2408051005,2408051005,Venta Anulada Iva 19%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_2408051010,2408051010,Venta Anulada Iva 5%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_2408100505,2408100505,Descontable Iva 19%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_2408100510,2408100510,Descontable Iva 5%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_2408100515,2408100515,Descontable Iva 16%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_2408101005,2408101005,Compra Anulada Iva 19%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_2408101010,2408101010,Compra Anulada Iva 5%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_2408101015,2408101015,Compra Anulada Iva 16%,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_240820,240820,Iva Descontable a Regimen Simplificado (Commun/Proporcional) - Solo Esta la DIAN lo Interpreta Utilizable,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_24082005,24082005,Iva retenido a regimen simplificado,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_241205,241205,Vigencia Fiscal Corriente,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_245605,245605,a Las Importaciones,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_249505,249505,Otros,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_249515,249515,IBUA,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_249525,249525,ICUI,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_250505,250505,Salarios Por Pagar,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_251010,251010,Ley 50 de 1990 y Normas Posteriores,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_251505,251505,Intereses Sobre Cesantías,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_252005,252005,Prima de Servicios,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_252505,252505,Vacaciones Consolidadas,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_261005,261005,Cesantías,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_261010,261010,Intereses Sobre Cesantías,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_261015,261015,Vacaciones,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_261020,261020,Prima de Servicios,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_261505,261505,de Renta y Complementarios,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_261510,261510,de Industria y Comercio,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_280505,280505,de Clientes,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_280510,280510,Sobre Contratos,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_280595,280595,Otros,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_310505,310505,Capital Autorizado,FALSE,account.data_account_type_equity,l10n_co_chart_template_generic
+co_puc_310510,310510,Capital Por Suscribir (db),FALSE,account.data_account_type_equity,l10n_co_chart_template_generic
+co_puc_320505,320505,Prima en Colocación de Acciones,FALSE,account.data_account_type_equity,l10n_co_chart_template_generic
+co_puc_330505,330505,Reserva Legal,FALSE,account.data_account_type_equity,l10n_co_chart_template_generic
+co_puc_340505,340505,de Capital Social,FALSE,account.data_account_type_equity,l10n_co_chart_template_generic
+co_puc_340515,340515,de Reservas,FALSE,account.data_account_type_equity,l10n_co_chart_template_generic
+co_puc_340520,340520,de Resultados de Ejercicios Anteriores,FALSE,account.data_account_type_equity,l10n_co_chart_template_generic
+co_puc_360505,360505,Utilidad Del Ejercicio,FALSE,account.data_account_type_equity,l10n_co_chart_template_generic
+co_puc_370505,370505,Utilidades Acumuladas,FALSE,account.data_account_type_equity,l10n_co_chart_template_generic
+co_puc_413502,413502,Venta de vehículos automotores,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413504,413504,"Mantenimiento, reparación y lavado de vehículos automotores",FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413506,413506,"Venta de partes, piezas y accesorios de vehículos automotores",FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413508,413508,"Venta de combustibles sólidos, líquidos, gaseosos",FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413510,413510,"Venta de lubricantes, aditivos, llantas y lujos para automotores",FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413512,413512,Venta a cambio de retribución o por contrata,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413514,413514,"Venta de insumos, materias primas agropecuarias y flores",FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413516,413516,Venta de otros insumos y materias primas no agropecuarias,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413518,413518,Venta de animales vivos y cueros,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413520,413520,Venta de productos en almacenes no especializados,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413522,413522,Venta de productos agropecuarios,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413524,413524,"Venta de productos textiles, de vestir, de cuero y calzado",FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413526,413526,Venta de papel y cartón,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413528,413528,"Venta de libros, revistas, elementos de papelería, útiles y textos escolares",FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413530,413530,"Venta de juegos, juguetes y artículos deportivos",FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413532,413532,Venta de instrumentos quirúrgicos y ortopédicos,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413534,413534,Venta de artículos en relojerías y joyerías,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413536,413536,Venta de electrodomésticos y muebles,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413538,413538,"Venta de productos de aseo, farmacéuticos, medicinales, y artículos de tocador",FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413540,413540,"Venta de cubiertos, vajillas, cristalería, porcelanas, cerámicas y otros artículos de uso doméstico",FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413542,413542,"Venta de materiales de construcción, fontanería y calefacción",FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413544,413544,Venta de pinturas y lacas,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413546,413546,Venta de productos de vidrios y marquetería,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413548,413548,Venta de herramientas y artículos de ferretría,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413550,413550,Venta de químicos,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413552,413552,"Venta de productos intermedios, desperdicios y desechos",FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413554,413554,"Venta de maquinaria, equipo de oficina y programas de computador",FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413556,413556,Venta de artículos en cacharrerías y misceláneas,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413558,413558,Venta de instrumentos musicales,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413560,413560,Venta de artículos en casas de empeño y prenderías,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413562,413562,Venta de equipo fotográfico,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413564,413564,Venta de equipo óptico y de precisión,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413566,413566,Venta de empaques,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413568,413568,Venta de equipo profesional y científico,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413570,413570,"Venta de loterías, rifas, chance, apuestas y similares",FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413572,413572,Reparación de efectos personales y electrodomésticos,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_413595,413595,Venta de Otros Productos,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_415505,415505,Arrendamientos de Bienes Inmuebles,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_421005,421005,Intereses,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_421020,421020,Diferencia en Cambio,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_421040,421040,Descuentos Comerciales Condicionados,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_423005,423005,Asesorías,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_423010,423010,Asistencia Técnica,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_423015,423015,Administración de Vinculadas,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_423580,423580,Fletes,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_425050,425050,Reintegro de Otros Costos y Gastos,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_425505,425505,Por Siniestro,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_429595,429595,Otros,FALSE,account.data_account_type_revenue,l10n_co_chart_template_generic
+co_puc_510503,510503,Salario Integral,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510506,510506,Sueldos,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510515,510515,Horas Extras y Recargos,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510518,510518,Comisiones,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510521,510521,Viáticos,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510524,510524,Incapacidades,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510527,510527,Auxilio de Transporte,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510530,510530,Cesantías,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510533,510533,Intereses Sobre Cesantías,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510536,510536,Prima de Servicios,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510539,510539,Vacaciones,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510548,510548,Bonificaciones,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510551,510551,Dotación y Suministro a Trabajadores,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510560,510560,Indemnizaciones Laborales,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510563,510563,Capacitación al Personal,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510568,510568,"Aportes a Administradoras de Riesgos Profesionales, Arp",false,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510569,510569,"Aportes a Entidades Promotoras de Salud, Eps",false,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510570,510570,Aportes a Fondos de Pensiones y/o Cesantías,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510572,510572,Aportes Cajas de Compensación Familiar,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510575,510575,Aportes Icbf,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510578,510578,Sena,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510584,510584,Gastos Médicos y Drogas,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_510595,510595,Otros,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_511010,511010,Revisoría Fiscal,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_511025,511025,Asesoría Jurídica,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_511035,511035,Asesoría Técnica,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_511515,511515,a la Propiedad Raíz,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_511525,511525,de Valorización,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_511540,511540,de Vehículos,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_511570,511570,Iva Descontable,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_511595,511595,Otros,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_512010,512010,Construcciones y Edificaciones,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_512020,512020,Equipo de Oficina,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_512025,512025,Equipo de Computación y Comunicación,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_512040,512040,Flota y Equipo de Transporte,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_512505,512505,Contribuciones,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_512510,512510,Afiliaciones y Sostenimiento,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_513010,513010,Cumplimiento,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_513025,513025,Incendio,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_513030,513030,Terremoto,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_513035,513035,Sustracción y Hurto,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_513040,513040,Flota y Equipo de Transporte,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_513060,513060,Responsabilidad Civil y Extracontractual,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_513075,513075,Obligatorio Accidente de Tránsito,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_513085,513085,Transporte de Mercancía,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_513095,513095,Otros,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_513510,513510,Temporales,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_513520,513520,Procesamiento Electrónico de Datos,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_513525,513525,Acueducto y Alcantarillado,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_513530,513530,Energía Eléctrica,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_513535,513535,Teléfono,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_513540,513540,"Correo, Portes y Telegramas",false,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_513550,513550,"Transporte, Fletes y Acarreos",false,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_513555,513555,Gas,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_513595,513595,Otros,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_514005,514005,Notariales,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_514010,514010,Registro Mercantil,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_514015,514015,Trámites y Licencias,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_514510,514510,Construcciones y Edificaciones,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_514515,514515,Maquinaria y Equipo,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_514520,514520,Equipo de Oficina,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_514525,514525,Equipo de Computación y Comunicación,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_514540,514540,Flota y Equipo de Transporte,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_515005,515005,Instalaciones Eléctricas,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_515015,515015,Reparaciones Locativas,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_515505,515505,Alojamiento y Manutención,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_515515,515515,Pasajes Aéreos,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_515520,515520,Pasajes Terrestres,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_516005,516005,Construcciones y Edificaciones,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_516010,516010,Maquinaria y Equipo,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_516015,516015,Equipo de Oficina,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_516020,516020,Equipo de Computación y Comunicación,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_516035,516035,Flota y Equipo de Transporte,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_516515,516515,Cargos Diferidos,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_519510,519510,"Libros, Suscripciones, periódicos y revistas",FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_519525,519525,Elementos de Aseo y Cafetería,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_519530,519530,"Útiles, Papelería y Fotocopias",false,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_519545,519545,Taxis y Buses,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_519560,519560,Casino y Restaurante,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_519565,519565,Parqueaderos,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520503,520503,Salario Integral,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520506,520506,Sueldos,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520515,520515,Horas Extras y Recargos,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520518,520518,Comisiones,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520521,520521,Viáticos,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520524,520524,Incapacidades,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520527,520527,Auxilio de Transporte,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520530,520530,Cesantías,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520533,520533,Intereses Sobre Cesantías,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520536,520536,Prima de Servicios,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520539,520539,Vacaciones,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520548,520548,Bonificaciones,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520551,520551,Dotación y Suministro a Trabajadores,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520554,520554,Seguros,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520560,520560,Indemnizaciones Laborales,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520563,520563,Capacitación al Personal,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520568,520568,"Aportes a Administradoras de Riesgos Profesionales, Arp",false,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520569,520569,"Aportes a Entidades Promotoras de Salud, Eps",false,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520570,520570,Aportes a Fondos de Pensiones y/o Cesantías,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520572,520572,Aportes Cajas de Compensación Familiar,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520575,520575,Aportes Icbf,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520578,520578,Sena,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520584,520584,Gastos Médicos y Drogas,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_520595,520595,Otros,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_521035,521035,Asesoría Técnica,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_521505,521505,Industria y Comercio,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_521515,521515,a la Propiedad Raíz,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_521540,521540,de Vehículos,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_521570,521570,Iva Descontable,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_521595,521595,Otros,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_522010,522010,Construcciones y Edificaciones,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_522015,522015,Maquinaria y Equipo,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_522025,522025,Equipo de Computación y Comunicación,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_522510,522510,Afiliaciones y Sostenimiento,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_523505,523505,Aseo y Vigilancia,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_523510,523510,Temporales,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_523525,523525,Acueducto y Alcantarillado,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_523530,523530,Energía Eléctrica,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_523535,523535,Teléfono,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_523540,523540,"Correo, Portes y Telegramas",false,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_523550,523550,"Transporte, Fletes y Acarreos",false,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_523555,523555,Gas,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_523560,523560,"Publicidad, Propaganda y Promoción",false,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_523595,523595,Otros,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_524005,524005,Notariales,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_524010,524010,Registro Mercantil,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_524015,524015,Trámites y Licencias,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_524020,524020,Aduaneros,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_524510,524510,Construcciones y Edificaciones,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_524515,524515,Maquinaria y Equipo,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_524520,524520,Equipo de Oficina,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_524525,524525,Equipo de Computación y Comunicación,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_524540,524540,Flota y Equipo de Transporte,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_525505,525505,Alojamiento y Manutención,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_525515,525515,Pasajes Aéreos,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_525520,525520,Pasajes Terrestres,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_529520,529520,Gastos de Representación y Relaciones Públicas,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_529525,529525,Elementos de Aseo y Cafetería,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_529530,529530,"Útiles, Papelería y Fotocopias",false,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_529535,529535,Combustibles y Lubricantes,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_529540,529540,Envases y Empaques,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_529545,529545,Taxis y Buses,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_529565,529565,Parqueaderos,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_529570,529570,Indemnización Por Daños a Terceros,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_529910,529910,Deudores,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_529915,529915,Inventarios,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_530505,530505,Gastos Bancarios,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_530515,530515,Comisiones,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_530520,530520,Intereses,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_530525,530525,Diferencia en Cambio,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_530535,530535,Descuentos Comerciales Condicionados,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_530595,530595,Otros,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_531515,531515,Costos y Gastos de Ejercicios Anteriores,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_531520,531520,Impuestos Asumidos,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_531595,531595,Otros,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_539515,539515,Indemnizaciones,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_539520,539520,"Multas, Sanciones y Litigios",false,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_539535,539535,Amortización de Bienes Entregados en Comodato,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_539595,539595,Otros,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_540505,540505,Impuesto de Renta y Complementarios,FALSE,account.data_account_type_current_liabilities,l10n_co_chart_template_generic
+co_puc_590505,590505,Ganancias y Pérdidas,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_613595,613595,Venta de Otros Productos,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_614505,614505,Servicio de Transporte Por Carretera,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_614520,614520,Servicio de Transporte Por Vía Aérea,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_615590,615590,Mantenimiento y Reparación de Maquinaria y Equipo,FALSE,account.data_account_type_expenses,l10n_co_chart_template_generic
+co_puc_811515,811515,en Depósito,FALSE,account.data_account_type_direct_costs,l10n_co_chart_template_generic
+co_puc_831516,831516,Construcciones y Edificaciones,FALSE,account.data_account_type_direct_costs,l10n_co_chart_template_generic
+co_puc_831520,831520,Maquinaria y Equipo,FALSE,account.data_account_type_direct_costs,l10n_co_chart_template_generic
+co_puc_831524,831524,Equipo de Oficina,FALSE,account.data_account_type_direct_costs,l10n_co_chart_template_generic
+co_puc_831528,831528,Equipo de Computación y Comunicación,FALSE,account.data_account_type_direct_costs,l10n_co_chart_template_generic
+co_puc_831562,831562,Envases y Empaques,FALSE,account.data_account_type_direct_costs,l10n_co_chart_template_generic
+co_puc_911515,911515,en Depósito,FALSE,account.data_account_type_direct_costs,l10n_co_chart_template_generic
+co_puc_911520,911520,en Consignación,FALSE,account.data_account_type_direct_costs,l10n_co_chart_template_generic
+co_puc_912005,912005,Laborales,FALSE,account.data_account_type_direct_costs,l10n_co_chart_template_generic
+co_puc_912010,912010,Civiles,FALSE,account.data_account_type_direct_costs,l10n_co_chart_template_generic
+co_puc_912015,912015,Administrativos o Arbitrales,FALSE,account.data_account_type_direct_costs,l10n_co_chart_template_generic
+co_puc_912020,912020,Tributarios,FALSE,account.data_account_type_direct_costs,l10n_co_chart_template_generic
+co_puc_939595,939595,Diversas,FALSE,account.data_account_type_direct_costs,l10n_co_chart_template_generic
+
+```
+
+## File: data\account.tax.group.csv
+
+```csv
+id,name,country_id/id
+tax_group_ar_ren_0,AR REN 0%,base.co
+tax_group_covered_goods,Bienes Cubiertos,base.co
+tax_group_cree_4,CREE 4%,base.co
+tax_group_cree_8,CREE 8%,base.co
+tax_group_cree_16,CREE 16%,base.co
+tax_group_iva_0,IVA 0%,base.co
+tax_group_iva_075,IVA 0.75%,base.co
+tax_group_iva_2,IVA 2%,base.co
+tax_group_iva_204,IVA 2.4%,base.co
+tax_group_iva_4,IVA 4%,base.co
+tax_group_iva_5,IVA 5%,base.co
+tax_group_iva_8,IVA 8%,base.co
+tax_group_iva_16,IVA 16%,base.co
+tax_group_iva_19,IVA 19%,base.co
+tax_group_inc_4,INC 4%,base.co
+tax_group_inc_8,INC 8%,base.co
+tax_group_inc_16,INC 16%,base.co
+tax_group_r_ica_0,R ICA 0%,base.co
+tax_group_r_ica_0414,R ICA 0.414%,base.co
+tax_group_r_ica_069,R ICA 0.69%,base.co
+tax_group_r_ica_0966,R ICA 0.966%,base.co
+tax_group_r_ica_1104,R ICA 1.104%,base.co
+tax_group_r_ica_138,R ICA 1.38%,base.co
+tax_group_r_iva_075,R IVA 0.75%,base.co
+tax_group_r_iva_24,R IVA 2.4%,base.co
+tax_group_r_iva_285,R IVA 2.85%,base.co
+tax_group_r_iva_16,R IVA 16%,base.co
+tax_group_r_ren_0,R REN 0%,base.co
+tax_group_r_ren_01,R REN 0.1%,base.co
+tax_group_r_ren_05,R REN 0.5%,base.co
+tax_group_r_ren_1,R REN 1%,base.co
+tax_group_r_ren_15,R REN 1.5%,base.co
+tax_group_r_ren_2,R REN 2%,base.co
+tax_group_r_ren_25,R REN 2.5%,base.co
+tax_group_r_ren_3,R REN 3%,base.co
+tax_group_r_ren_35,R REN 3.5%,base.co
+tax_group_r_ren_4,R REN 4%,base.co
+tax_group_r_ren_6,R REN 6%,base.co
+tax_group_r_ren_7,R REN 7%,base.co
+tax_group_r_ren_10,R REN 10%,base.co
+tax_group_r_ren_11,R REN 11%,base.co
+tax_group_r_ren_20,R REN 20%,base.co
+tax_group_r_ren_33,R REN 33%,base.co
+
+```
+
+## File: data\account_chart_template_configure_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <function model="account.chart.template" name="try_loading">
+            <value eval="[ref('l10n_co.l10n_co_chart_template_generic')]"/>
+        </function>
+    </data>
+</odoo>
+
+```
+
+## File: data\account_chart_template_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="account_reports_co_statements_menu" name="Colombia" parent="account.menu_finance_reports" sequence="0" groups="account.group_account_readonly"/>
+
+        <!-- Chart Template -->
+        <record id="l10n_co_chart_template_generic" model="account.chart.template">
+            <field name="property_account_receivable_id" ref="co_puc_130505"/>
+            <field name="property_account_payable_id" ref="co_puc_220505"/>
+            <field name="property_account_expense_categ_id" ref="co_puc_613595"/>
+            <field name="property_account_income_categ_id" ref="co_puc_413595"/>
+            <field name="income_currency_exchange_account_id" ref="co_puc_421020"/>
+            <field name="expense_currency_exchange_account_id" ref="co_puc_530525"/>
+            <field name="default_pos_receivable_account_id" ref="co_puc_130507" />
+        </record>
+</odoo>
+
+```
+
+## File: data\account_tax_template.xml
+
+```xml
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+
+    <record id="l10n_co_tax_0" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">IVA Compra 5%</field>
+        <field name="amount">5</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_iva_5"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_2408100510'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_2408101010'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_1" model="account.tax.template">
+        <field name="sequence">0</field>
+        <field name="name">IVA Compra 19%</field>
+        <field name="amount">19</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_iva_19"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_2408100505'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_2408101005'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_2" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">IVA Descontable Compra 16% (2016 y Enero 2017)</field>
+        <field name="amount">16</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_iva_16"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_2408100515'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_2408101015'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_3" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Salarios y Pagos Laborales</field>
+        <field name="amount">0</field>
+        <field name="amount_type">fixed</field>
+        <field name="type_tax_use">none</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_4" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">IVA Devoluciones Ventas 16% 2016</field>
+        <field name="amount">16</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_iva_16"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_5" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">IVA Compra Importaciones</field>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_iva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_6" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">IVA Compra Excluido</field>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_iva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_7" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">IVA Compra Exento</field>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_iva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_8" model="account.tax.template">
+        <field name="sequence">0</field>
+        <field name="name">IVA Ventas 19%</field>
+        <field name="amount">19</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_iva_19"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_2408050505'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_2408051005'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_9" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">IVA Ventas 5%</field>
+        <field name="amount">5</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_iva_5"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_2408050510'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_2408051010'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_10" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">IVA Excento</field>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_iva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_11" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">IVA Excluido</field>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_iva_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_12" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteIVA 15% sobre el 19% IVA</field>
+        <field name="amount">-2.85</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_iva_285"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_236705'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_236705'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_13" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteIVA 15% sobre el 5% IVA</field>
+        <field name="amount">-0.75</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_iva_075"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_236705'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_236705'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_14" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteIVA 15% sobre el 5% IVA Contrapartida</field>
+        <field name="amount">0.75</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_iva_075"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_24082005'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_24082005'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_15" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteIVA 15% sobre el 19% IVA Contrapartida</field>
+        <field name="amount">2.85</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_iva_285"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_24082005'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_24082005'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_16" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Compra Combustibles 0.1%</field>
+        <field name="amount">-0.1</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_01"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23654025'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23654025'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_17" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Compra Cafe 0.5%</field>
+        <field name="amount">-0.5</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_05"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23654020'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23654020'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_18" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Comisiones Persona Natural 10%</field>
+        <field name="amount">-10</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_10"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652005'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652005'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_19" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Compras Declarantes 2.5%</field>
+        <field name="amount">-2.5</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_25"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23654005'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23654005'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_20" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Consultorias, Servicios Tecnicos y Asistencia Tecnica Pagos al Exterior 10%</field>
+        <field name="amount">-10</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_10"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23655005'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23655005'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_21" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Adquisicion de Vehiculos 1%</field>
+        <field name="amount">-1</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23654030'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23654030'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_22" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Compras de Bienes Raices 1%</field>
+        <field name="amount">-1</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23654040'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23654040'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_23" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Servicios P Jurídicas y PN Declarantes 4%</field>
+        <field name="amount">-4</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_4"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652505'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652505'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_24" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Servicio Transporte Nacional Carga 1%</field>
+        <field name="amount">-1</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_1"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652515'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652515'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_25" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Servicios en General Personas Naturales No Declarantes Renta 6%</field>
+        <field name="amount">-6</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_6"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652510'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652510'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_26" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Servicio de Vigilancia y Aseo (Sobre AIU) 2%</field>
+        <field name="amount">-2</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_2"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652535'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652535'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_27" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Honorarios Servicios Licencias Software 3.5%</field>
+        <field name="amount">-3.5</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_35"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23651515'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23651515'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_28" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Contratos de Obra Inmuebles 2%</field>
+        <field name="amount">-2</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_2"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652550'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652550'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_29" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Arrendamientos Bienes Muebles 4%</field>
+        <field name="amount">-4</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_4"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23653005'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23653005'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_30" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Arrendamientos Bienes Inmuebles 3.5%</field>
+        <field name="amount">-3.5</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_35"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23653010'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23653010'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_31" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Rendimientos Financieros Generales 7%</field>
+        <field name="amount">-7</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_7"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23653510'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23653510'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_32" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Honorarios Persona Natural 10%</field>
+        <field name="amount">-10</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_10"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23651505'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23651505'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_33" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Honorarios Diseno Web y Consultoria Informatica 3.5%</field>
+        <field name="amount">-3.5</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_35"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23651520'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23651520'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_34" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Adquisicion de Bienes Raices Comerciales 2.5%</field>
+        <field name="amount">-2.5</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_25"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23654035'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23654035'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_35" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Compras No Declarantes 3.5%</field>
+        <field name="amount">-3.5</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_35"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23654010'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23654010'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_36" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Comisiones Persona Juridica 11%</field>
+        <field name="amount">-11</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_11"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652010'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652010'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_37" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Compras Bienes Agricolas 1.5%</field>
+        <field name="amount">-1.5</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_15"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23654015'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23654015'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_38" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Servicio Transporte Terrestre Nacional Pasajeros 3.5%</field>
+        <field name="amount">-3.5</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_35"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652520'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652520'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_39" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Servicio Temporales de Empleo (Sobre AIU) 1%</field>
+        <field name="amount">-1</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_11"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652530'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652530'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_40" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Honorarios Persona Juridica 11%</field>
+        <field name="amount">-11</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_11"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23651510'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23651510'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_41" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Servicio Integrales de Salud 2%</field>
+        <field name="amount">-2</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_2"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652540'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652540'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_42" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte Servicio de Hoteles y Restaurantes 3.5%</field>
+        <field name="amount">-3.5</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_35"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652545'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_23652545'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_43" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteICA</field>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ica_0"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_44" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteICA 0.69%</field>
+        <field name="amount">-0.69</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ica_069"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_236805'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_236805'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_45" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteICA 1.104%</field>
+        <field name="amount">-1.104</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ica_1104"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_236805'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_236805'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_46" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteICA 0.414%</field>
+        <field name="amount">-0.414</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ica_0414"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_236805'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_236805'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_47" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteICA 1.38%</field>
+        <field name="amount">-1.38</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ica_138"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_236805'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_236805'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_48" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteICA 0.966%</field>
+        <field name="amount">-0.966</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ica_0966"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_236805'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_236805'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_49" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">IVA Compra 19% RC</field>
+        <field name="amount">19</field>
+        <field name="amount_type">group</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_iva_19"/>
+        <field name="children_tax_ids" eval="[(6, 0, [ref('l10n_co_tax_1'),ref('l10n_co_tax_12')])]"/>
+    </record>
+
+    <record id="l10n_co_tax_50" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">IVA Compra 19% RS</field>
+        <field name="amount">19</field>
+        <field name="amount_type">group</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_iva_19"/>
+        <field name="children_tax_ids" eval="[(6, 0, [ref('l10n_co_tax_12'),ref('l10n_co_tax_15')])]"/>
+    </record>
+
+    <record id="l10n_co_tax_51" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">IVA Compra 5% RS</field>
+        <field name="amount">5</field>
+        <field name="amount_type">group</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_iva_5"/>
+        <field name="children_tax_ids" eval="[(6, 0, [ref('l10n_co_tax_13'),ref('l10n_co_tax_14')])]"/>
+    </record>
+
+    <record id="l10n_co_tax_52" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">IVA Compra 5% RC</field>
+        <field name="amount">5</field>
+        <field name="amount_type">group</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_iva_5"/>
+        <field name="children_tax_ids" eval="[(6, 0, [ref('l10n_co_tax_0'),ref('l10n_co_tax_13')])]"/>
+    </record>
+
+    <record id="l10n_co_tax_53" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte -2.50% Ventas</field>
+        <field name="amount">-2.5</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_25"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_135515'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_135515'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_54" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteFte -3.50% Ventas</field>
+        <field name="amount">-3.5</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ren_35"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_135515'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_135515'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_55" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteIVA 15% sobre el 5% IVA Ventas</field>
+        <field name="amount">-0.75</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_iva_075"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_135517'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_135517'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_56" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteIVA 15% sobre el 19% IVA Ventas</field>
+        <field name="amount">-2.85</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_iva_285"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_135517'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_135517'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_57" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteICA 0.414% Ventas</field>
+        <field name="amount">-0.414</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ica_0414"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_135518'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_135518'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_58" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">RteICA 0.966% Ventas</field>
+        <field name="amount">-0.966</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_r_ica_0966"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_135518'),
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+                'account_id': ref('co_puc_135518'),
+            }),
+        ]"/>
+    </record>
+
+    <record id="l10n_co_tax_covered_goods" model="account.tax.template">
+        <field name="sequence">1</field>
+        <field name="name">Bienes Cubiertos</field>
+        <field name="amount">0</field>
+        <field name="amount_type">percent</field>
+        <field name="type_tax_use">sale</field>
+        <field name="chart_template_id" ref="l10n_co_chart_template_generic"/>
+        <field name="tax_group_id" ref="tax_group_covered_goods"/>
+        <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+        <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'base',
+            }),
+
+            (0,0, {
+                'factor_percent': 100,
+                'repartition_type': 'tax',
+            }),
+        ]"/>
+    </record>
+
+</odoo>
+
+```
+
+## File: data\l10n_co_chart_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Chart Template -->
+
+    <record id="l10n_co_chart_template_generic" model="account.chart.template">
+        <field name="name">Colombian - Generic Chart of Accounts</field>
+        <field name="currency_id" ref="base.COP"/>
+        <field name="bank_account_code_prefix">1110</field>
+        <field name="cash_account_code_prefix">1105</field>
+        <field name="transfer_account_code_prefix">1115</field>
+        <field name="country_id" ref="base.co"/>
+    </record>
+
+</odoo>
+
+```
+
+## File: data\l10n_latam.identification.type.csv
+
+```csv
+id,name,l10n_co_document_code,country_id:id,is_vat,sequence
+rut,NIT,rut,base.co,TRUE,1
+national_citizen_id,Cédula de ciudadanía,national_citizen_id,base.co,FALSE,2
+civil_registration,Registro Civil,civil_registration,base.co,FALSE,3
+id_card,Tarjeta de Identidad,id_card,base.co,FALSE,4
+foreign_colombian_card,Tarjeta de extranjería,foreign_colombian_card,base.co,False,5
+foreign_resident_card,Cédula de extranjería,foreign_resident_card,base.co,False,6
+l10n_latam_base.it_pass,Passport,passport,,FALSE,7
+residence_document,PEP (Permiso Especial de Permanencia),PEP,base.co,FALSE,8
+l10n_latam_base.it_fid,Cédula Extranjera,foreign_id_card,,FALSE,9
+external_id,Nit de otro país,external_id,,FALSE,10
+niup_id,NIUP,niup_id,base.co,False,11
+diplomatic_card,INACTIVO - Carné Diplomatico,diplomatic_card,base.co,FALSE,12
+id_document,INACTIVO - Cédula,id_document,base.co,FALSE,13
+l10n_latam_base.it_vat,VAT,rut,,TRUE,80
+48,PPT(Permiso Protección Temporal),PPT,base.co,FALSE,12
+
+```
+
+## File: models\l10n_latam_identification_type.py
+
+```python
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+from odoo import models, fields
+
+
+class L10nCoDocumentType(models.Model):
+    _inherit = "l10n_latam.identification.type"
+
+    l10n_co_document_code = fields.Char("Document Code")
+
+```
+
+## File: models\res_partner.py
+
+```python
+# coding: utf-8
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+from odoo import models, api
+
+
+class ResPartner(models.Model):
+    _inherit = 'res.partner'
+
+    @api.constrains('vat', 'country_id', 'l10n_latam_identification_type_id')
+    def check_vat(self):
+        # check_vat is implemented by base_vat which this localization
+        # doesn't directly depend on. It is however automatically
+        # installed for Colombia.
+        if self.sudo().env.ref('base.module_base_vat').state == 'installed':
+            # don't check Colombian partners unless they have RUT (= Colombian VAT) set as document type
+            self = self.filtered(lambda partner: partner.country_id.code != "CO" or\
+                                                 partner.l10n_latam_identification_type_id.l10n_co_document_code == 'rut')
+            return super(ResPartner, self).check_vat()
+        else:
+            return True
+
+```
+
+## File: models\__init__.py
+
+```python
+# coding: utf-8
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from . import l10n_latam_identification_type
+from . import res_partner
+
+```
+
+## File: static\description\icon.svg
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 106 106">
+  <defs>
+    <mask id="a" x="0" y="0" width="106" height="106" maskUnits="userSpaceOnUse">
+      <path d="M6.06,0H98.43C104.49,0,106,1.51,106,7.57V98.43c0,6.06-1.51,7.57-7.57,7.57H6.06C1.51,106,0,104.49,0,98.43V7.57C0,1.51,1.51,0,6.06,0Z" style="fill: #fff;fill-rule: evenodd"/>
+    </mask>
+    <mask id="b" x="4.8" y="4.8" width="50.4" height="36.4" maskUnits="userSpaceOnUse">
+      <rect x="6.29" y="7.68" width="48.45" height="31.57" rx="1" style="fill: #fff"/>
+    </mask>
+    <symbol id="c" data-name="account icon" viewBox="0 0 106 106">
+      <g style="mask: url(#a)">
+        <g>
+          <path d="M0,0H106V106H0Z" style="fill: #5a5a64;fill-rule: evenodd"/>
+          <path d="M6.06,1.51H98.43q6.06,0,7.57,3V0H0V4.54Q1.52,1.51,6.06,1.51Z" style="fill: #fff;fill-opacity: 0.382999986410141;fill-rule: evenodd"/>
+          <path d="M6.06,104.49H98.43q6.06,0,7.57-4.55V106H0V99.94Q1.52,104.49,6.06,104.49Z" style="fill-opacity: 0.382999986410141;fill-rule: evenodd"/>
+          <g>
+            <path d="M70.38,104.49H6.06C3,104.49,0,103,0,98.43V61.28L28.77,19.69H59.06a77.33,77.33,0,0,0,21.2,13.87c.07,11.31.07,4.86,0,16.17h3.12l.21,36.82Z" style="fill: #393939;fill-rule: evenodd;opacity: 0.324000000953674;isolation: isolate"/>
+            <g style="opacity: 0.30000000000000004">
+              <g>
+                <path d="M68.77,58.54H76c.76,0,1,.12,1,.46v2.45c0,.31-.24.43-.93.43H61.44c-.66,0-.92-.12-.92-.42,0-.83,0-1.67,0-2.51,0-.29.26-.4.92-.41Z"/>
+                <path d="M64.33,77.42c.42.39.76.66,1,1a.89.89,0,0,1,0,1.31.92.92,0,0,1-1.32,0,4.25,4.25,0,0,1-.48-.47c-.14-.15-.26-.31-.49-.6-.32.37-.54.66-.79.91-.53.53-1.08.58-1.5.15s-.36-.94.15-1.45c.26-.26.54-.5.91-.83-.38-.34-.72-.61-1-.91a.9.9,0,0,1,0-1.36.91.91,0,0,1,1.36,0c.29.28.54.6.93,1A12.1,12.1,0,0,1,64,75.18a.91.91,0,0,1,1.36,0,.87.87,0,0,1,0,1.31C65.07,76.79,64.73,77.06,64.33,77.42Z"/>
+                <path d="M62.13,66.9c0-.47,0-.88,0-1.28a.92.92,0,0,1,.92-1,.91.91,0,0,1,1,1c0,.41,0,.81,0,1.3h1.14a1.16,1.16,0,0,1,1.22,1c0,.55-.42.85-1.18.86H64.12c0,.49,0,.91,0,1.34a.94.94,0,1,1-1.88,0c0-.41,0-.81,0-1.3H60.92a.94.94,0,1,1,0-1.88C61.3,66.89,61.68,66.9,62.13,66.9Z"/>
+                <path d="M74.31,76H72.23c-.67,0-1-.34-1-.93a.89.89,0,0,1,1-1q2.18,0,4.35,0a1,1,0,1,1,0,1.91c-.74,0-1.47,0-2.21,0Z"/>
+                <path d="M74.28,68.61c-.71,0-1.43,0-2.14,0a.86.86,0,0,1-1-.9.85.85,0,0,1,.92-1c1.5,0,3,0,4.48,0a.93.93,0,0,1,1,1,.91.91,0,0,1-1,.91c-.75,0-1.51,0-2.27,0Z"/>
+                <path d="M74.36,78.09c.72,0,1.44,0,2.15,0a1,1,0,0,1,1,1c0,.57-.38.93-1,.94H72.28c-.75,0-1.09-.32-1.09-.94s.37-1,1.09-1,1.39,0,2.08,0Z"/>
+                <path d="M81.29,90.55H56.14a4,4,0,0,1-4-4V53.73a4,4,0,0,1,4-4H81.29a4,4,0,0,1,4,4V86.55A4,4,0,0,1,81.29,90.55ZM56.14,53.73V86.55H81.29V53.73Z"/>
+              </g>
+              <path d="M43.49,83.26H31.8V25.71H56v10.6q0,4.55,4.54,4.55H75.71v5.78h4.55V34.8c-4.55-3-16.66-12.11-19.69-13.63H30.29a2.68,2.68,0,0,0-3,3V84.77a2.68,2.68,0,0,0,3,3H48.45V83.26ZM60.57,25.71l15.14,10.6H60.57Z"/>
+            </g>
+            <path d="M60.57,18.68H30.29a2.68,2.68,0,0,0-3,3V82.28a2.68,2.68,0,0,0,3,3H48.45V80.77H31.8V23.22H56v10.6q0,4.55,4.54,4.55H75.71v5.78h4.55V32.31C75.71,29.28,63.6,20.2,60.57,18.68Zm0,15.14V23.22l15.14,10.6Z" style="fill: #a8a9ab"/>
+            <g>
+              <path d="M68.77,55.78H76c.76,0,1,.13,1,.53v2.85c0,.37-.24.5-.93.5q-7.3,0-14.61,0c-.66,0-.92-.14-.92-.48,0-1,0-2,0-2.93,0-.34.26-.47.92-.47Z" style="fill: #a8a9ab"/>
+              <path d="M64.33,76.53c.42.38.76.65,1,1a.89.89,0,0,1,0,1.31.92.92,0,0,1-1.32,0,5.44,5.44,0,0,1-.48-.48c-.14-.14-.26-.31-.49-.59-.32.36-.54.65-.79.91-.53.53-1.08.57-1.5.14s-.36-.94.15-1.45c.26-.26.54-.49.91-.82-.38-.35-.72-.61-1-.92a.9.9,0,0,1,0-1.36.92.92,0,0,1,1.36,0c.29.28.54.61.93,1A13.78,13.78,0,0,1,64,74.28a.91.91,0,0,1,1.36,0,.88.88,0,0,1,0,1.32C65.07,75.89,64.73,76.16,64.33,76.53Z" style="fill: #a8a9ab"/>
+              <path d="M62.13,65.88c0-.48,0-.88,0-1.29a1,1,0,1,1,1.91,0c0,.4,0,.81,0,1.3h1.14a1.15,1.15,0,0,1,1.22,1c0,.54-.42.85-1.18.85H64.12c0,.49,0,.92,0,1.34a.94.94,0,1,1-1.88,0c0-.4,0-.81,0-1.3H60.92a.94.94,0,1,1,0-1.88Z" style="fill: #a8a9ab"/>
+              <path d="M74.31,75.11c-.69,0-1.38,0-2.08,0s-1-.35-1-.94a.89.89,0,0,1,1-1q2.18,0,4.35,0a.91.91,0,0,1,1,1,.93.93,0,0,1-1,1c-.74,0-1.47,0-2.21,0Z" style="fill: #a8a9ab"/>
+              <path d="M74.28,67.76H72.14a.87.87,0,0,1-1-.9.84.84,0,0,1,.92-1c1.5,0,3,0,4.48,0a.94.94,0,0,1,1,1,.91.91,0,0,1-1,.91H74.28Z" style="fill: #a8a9ab"/>
+              <path d="M74.36,77.2c.72,0,1.44,0,2.15,0a1,1,0,0,1,1,1c0,.56-.38.93-1,.93q-2.12,0-4.23,0c-.75,0-1.09-.32-1.09-.94s.37-.94,1.09-1,1.39,0,2.08,0Z" style="fill: #a8a9ab"/>
+              <path d="M81.29,88.06H56.14a4,4,0,0,1-4-4V51.24a4,4,0,0,1,4-4H81.29a4,4,0,0,1,4,4V84.06A4,4,0,0,1,81.29,88.06ZM56.14,51.24V84.06H81.29V51.24Z" style="fill: #a8a9ab"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </symbol>
+  </defs>
+  <g>
+    <use width="106" height="106" transform="translate(-0.07 0)" xlink:href="#c"/>
+    <rect x="6.2" y="10.57" width="48.45" height="31.57" rx="1" style="fill: #393939;opacity: 0.44;isolation: isolate"/>
+    <g style="mask: url(#b)">
+      <image width="900" height="600" transform="translate(4.8 4.8) scale(0.06 0.06)" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA4QAAAJYCAYAAAA6xSjbAAAACXBIWXMAAAsSAAALEgHS3X78AAANXklEQVR4Xu3ZQRHEIAAEQTgH0RK3kXUSYoRI4M90v9fA1M71H2sAAACQ89sNAAAAOJMgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUYIQAAAgShACAABECUIAAIAoQQgAABAlCAEAAKIEIQAAQJQgBAAAiBKEAAAAUXPcz9qNAAAAOI+HEAAAIEoQAgAARAlCAACAKEEIAAAQJQgBAACiBCEAAECUIAQAAIgShAAAAFGCEAAAIEoQAgAARAlCAACAKEEIAAAQJQgBAACiBCEAAECUIAQAAIgShAAAAFGCEAAAIEoQAgAARAlCAACAKEEIAAAQJQgBAACiBCEAAECUIAQAAIgShAAAAFGCEAAAIEoQAgAARAlCAACAKEEIAAAQJQgBAACiBCEAAECUIAQAAIgShAAAAFGCEAAAIEoQAgAARAlCAACAKEEIAAAQJQgBAACiBCEAAECUIAQAAIgShAAAAFGCEAAAIEoQAgAARAlCAACAKEEIAAAQJQgBAACiBCEAAECUIAQAAIgShAAAAFGCEAAAIEoQAgAARAlCAACAKEEIAAAQJQgBAACiBCEAAECUIAQAAIgShAAAAFGCEAAAIEoQAgAARAlCAACAKEEIAAAQJQgBAACiBCEAAECUIAQAAIgShAAAAFGCEAAAIEoQAgAARAlCAACAKEEIAAAQJQgBAACiBCEAAECUIAQAAIgShAAAAFGCEAAAIEoQAgAARAlCAACAKEEIAAAQJQgBAACiBCEAAECUIAQAAIgShAAAAFGCEAAAIEoQAgAARAlCAACAKEEIAAAQJQgBAACiBCEAAECUIAQAAIgShAAAAFGCEAAAIEoQAgAARAlCAACAKEEIAAAQJQgBAACiBCEAAECUIAQAAIgShAAAAFGCEAAAIEoQAgAARAlCAACAKEEIAAAQJQgBAACiBCEAAECUIAQAAIgShAAAAFGCEAAAIEoQAgAARAlCAACAKEEIAAAQJQgBAACiBCEAAECUIAQAAIgShAAAAFGCEAAAIEoQAgAARAlCAACAKEEIAAAQJQgBAACiBCEAAECUIAQAAIgShAAAAFGCEAAAIEoQAgAARAlCAACAKEEIAAAQJQgBAACiBCEAAECUIAQAAIgShAAAAFGCEAAAIEoQAgAARAlCAACAKEEIAAAQJQgBAACiBCEAAECUIAQAAIgShAAAAFGCEAAAIEoQAgAARAlCAACAKEEIAAAQJQgBAACiBCEAAECUIAQAAIgShAAAAFGCEAAAIEoQAgAARAlCAACAKEEIAAAQJQgBAACi5juutRsBAABwHg8hAABAlCAEAACIEoQAAABRghAAACBKEAIAAEQJQgAAgChBCAAAECUIAQAAogQhAABAlCAEAACIEoQAAABRghAAACBKEAIAAEQJQgAAgChBCAAAECUIAQAAogQhAABAlCAEAACIEoQAAABRghAAACBKEAIAAEQJQgAAgChBCAAAECUIAQAAogQhAABAlCAEAACIEoQAAABRghAAACBKEAIAAEQJQgAAgChBCAAAECUIAQAAogQhAABAlCAEAACIEoQAAABRghAAACBKEAIAAEQJQgAAgChBCAAAECUIAQAAogQhAABAlCAEAACIEoQAAABRghAAACBKEAIAAEQJQgAAgChBCAAAECUIAQAAogQhAABAlCAEAACIEoQAAABRghAAACBKEAIAAEQJQgAAgChBCAAAECUIAQAAogQhAABAlCAEAACIEoQAAABRghAAACBKEAIAAEQJQgAAgChBCAAAECUIAQAAogQhAABAlCAEAACIEoQAAABRghAAACBKEAIAAEQJQgAAgChBCAAAECUIAQAAogQhAABAlCAEAACIEoQAAABRghAAACBKEAIAAEQJQgAAgChBCAAAECUIAQAAogQhAABAlCAEAACIEoQAAABRghAAACBKEAIAAEQJQgAAgChBCAAAECUIAQAAogQhAABAlCAEAACIEoQAAABRghAAACBKEAIAAEQJQgAAgChBCAAAECUIAQAAogQhAABAlCAEAACIEoQAAABRghAAACBKEAIAAEQJQgAAgChBCAAAECUIAQAAogQhAABAlCAEAACIEoQAAABRghAAACBKEAIAAEQJQgAAgChBCAAAECUIAQAAogQhAABAlCAEAACIEoQAAABRghAAACBKEAIAAEQJQgAAgChBCAAAECUIAQAAogQhAABAlCAEAACIEoQAAABRghAAACBKEAIAAEQJQgAAgChBCAAAECUIAQAAogQhAABAlCAEAACIEoQAAABRghAAACBKEAIAAEQJQgAAgChBCAAAECUIAQAAogQhAABAlCAEAACIEoQAAABRghAAACBKEAIAAEQJQgAAgChBCAAAECUIAQAAogQhAABAlCAEAACIEoQAAABRghAAACBKEAIAAER99kkLPIxtnQgAAAAASUVORK5CYII="/>
+    </g>
+  </g>
+</svg>
+
+```
+

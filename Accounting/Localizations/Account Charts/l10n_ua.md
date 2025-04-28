@@ -1,0 +1,1896 @@
+# Odoo Module: l10n_ua
+
+Category: Accounting/Localizations/Account Charts
+
+This file contains the source code of the Odoo module.
+
+## File: __init__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+# Copyright (C) 2019 Bohdan Lisnenko <bohdan.lisnenko@erp.co.ua>, ERP Ukraine
+
+```
+
+## File: __manifest__.py
+
+```python
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+# Copyright (C) 2019 Bohdan Lisnenko <bohdan.lisnenko@erp.co.ua>, ERP Ukraine
+
+{
+    'name': 'Ukraine - Accounting',
+    'author': 'ERP Ukraine',
+    'website': 'https://erp.co.ua',
+    'version': '1.4',
+    'description': """
+Ukraine - Chart of accounts.
+============================
+    """,
+    'category': 'Accounting/Localizations/Account Charts',
+    'depends': ['account'],
+    'data': [
+        'data/account_chart_template.xml',
+        'data/account.account.template.csv',
+        'data/account_account_tag_data.xml',
+        'data/account_tax_group_data.xml',
+        'data/account_tax_template.xml',
+        'data/account_chart_template_config.xml',
+    ],
+    'demo': [
+        'demo/demo_company.xml',
+    ],
+    'license': 'LGPL-3',
+}
+
+```
+
+## File: data\account.account.template.csv
+
+```csv
+"id","code","name","user_type_id:id","reconcile","chart_template_id:id"
+"ua_psbp_100",100,"Інвестиційна нерухомість","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_101",101,"Земельні ділянки","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_102",102,"Капітальні витрати на поліпшення  земель","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_103",103,"Будинки та споруди","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_104",104,"Машини та обладнання","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_105",105,"Транспортні засоби","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_106",106,"Інструменти, прилади та інвентар","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_107",107,"Тварини","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_108",108,"Багаторічні насадження","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_1091",1091,"Інші основні засоби","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_1092",1092,"Основні засоби призначені для продажу","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_111",111,"Бібліотечні фонди","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_112",112,"Малоцінні необоротні матеріальні активи","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_113",113,"Тимчасові (нетитульні) споруди","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_114",114,"Природні ресурси","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_115",115,"Інвентарна тара","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_116",116,"Предмети прокату","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_1171",1171,"Інші необоротні матеріальні активи","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_1172",1172,"Необоротні матеріальні активи призначені для продажу","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_121",121,"Права користування природними ресурсами","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_122",122,"Права користування майном","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_123",123,"Права на комерційні позначення","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_124",124,"Права на об’єкти промислової власності","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_125",125,"Авторське право та суміжні з ним права","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_127",127,"Інші нематеріальні активи","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_131",131,"Знос основних засобів","account.data_account_type_depreciation",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_132",132,"Знос інших необоротних матеріальних активів","account.data_account_type_depreciation",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_133",133,"Накопичена амортизацiя нематеріальних активів","account.data_account_type_depreciation",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_134",134,"Накопичена амортизація довгострокових біологічних активів","account.data_account_type_depreciation",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_135",135,"Знос інвестиційної нерухомості","account.data_account_type_depreciation",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_141",141,"Інвестиції пов’язаним сторонам за методом обліку участі в капіталі","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_142",142,"Інші інвестиції пов’язаним сторонам","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_143",143,"Інвестиції непов’язаним сторонам","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_151",151,"Капітальне будівництво","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_1521",1521,"Придбання основних засобів","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_1522",1522,"Виготовлення та модернізація основних засобів","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_1531",1531,"Придбання  інших необоротних матеріальних активів","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_1532",1532,"Виготовлення та модернізація інших необоротних матеріальних активів","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_1541",1541,"Придбання нематеріальних активів","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_1542",1542,"Виготовлення нематеріальних активів","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_155",155,"Придбання (вирощування) довгострокових біологічних активів","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_161",161,"Довгострокові біологічні активи рослинництва, які оцінені за справедливою вартістю","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_162",162,"Довгострокові біологічні активи рослинництва, які оцінені за первісною вартістю","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_163",163,"Довгострокові біологічні активи тваринництва, які оцінені за справедливою вартістю","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_164",164,"Довгострокові біологічні активи тваринництва, які оцінені за первісною вартістю","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_165",165,"Незрілі довгострокові біологічні активи, які оцінюються за справедливою вартістю","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_166",166,"Незрілі довгострокові біологічні активи, які оцінюються за первісною вартістю","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_17",17,"Відстрочені податкові активи","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_181",181,"Заборгованість за майно, що передано у фінансову оренду","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_182",182,"Довгострокові векселі одержані","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_183",183,"Інша дебіторська заборгованість","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_184",184,"Інші необоротні активи","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_191",191,"Гудвіл при придбаннi","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_192",192,"Негативний гудвіл","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_193",193,"Гудвіл при приватизації (корпоратизації)","account.data_account_type_fixed_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_200",200,"Виробничі запаси","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_201",201,"Сировина й матеріали","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_202",202,"Купівельні напівфабрикати та комплектуючі вироби","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_203",203,"Паливо","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_204",204,"Тара й тарні матеріали","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_205",205,"Будівельні матеріали","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_206",206,"Матеріали, передані в переробку","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_207",207,"Запасні частини","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_208",208,"Матеріали сільськогосподарського призначення","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_209",209,"Інші матеріали","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_211",211,"Поточні біологічні активи рослинництва, які оцінені за справедливою вартістю","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_212",212,"Поточні біологічні активи тваринництва, які оцінені за справедливою вартістю","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_213",213,"Поточні біологічні активи тваринництва, які оцінені за первісною вартістю","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_22",22,"Малоцінні та швидкозношувані предмети","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_231",231,"Основне виробництво","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_232",232,"Допоміжні виробництва","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_233",233,"Обслуговуючі виробництва","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_234",234,"Давальницьке виробництво","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_235",235,"Обслуговування і ремонт необоротних активів","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_238",238,"Незавершені будівельні контракти","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_239",239,"Проміжні рахунки","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_24",24,"Брак у виробництві","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_25",25,"Напівфабрикати","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_26",26,"Готова продукція","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_27",27,"Продукція сільськогосподарського виробництва","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_280",280,"Товари","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_281",281,"Товари на складі","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_2811",2811,"Товари відвантажені зі складу","account.data_account_type_current_assets",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_2812",2812,"Товари отримані на склад","account.data_account_type_current_liabilities",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_282",282,"Товари в торгівлі (за продажною вартістю)","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_283",283,"Товари на комісії","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_284",284,"Тара під товарами","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_285",285,"Торгова націнка","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_286",286,"Необоротні активи та групи вибуття, утримувані для продажу","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_289",289,"Транспортно-заготівельні витрати (матеріали)","account.data_account_type_current_assets",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_311",311,"Поточні рахунки в національній валюті","account.data_account_type_liquidity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_312",312,"Поточні рахунки в іноземній валюті","account.data_account_type_liquidity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_313",313,"Інші рахунки в банку в національній валюті","account.data_account_type_liquidity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_314",314,"Інші рахунки в банку в іноземній валюті","account.data_account_type_liquidity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_315",315,"Спеціальні рахунки в національній валюті","account.data_account_type_liquidity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_316",316,"Спеціальні рахунки в іноземній валюті","account.data_account_type_liquidity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_331",331,"Грошові документи в національній валюті","account.data_account_type_liquidity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_332",332,"Грошові документи в іноземній валюті","account.data_account_type_liquidity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_333",333,"Грошові кошти в дорозі в національній валюті","account.data_account_type_liquidity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_334",334,"Грошові кошти в дорозі в іноземній валюті","account.data_account_type_liquidity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_335",335,"Електронні гроші, номіновані в національній валюті","account.data_account_type_liquidity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_341",341,"Короткострокові векселі, одержані в національній валюті","account.data_account_type_liquidity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_342",342,"Короткострокові векселі, одержані в іноземній валюті","account.data_account_type_liquidity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_3511",3511,"Еквіваленти грошових коштів (у національній валюті)","account.data_account_type_liquidity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_3512",3512,"Еквіваленти грошових коштів (в іноземній валюті)","account.data_account_type_liquidity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_352",352,"Інші поточні фінансові інвестиції","account.data_account_type_liquidity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_361",361,"Розрахунки з вітчизняними покупцями","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_362",362,"Розрахунки з іноземними покупцями","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_363",363,"Розрахунки з учасниками ПФГ","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_364",364,"Розрахунки по гарантійному забезпеченню","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_365",365,"Розрахунки з роздрібними покупцями","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_366",366,"Розрахунки з вітчизняними покупцями (PoS)","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_3711",3711,"Розрахунки за виданими авансами (в національній валюті)","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_3712",3712,"Розрахунки за виданими авансами (в іноземній валюті)","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_3721",3721,"Розрахунки з підзвітними особами в національній валюті","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_3722",3722,"Розрахунки з підзвітними особами в іноземній валюті","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_373",373,"Розрахунки за нарахованими доходами","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_374",374,"Розрахунки за претензіями","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_375",375,"Розрахунки за відшкодуванням завданих збитків","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_376",376,"Розрахунки за позиками членам кредитних спілок","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_3771",3771,"Розрахунки з іншими дебіторами (в національній валюті)","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_3772",3772,"Розрахунки з іншими дебіторами (в іноземній валюті)","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_3773",3773,"Розрахунки з робітниками та службовцями по інших операціях","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_378",378,"Розрахунки з державними цільовими фондами","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_379",379,"Розрахунки по операціям з дериватимами","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_381",381,"По заборгованості за товари, роботи, послуги","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_382",382,"По заборгованості за розрахунки з бюджетом","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_383",383,"По заборгованості за розрахунки за виданими авансами","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_384",384,"По заборгованості за розрахунки за нарахованими доходами","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_385",385,"По заборгованості за внутрішні розрахунки","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_386",386,"По іншій дебіторській заборгованості","account.data_account_type_receivable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_39",39,"Витрати майбутніх періодів","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_401",401,"Статутний капітал","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_402",402,"Пайовий капітал","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_403",403,"Інший зареєстрований капітал","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_404",404,"Внески до незареєстрованого статутного капіталу","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_411",411,"Дооцінка (уцінка) основних засобів","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_412",412,"Дооцінка (уцінка) нематеріальних активів","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_413",413,"Дооцінка (уцінка) фінансових інструментів","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_414",414,"Інший капітал у дооцінках","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_421",421,"Емісійний дохід","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_422",422,"Інший  вкладений капітал","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_423",423,"Накопичені курсові різниці","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_424",424,"Безоплатно одержані необоротні активи","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_425",425,"Інший додатковий капітал","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_43",43,"Резервний капітал","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_441",441,"Прибуток нерозподілений","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_442",442,"Непокриті збитки","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_443",443,"Прибуток, використаний у звітному періоді","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_451",451,"Вилучені акції","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_452",452,"Вилучені вклади й паї","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_453",453,"Інший вилучений капітал","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_46",46,"Неоплачений капітал","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_471",471,"Забезпечення виплат відпусток","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_472",472,"Додаткове пенсійне забезпечення","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_473",473,"Забезпечення гарантійних зобов’язань","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_474",474,"Забезпечення інших витрат і платежів","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_475",475,"Забезпечення, пов'язане з інвестиційною діяльністю","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_476",476,"Забезпечення, пов'язане з фінансовою діяльністю","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_477",477,"Забезпечення матеріального заохочення","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_478",478,"Забезпечення відновлення земельних ділянок","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_481",481,"Кошти, що вилучено з під оподаткування","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_482",482,"Кошти з бюджету та державних цільових фондів","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_483",483,"Бланодійна допомога","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_484",484,"Інші кошти цільового фінансування","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_491",491,"Технічні резерви","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_492",492,"Резерви із страхування життя","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_493",493,"Частка перестраховиків у технічних резервах","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_494",494,"Частка перестраховиків у резервах із страхування життя","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_495",495,"Результат зміни технічних резервів","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_496",496,"Результат зміни резервів із страхування життя","account.data_account_type_equity",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_501",501,"Довгострокові кредити банків у національній валюті","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_502",502,"Довгострокові кредити банків в іноземній валюті","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_503",503,"Відстрочені довгострокові кредити банків у національній валюті","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_504",504,"Відстрочені довгострокові кредити банків в іноземній валюті","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_505",505,"Інші довгострокові позики в національній валюті","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_506",506,"Інші довгострокові позики в іноземній валюті","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_511",511,"Довгострокові векселі, видані в національній валюті","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_512",512,"Довгострокові векселі, видані в іноземній валюті","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_521",521,"Зобов’язання за облігаціями","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_522",522,"Премія за випущеними облігаціями","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_523",523,"Дисконт за випущеними облігаціями","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_531",531,"Зобов’язання з фінансової оренди","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_532",532,"Зобов’язання з оренди цілісних майнових комплексів","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_54",54,"Відстрочені податкові зобов’язання","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_55",55,"Інші довгострокові зобов’язання","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_601",601,"Короткострокові кредити банків у національній валюті","account.data_account_type_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_602",602,"Короткострокові кредити банків в іноземній валюті","account.data_account_type_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_603",603,"Відстрочені короткострокові кредити банків у національній валюті","account.data_account_type_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_604",604,"Відстрочені короткострокові кредити банків в іноземній валюті","account.data_account_type_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_605",605,"Прострочені позики в національній валюті","account.data_account_type_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_606",606,"Прострочені позики в іноземній валюті","account.data_account_type_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_611",611,"Поточна заборгованість за довгостроковими зобов’язаннями в національній валюті","account.data_account_type_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_612",612,"Поточна заборгованість за довгостроковими зобов’язаннями в іноземній валюті","account.data_account_type_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_621",621,"Короткострокові векселі, видані в національній валюті","account.data_account_type_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_622",622,"Короткострокові векселі, видані в іноземній валюті","account.data_account_type_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_631",631,"Розрахунки з вітчизняними постачальниками","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_632",632,"Розрахунки з іноземними постачальниками","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_633",633,"Розрахунки з учасниками ПФГ","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_6411",6411,"Розрахунки за ПДФО","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_6412",6412,"Розрахунки за ПДВ","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_64121",64121,"Розрахунки за ПДВ в системі ЕА ПДВ","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_64122",64122,"Залишок на лицьовомцу рахунку з ПДВ після 01.02.2015 року","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_64123",64123,"Від’ємний залишок з ПДВ до 01.02.2015 року","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_6413",6413,"Розрахунки за податком на прибуток","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_6414",6414,"Розрахунки по єдиному податку","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_6415",6415,"Розрахунки по військовому збору","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_6416",6416,"Розрахунки за акцизом","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_642",642,"Розрахунки по обов’язкових платежах","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_6431",6431,"Податкові зобов’язання","account.data_account_type_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_6432",6432,"Податкові зобов’язання непідтверджені","account.data_account_type_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_6433",6433,"Коригування податкових зобов’язань","account.data_account_type_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_6434",6434,"Податкові зобов’язання (роздріб)","account.data_account_type_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_6435",6435,"Умовний продаж","account.data_account_type_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_6441",6441,"Податковий кредит","account.data_account_type_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_6442",6442,"Податковий кредит непідтверджений","account.data_account_type_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_6443",6443,"Коригування податкового кредиту","account.data_account_type_current_liabilities",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_651",651,"За розрахунками із загальнообов'язкового державного соціального страхування","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_652",652,"За соціальним страхуванням","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_653",653,"За страхуванням на випадок безробіття (не використовується)","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_654",654,"За індивідуальним страхуванням","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_655",655,"За страхуванням майна","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_656",656,"За страхуванням від нещасних випадків","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_661",661,"Розрахунки за заробітною платою","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_662",662,"Розрахунки з депонентами","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_663",663,"Розрахунки за іншими виплатами","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_671",671,"Розрахунки за нарахованими дивідендами","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_672",672,"Розрахунки за іншими виплатами","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_680",680,"Розрахунки, пов'язані з необоротними активами та групами вибуття, утримуваними для продажу","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_6811",6811,"Розрахунки за авансами одержаними в національній валюті","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_6812",6812,"Розрахунки за авансами одержаними в іноземній валюті","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_682",682,"Внутрішні розрахунки","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_683",683,"Внутрішньогосподарські розрахунки","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_684",684,"Розрахунки за нарахованими відсотками","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_6851",6851,"Розрахунки з іншими кредиторами (в національній валюті)","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_6852",6852,"Розрахунки з іншими кредиторами (в іноземній валюті)","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_6853",6853,"Розрахунки по виконавчих листах","account.data_account_type_payable",TRUE,"l10n_ua_psbo_chart_template"
+"ua_psbp_69",69,"Доходи майбутніх періодів","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_701",701,"Дохід від реалізації готової продукції","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_702",702,"Дохід від реалізації товарів","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_703",703,"Дохід від реалізації робіт і послуг","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_704",704,"Вирахування з доходу","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_705",705,"Перестрахування","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_7091",7091,"Дохід від роздрібного продажу","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_7092",7092,"Вирахування з доходу від роздрібного продажу","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_710",710,"Дохід від первісного визнання та від зміни вартості активів, які обліковуються за справедливою вартістю","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_711",711,"Дохід від купівлі-продажу іноземної валюти","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_712",712,"Дохід від реалізації інших оборотних активів","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_713",713,"Дохід від операційної оренди активів","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_714",714,"Дохід від операційної курсової різниці","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_715",715,"Одержані штрафи, пені, неустойки","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_716",716,"Відшкодування раніше списаних активів","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_717",717,"Дохід від списання кредиторської заборгованості","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_718",718,"Дохiд вiд безоплатно одержаних оборотних активiв","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_719",719,"Інші доходи від операційної діяльності","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_721",721,"Дохід від інвестицій в асоційовані підприємства","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_722",722,"Дохід від спільної діяльності","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_723",723,"Дохід від інвестицій в дочірні підприємства","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_731",731,"Дивіденди одержані","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_732",732,"Відсотки одержані","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_733",733,"Інші доходи від фінансових операцій","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_740",740,"Дохід від зміни вартості фінансових інструментів","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_741",741,"Дохід від реалізації фінансових інвестицій","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_742",742,"Дохід від відновлення корисності активів","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_743",743,"Дохід від реалізації майнових комплексів","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_744",744,"Дохід від неопераційної курсової різниці","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_745",745,"Дохід від безоплатно одержаних активів","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_746",746,"Інші доходи","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_751",751,"Відшкодування збитків від надзвичайних подій","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_752",752,"Інші надзвичайні доходи","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_76",76,"Страхові платежі","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_791",791,"Результат операцiйної діяльності","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_792",792,"Результат фінансових операцій","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_793",793,"Результат іншої звичайної діяльності","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_794",794,"(не використовується) Результат надзвичайних подій","account.data_account_type_revenue",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_801",801,"Витрати сировини й матеріалів","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_802",802,"Витрати купівельних напівфабрикатів та комплектуючих виробів","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_803",803,"Витрати палива й енергії","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_804",804,"Витрати тари й тарних матеріалів","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_805",805,"Витрати будівельних матеріалів","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_806",806,"Витрати запасних частин","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_807",807,"Витрати матеріалів сільськогосподарського призначення","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_808",808,"Витрати товарів","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_809",809,"Інші матеріальні витрати","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_811",811,"Виплати за окладами й тарифами","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_812",812,"Премії та заохочення","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_813",813,"Компенсаційні виплати","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_814",814,"Оплата відпусток","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_815",815,"Оплата іншого невідпрацьованого часу","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_816",816,"Інші витрати на оплату праці","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_821",821,"Відрахування на загальнообов'язкове державне соціальне страхування","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_822",822,"Відрахування на соціальне страхування (не використовується)","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_823",823,"Страхування на випадок безробіття (не використовується)","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_824",824,"Відрахування на індивідуальне страхування","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_831",831,"Амортизація основних засобів","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_832",832,"Амортизація інших необоротних матеріальних активів","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_833",833,"Амортизація нематеріальних активів","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_84",84,"Інші операційні витрати","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_851",851,"Інші затрати за елементами, податок на прибуток","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_852",852,"(не використовується) Інші затрати за елементами, надзвичайні затрати","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_901",901,"Собівартість реалізованої  готової продукції","account.data_account_type_direct_costs",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_902",902,"Собівартість реалізованих товарів","account.data_account_type_direct_costs",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_903",903,"Собівартість реалізованих робіт і послуг","account.data_account_type_direct_costs",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_904",904,"Страховi виплати","account.data_account_type_direct_costs",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_91",91,"Загальновиробничі витрати","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_92",92,"Адміністративні витрати","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_93",93,"Витрати на збут","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_940",940,"Витрати від первісного визнання та від зміни вартості активів, які обліковуються за справедливою вартістю","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_941",941,"Витрати на дослідження і розробки","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_942",942,"Витрати на купівлю-продаж іноземної валюти","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_943",943,"Собівартість реалізованих виробничих запасів","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_944",944,"Сумнівні та безнадійні борги","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_945",945,"Втрати від операційної курсової різниці","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_946",946,"Втрати від знецінення запасів","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_947",947,"Нестачі і втрати від псування цінностей","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_948",948,"Визнані штрафи, пені, неустойки","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_949",949,"Інші витрати операційної діяльності","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_951",951,"Відсотки за кредит","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_952",952,"Інші фінансові витрати","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_961",961,"Втрати від інвестицій в асоційовані підприємства","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_962",962,"Втрати від спільної діяльності","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_963",963,"Втрати від інвестицій в дочірні підприємства","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_970",970,"Витрати від зміни вартості фінансових інструментів","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_971",971,"Собівартість реалізованих фінансових інвестицій","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_972",972,"Втрати від зменшення корисності активів","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_973",973,"Собівартість реалізованих майнових комплексів","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_974",974,"Втрати від неопераційних курсових різниць","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_975",975,"Уцінка необоротних активів і фінансових інвестицій","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_976",976,"Списання необоротних активів","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_977",977,"Інші витрати діяльності","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_psbp_981",981,"Податок на прибуток від усіх видів діяльності","account.data_account_type_expenses",FALSE,"l10n_ua_psbo_chart_template"
+"ua_ias_1000",1000,"Назви брендів","account.data_account_type_fixed_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1001",1001,"Заголовки та назви видань","account.data_account_type_fixed_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1002",1002,"Комп’ютерне програмне забезпечення","account.data_account_type_fixed_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1003",1003,"Ліцензії та привілеї","account.data_account_type_fixed_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1004",1004,"Авторські права, патенти, та інші права","account.data_account_type_fixed_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1005",1005,"Нематеріальні активи на етапі розробки","account.data_account_type_fixed_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1009",1009,"Амортизація нематеріальних активів","account.data_account_type_depreciation",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1010",1010,"Земля","account.data_account_type_fixed_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1011",1011,"Будівлі","account.data_account_type_fixed_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1012",1012,"Машини та обладнання","account.data_account_type_fixed_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1013",1013,"Автомобілі","account.data_account_type_fixed_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1014",1014,"Меблі та приладдя","account.data_account_type_fixed_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1015",1015,"Офісне обладнання","account.data_account_type_fixed_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1019",1019,"Амортизація основних засобів","account.data_account_type_depreciation",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1020",1020,"Гудвіл","account.data_account_type_fixed_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1030",1030,"Біологічні активи","account.data_account_type_fixed_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1040",1040,"Інвестиції","account.data_account_type_fixed_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1100",1100,"Запаси (Склад)","account.data_account_type_current_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1101",1101,"Незавершене виробництво","account.data_account_type_current_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1102",1102,"Готова продукція","account.data_account_type_current_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1120",1120,"Дебіторська заборгованість за товари та послуги","account.data_account_type_receivable",TRUE,"l10n_ua_ias_chart_template"
+"ua_ias_1121",1121,"Відвантажено зі складу без рахунку-фактури","account.data_account_type_current_assets",TRUE,"l10n_ua_ias_chart_template"
+"ua_ias_1122",1122,"Дебіторська заборгованість за товари та послуги (PoS)","account.data_account_type_receivable",TRUE,"l10n_ua_ias_chart_template"
+"ua_ias_1130",1130,"Аванси партнерам","account.data_account_type_payable",TRUE,"l10n_ua_ias_chart_template"
+"ua_ias_1131",1131,"Інші оборотні активи","account.data_account_type_payable",TRUE,"l10n_ua_ias_chart_template"
+"ua_ias_1140",1140,"Податковий кредит по ПДВ","account.data_account_type_current_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1141",1141,"Аванс по податку на прибуток","account.data_account_type_payable",TRUE,"l10n_ua_ias_chart_template"
+"ua_ias_1142",1142,"Кошти на СЕА ПДВ","account.data_account_type_payable",TRUE,"l10n_ua_ias_chart_template"
+"ua_ias_1143",1143,"Переплата по лицьовому рахунку з ПДВ","account.data_account_type_current_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1144",1144,"Аванс по ЄСВ","account.data_account_type_payable",TRUE,"l10n_ua_ias_chart_template"
+"ua_ias_1150",1150,"Короткострокові фінансові інвестиції","account.data_account_type_current_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1160",1160,"Довгострокові інвестиції","account.data_account_type_non_current_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1170",1170,"Довгострокова дебіторська заборгованість","account.data_account_type_non_current_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1180",1180,"Відстрочені податкові активи","account.data_account_type_non_current_assets",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1200",1200,"Кредиторська заборгованість за товари та послуги","account.data_account_type_payable",TRUE,"l10n_ua_ias_chart_template"
+"ua_ias_1201",1201,"Отримано на склад без рахунку-фактури","account.data_account_type_current_liabilities",TRUE,"l10n_ua_ias_chart_template"
+"ua_ias_1202",1202,"Податок на прибуток","account.data_account_type_payable",TRUE,"l10n_ua_ias_chart_template"
+"ua_ias_1203",1203,"ПДВ","account.data_account_type_payable",TRUE,"l10n_ua_ias_chart_template"
+"ua_ias_1204",1204,"Податкові зобов’язання по ПДВ","account.data_account_type_current_liabilities",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1205",1205,"ПДФО","account.data_account_type_payable",TRUE,"l10n_ua_ias_chart_template"
+"ua_ias_12051",12051,"Військовий збір","account.data_account_type_payable",TRUE,"l10n_ua_ias_chart_template"
+"ua_ias_1206",1206,"ЄСВ","account.data_account_type_payable",TRUE,"l10n_ua_ias_chart_template"
+"ua_ias_1207",1207,"Інші податки","account.data_account_type_payable",TRUE,"l10n_ua_ias_chart_template"
+"ua_ias_1208",1208,"Заробітна плата та винагороди","account.data_account_type_payable",TRUE,"l10n_ua_ias_chart_template"
+"ua_ias_1210",1210,"Аванси одержані від покупців та замовників","account.data_account_type_receivable",TRUE,"l10n_ua_ias_chart_template"
+"ua_ias_1220",1220,"Інші короткострокові зобов’язання","account.data_account_type_current_liabilities",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1230",1230,"Короткострокові позики","account.data_account_type_current_liabilities",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1240",1240,"Короткострокова частка за довгострокові позики","account.data_account_type_current_liabilities",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1300",1300,"Довгострокові позики","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1301",1301,"Довгострокові кредити","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1302",1302,"Іпотека","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1310",1310,"Відстрочені податкові зобов’язання","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1320",1320,"Витрати майбутніх періодів","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1330",1330,"Інші довгострокові зобов’язання","account.data_account_type_non_current_liabilities",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1400",1400,"Статутний капітал","account.data_account_type_equity",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1401",1401,"Емісійний фонд","account.data_account_type_equity",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1402",1402,"Вилучений капітал","account.data_account_type_equity",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1403",1403,"Додатковий оплачений капітал","account.data_account_type_equity",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1404",1404,"Резерв переоцінки","account.data_account_type_equity",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1405",1405,"Неоплачений капітал","account.data_account_type_equity",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1406",1406,"Нерозподілений прибуток (непокритий збиток)","account.data_account_type_equity",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1407",1407,"Частка меншості","account.data_account_type_equity",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_1408",1408,"Ефект курсових різниць","account.data_account_type_equity",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_2000",2000,"Дохід від продажу (категорія № 1)","account.data_account_type_revenue",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_2001",2001,"Дохід від продажу (категорія № 2)","account.data_account_type_revenue",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_2002",2002,"Дохід від продажу (категорія № 3)","account.data_account_type_revenue",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_2003",2003,"Дохід від продажу (категорія № 4)","account.data_account_type_revenue",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_2100",2100,"Фінансовий результат","account.data_unaffected_earnings",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_2200",2200,"Собівартість продажу (категорія № 1)","account.data_account_type_direct_costs",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_2201",2201,"Собівартість продажу (категорія № 2)","account.data_account_type_direct_costs",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_2202",2202,"Собівартість продажу (категорія № 3)","account.data_account_type_direct_costs",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_2203",2203,"Собівартість продажу (категорія № 4)","account.data_account_type_direct_costs",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_2300",2300,"Адміністративні витрати","account.data_account_type_expenses",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_2400",2400,"Витрати на збут","account.data_account_type_expenses",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_2500",2500,"Інші витрати","account.data_account_type_expenses",FALSE,"l10n_ua_ias_chart_template"
+"ua_ias_2600",2600,"Податок на прибуток","account.data_account_type_expenses",FALSE,"l10n_ua_ias_chart_template"
+
+```
+
+## File: data\account_account_tag_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="acc_tag_vat" model="account.account.tag">
+            <field name="name">ПДВ</field>
+            <field name="applicability">accounts</field>
+        </record>
+    </data>
+</odoo>
+
+```
+
+## File: data\account_chart_template.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="l10n_ua_psbo_chart_template" model="account.chart.template">
+        <field name="name">План рахунків ПСБО</field>
+        <field name="cash_account_code_prefix">301</field>
+        <field name="bank_account_code_prefix">311</field>
+        <field name="transfer_account_code_prefix">333</field>
+        <field name="code_digits">6</field>
+        <field name="currency_id" ref="base.UAH"/>
+        <field name="country_id" ref="base.ua"/>
+    </record>
+
+    <record id="l10n_ua_ias_chart_template" model="account.chart.template">
+        <field name="name">План рахунків МСФЗ</field>
+        <field name="bank_account_code_prefix">1112</field>
+        <field name="cash_account_code_prefix">1111</field>
+        <field name="transfer_account_code_prefix">1119</field>
+        <field name="code_digits">6</field>
+        <field name="currency_id" ref="base.UAH"/>
+        <field name="country_id" ref="base.ua"/>
+    </record>
+</odoo>
+
+```
+
+## File: data\account_chart_template_config.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="l10n_ua_psbo_chart_template" model="account.chart.template">
+            <field name="property_account_receivable_id" ref="ua_psbp_361"/>
+            <field name="property_account_payable_id" ref="ua_psbp_631"/>
+            <field name="property_account_expense_categ_id" ref="ua_psbp_901"/>
+            <field name="property_account_income_categ_id" ref="ua_psbp_701"/>
+            <field name="complete_tax_set" eval="True"/>
+            <field name="use_anglo_saxon" eval="True"/>
+            <field name="property_stock_account_input_categ_id" ref="ua_psbp_2812"/>
+            <field name="property_stock_account_output_categ_id" ref="ua_psbp_2811"/>
+            <field name="property_stock_valuation_account_id" ref="ua_psbp_281"/>
+            <field name="income_currency_exchange_account_id" ref="ua_psbp_711"/>
+            <field name="expense_currency_exchange_account_id" ref="ua_psbp_942"/>
+            <field name="default_pos_receivable_account_id" ref="ua_psbp_366" />
+        </record>
+
+        <record id="l10n_ua_ias_chart_template" model="account.chart.template">
+            <field name="property_account_receivable_id" ref="ua_ias_1120"/>
+            <field name="property_account_payable_id" ref="ua_ias_1200"/>
+            <field name="property_account_expense_categ_id" ref="ua_ias_2200"/>
+            <field name="property_account_income_categ_id" ref="ua_ias_2000"/>
+            <field name="complete_tax_set" eval="True"/>
+            <field name="use_anglo_saxon" eval="True"/>
+            <field name="property_stock_account_input_categ_id" ref="ua_ias_1201"/>
+            <field name="property_stock_account_output_categ_id" ref="ua_ias_1121"/>
+            <field name="property_stock_valuation_account_id" ref="ua_ias_1100"/>
+            <field name="income_currency_exchange_account_id" ref="ua_ias_2100"/>
+            <field name="expense_currency_exchange_account_id" ref="ua_ias_2500"/>
+            <field name="default_pos_receivable_account_id" ref="ua_ias_1122" />
+        </record>
+    </data>
+
+    <data noupdate="1">
+        <function model="account.chart.template" name="try_loading">
+            <value eval="[ref('l10n_ua.l10n_ua_psbo_chart_template')]"/>
+        </function>
+    </data>
+</odoo>
+
+```
+
+## File: data\account_tax_group_data.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="tax_group_vat20" model="account.tax.group">
+            <field name="name">ПДВ 20%</field>
+            <field name="country_id" ref="base.ua"/>
+        </record>
+        <record id="tax_group_vat14" model="account.tax.group">
+            <field name="name">ПДВ 14%</field>
+            <field name="country_id" ref="base.ua"/>
+        </record>
+        <record id="tax_group_vat7" model="account.tax.group">
+            <field name="name">ПДВ 7%</field>
+            <field name="country_id" ref="base.ua"/>
+        </record>
+        <record id="tax_group_vat0" model="account.tax.group">
+            <field name="name">ПДВ 0%</field>
+            <field name="country_id" ref="base.ua"/>
+        </record>
+        <record id="tax_group_vat_free" model="account.tax.group">
+            <field name="name">Звільнено від ПДВ</field>
+            <field name="country_id" ref="base.ua"/>
+        </record>
+        <record id="tax_group_not_vat" model="account.tax.group">
+            <field name="name">Не є ПДВ</field>
+            <field name="country_id" ref="base.ua"/>
+        </record>
+    </data>
+</odoo>
+
+```
+
+## File: data\account_tax_template.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="ua_psbp_6412" model="account.account.template">
+            <field name="tag_ids" eval="[(6,0,[ref('l10n_ua.acc_tag_vat')])]"/>
+        </record>
+
+        <!-- Tax template for VAT -->
+        <record id="sale_tax_template_vat20_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">9</field>
+            <field name="name">Реалізація ПДВ 20%</field>
+            <field name="description">+ ПДВ 20%</field>
+            <field name="amount">20</field>
+            <field name="type_tax_use">sale</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base'
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6431'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6431'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat20"/>
+        </record>
+        <record id="sale_tax_template_vat20incl_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">9</field>
+            <field name="name">Реалізація в т. ч. ПДВ 20%</field>
+            <field name="description">в т. ч. ПДВ 20%</field>
+            <field name="amount">20</field>
+            <field name="type_tax_use">sale</field>
+            <field name="price_include" eval="1"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6431'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6431'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat20"/>
+        </record>
+        <record id="sale_tax_template_vat14_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">10</field>
+            <field name="name">Реалізація ПДВ 14%</field>
+            <field name="description">+ ПДВ 14%</field>
+            <field name="amount">14</field>
+            <field name="type_tax_use">sale</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base'
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6431'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6431'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat14"/>
+        </record>
+        <record id="sale_tax_template_vat14incl_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">10</field>
+            <field name="name">Реалізація в т. ч. ПДВ 14%</field>
+            <field name="description">в т. ч. ПДВ 14%</field>
+            <field name="amount">14</field>
+            <field name="type_tax_use">sale</field>
+            <field name="price_include" eval="1"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6431'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6431'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat14"/>
+        </record>
+        <record id="sale_tax_template_vat7_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">11</field>
+            <field name="name">Реалізація ПДВ 7%</field>
+            <field name="description">+ ПДВ 7%</field>
+            <field name="amount">7</field>
+            <field name="type_tax_use">sale</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6431'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6431'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat7"/>
+        </record>
+        <record id="sale_tax_template_vat7incl_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">11</field>
+            <field name="name">Реалізація в т. ч. ПДВ 7%</field>
+            <field name="description">в т .ч. ПДВ 7%</field>
+            <field name="amount">7</field>
+            <field name="type_tax_use">sale</field>
+            <field name="price_include" eval="1"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6431'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6431'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat7"/>
+        </record>
+        <record id="sale_tax_template_vat0_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">12</field>
+            <field name="name">Реалізація ПДВ 0%</field>
+            <field name="description">ПДВ 0%</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">sale</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+        </record>
+        <record id="sale_tax_template_vat_free_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">13</field>
+            <field name="name">Реалізація звільнена від  ПДВ</field>
+            <field name="description">Звільнено від ПДВ</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">sale</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+        </record>
+        <record id="sale_tax_template_vat_not_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">14</field>
+            <field name="name">Реалізація Не є об'єктом ПДВ</field>
+            <field name="description">Не є об'єктом ПДВ</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">sale</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+        </record>
+
+        <record id="purchase_tax_template_vat20_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">19</field>
+            <field name="name">Придбання ПДВ 20%</field>
+            <field name="description">+ ПДВ 20%</field>
+            <field name="amount">20</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6441'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6441'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat20"/>
+        </record>
+        <record id="purchase_tax_template_vat20incl_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">19</field>
+            <field name="name">Придбання в т. ч. ПДВ 20%</field>
+            <field name="description">в т. ч. ПДВ 20%</field>
+            <field name="amount">20</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="price_include" eval="1"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6441'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6441'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat20"/>
+        </record>
+        <record id="purchase_tax_template_vat14_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">20</field>
+            <field name="name">Придбання ПДВ 14%</field>
+            <field name="description">+ ПДВ 14%</field>
+            <field name="amount">14</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6441'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6441'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat14"/>
+        </record>
+        <record id="purchase_tax_template_vat14incl_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">20</field>
+            <field name="name">Придбання в т. ч. ПДВ 14%</field>
+            <field name="description">в т. ч. ПДВ 14%</field>
+            <field name="amount">14</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="price_include" eval="1"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6441'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6441'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat14"/>
+        </record>
+        <record id="purchase_tax_template_vat7_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">21</field>
+            <field name="name">Придбання ПДВ 7%</field>
+            <field name="description">+ ПДВ 7%</field>
+            <field name="amount">7</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6441'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6441'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat7"/>
+        </record>
+        <record id="purchase_tax_template_vat7incl_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">21</field>
+            <field name="name">Придбання в т. ч. ПДВ 7%</field>
+            <field name="description">в т. ч. ПДВ 7%</field>
+            <field name="amount">7</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="price_include" eval="1"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6441'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_psbp_6441'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat7"/>
+        </record>
+        <record id="purchase_tax_template_vat0_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">22</field>
+            <field name="name">Придбання ПДВ 0%</field>
+            <field name="description">ПДВ 0%</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+        </record>
+        <record id="purchase_tax_template_vat_free_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">23</field>
+            <field name="name">Придбання звільнене від  ПДВ</field>
+            <field name="description">Звільнено від ПДВ</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+        </record>
+        <record id="purchase_tax_template_vat_not_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">24</field>
+            <field name="name">Придбання Не є об'єктом ПДВ</field>
+            <field name="description">Не є об'єктом ПДВ</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+        </record>
+        <!-- Simplified tax system -->
+        <!-- Sale taxes -->
+        <record id="simple_tax_sale_product_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">30</field>
+            <field name="name">Дохід від продажу  товарів</field>
+            <field name="description">Дохід від продажу товарів</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">sale</field>
+        </record>
+        <record id="simple_tax_sale_gift_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">31</field>
+            <field name="name">Дохід від безоплатно отриманих  товарів</field>
+            <field name="description">Дохід від безоплатно отриманих товарів</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">sale</field>
+        </record>
+        <record id="simple_tax_sale_old_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">32</field>
+            <field name="name">Дохід від заборгованності за якою минув строк позивної давності</field>
+            <field name="description">Дохід від заборгованності, за якою минув строк позивної давності</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">sale</field>
+        </record>
+        <record id="simple_tax_sale_15_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">33</field>
+            <field name="name">Дохід, за ставкою 15%</field>
+            <field name="description">Дохід за ставкою 15%</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">sale</field>
+        </record>
+        <!-- Purchase taxes -->
+        <record id="simple_tax_purchase_product_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">40</field>
+            <field name="name">Витрати від продажу  товарів</field>
+            <field name="description">Витрати від продажу товарів</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+        </record>
+        <record id="simple_tax_purchase_salary_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">41</field>
+            <field name="name">Витрати на оплату праці</field>
+            <field name="description">Витрати на оплату праці найманих працівників</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+        </record>
+        <record id="simple_tax_purchase_esv_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">42</field>
+            <field name="name">Витрати ЄСВ</field>
+            <field name="description">Витрати на ЄСВ</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+        </record>
+        <record id="simple_tax_purchase_other_psbo" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_psbo_chart_template"/>
+            <field name="sequence">43</field>
+            <field name="name">Витрати  інші</field>
+            <field name="description">Витрати інші</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+        </record>
+
+        <!-- IAS -->
+        <record id="ua_ias_1203" model="account.account.template">
+            <field name="tag_ids" eval="[(6,0,[ref('l10n_ua.acc_tag_vat')])]"/>
+        </record>
+
+        <!-- Tax template for VAT -->
+        <record id="sale_tax_template_vat20" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">9</field>
+            <field name="name">Реалізація з ПДВ 20%</field>
+            <field name="description">+ ПДВ 20%</field>
+            <field name="amount">20</field>
+            <field name="type_tax_use">sale</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1204'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1204'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat20"/>
+        </record>
+        <record id="sale_tax_template_vat20incl" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">9</field>
+            <field name="name">Реалізація в т. ч. ПДВ 20%</field>
+            <field name="description">в т. ч. ПДВ 20%</field>
+            <field name="amount">20</field>
+            <field name="type_tax_use">sale</field>
+            <field name="price_include" eval="1"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1204'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1204'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat20"/>
+        </record>
+        <record id="sale_tax_template_vat14" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">10</field>
+            <field name="name">Реалізація з ПДВ 14%</field>
+            <field name="description">+ ПДВ 14%</field>
+            <field name="amount">14</field>
+            <field name="type_tax_use">sale</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1204'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1204'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat14"/>
+        </record>
+        <record id="sale_tax_template_vat14incl" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">10</field>
+            <field name="name">Реалізація в т. ч. ПДВ 14%</field>
+            <field name="description">в т. ч. ПДВ 14%</field>
+            <field name="amount">14</field>
+            <field name="type_tax_use">sale</field>
+            <field name="price_include" eval="1"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1204'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1204'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat14"/>
+        </record>
+        <record id="sale_tax_template_vat7" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">11</field>
+            <field name="name">Реалізація з ПДВ 7%</field>
+            <field name="description">+ ПДВ 7%</field>
+            <field name="amount">7</field>
+            <field name="type_tax_use">sale</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1204'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1204'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat7"/>
+        </record>
+        <record id="sale_tax_template_vat7incl" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">11</field>
+            <field name="name">Реалізація в т. ч. ПДВ 7%</field>
+            <field name="description">в т .ч. ПДВ 7%</field>
+            <field name="amount">7</field>
+            <field name="type_tax_use">sale</field>
+            <field name="price_include" eval="1"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1204'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1204'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat7"/>
+        </record>
+        <record id="sale_tax_template_vat0" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">12</field>
+            <field name="name">Реалізація з ПДВ 0%</field>
+            <field name="description">ПДВ 0%</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">sale</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+        </record>
+        <record id="sale_tax_template_vat_free" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">13</field>
+            <field name="name">Реалізація звільнена від ПДВ</field>
+            <field name="description">Звільнено від ПДВ</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">sale</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+        </record>
+        <record id="sale_tax_template_vat_not" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">14</field>
+            <field name="name">Реалізація не є об'єктом ПДВ</field>
+            <field name="description">Не є об'єктом ПДВ</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">sale</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+        </record>
+
+        <record id="purchase_tax_template_vat20" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">19</field>
+            <field name="name">Придбання з ПДВ 20%</field>
+            <field name="description">+ ПДВ 20%</field>
+            <field name="amount">20</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1140'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1140'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat20"/>
+        </record>
+        <record id="purchase_tax_template_vat20incl" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">19</field>
+            <field name="name">Придбання в т. ч. ПДВ 20%</field>
+            <field name="description">в т. ч. ПДВ 20%</field>
+            <field name="amount">20</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="price_include" eval="1"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1140'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1140'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat20"/>
+        </record>
+        <record id="purchase_tax_template_vat14" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">20</field>
+            <field name="name">Придбання з ПДВ 14%</field>
+            <field name="description">+ ПДВ 14%</field>
+            <field name="amount">14</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1140'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1140'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat14"/>
+        </record>
+        <record id="purchase_tax_template_vat14incl" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">20</field>
+            <field name="name">Придбання в т. ч. ПДВ 14%</field>
+            <field name="description">в т. ч. ПДВ 14%</field>
+            <field name="amount">14</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="price_include" eval="1"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1140'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1140'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat14"/>
+        </record>
+        <record id="purchase_tax_template_vat7" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">21</field>
+            <field name="name">Придбання з ПДВ 7%</field>
+            <field name="description">+ ПДВ 7%</field>
+            <field name="amount">7</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1140'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1140'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat7"/>
+        </record>
+        <record id="purchase_tax_template_vat7incl" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">21</field>
+            <field name="name">Придбання в т. ч. ПДВ 7%</field>
+            <field name="description">в т. ч. ПДВ 7%</field>
+            <field name="amount">7</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="price_include" eval="1"/>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1140'),
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                    'account_id': ref('ua_ias_1140'),
+                }),
+            ]"/>
+            <field name="tax_group_id" ref="l10n_ua.tax_group_vat7"/>
+        </record>
+        <record id="purchase_tax_template_vat0" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">22</field>
+            <field name="name">Придбання з ПДВ 0%</field>
+            <field name="description">ПДВ 0%</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+        </record>
+        <record id="purchase_tax_template_vat_free" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">23</field>
+            <field name="name">Придбання звільнене від ПДВ</field>
+            <field name="description">Звільнено від ПДВ</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+        </record>
+        <record id="purchase_tax_template_vat_not" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">24</field>
+            <field name="name">Придбання не є об'єктом ПДВ</field>
+            <field name="description">Не є об'єктом ПДВ</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+            <field name="refund_repartition_line_ids" eval="[(5, 0, 0),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'base',
+                }),
+                (0, 0, {
+                    'factor_percent': 100,
+                    'repartition_type': 'tax',
+                }),
+            ]"/>
+        </record>
+        <!-- Simplified tax system -->
+        <!-- Sale taxes -->
+        <record id="simple_tax_sale_product" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">30</field>
+            <field name="name">Дохід від продажу товарів</field>
+            <field name="description">Дохід від продажу товарів</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">sale</field>
+        </record>
+        <record id="simple_tax_sale_gift" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">31</field>
+            <field name="name">Дохід від безоплатно отриманих товарів</field>
+            <field name="description">Дохід від безоплатно отриманих товарів</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">sale</field>
+        </record>
+        <record id="simple_tax_sale_old" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">32</field>
+            <field name="name">Дохід від заборгованності, за якою минув строк позивної давності</field>
+            <field name="description">Дохід від заборгованності, за якою минув строк позивної давності</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">sale</field>
+        </record>
+        <record id="simple_tax_sale_15" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">33</field>
+            <field name="name">Дохід, що оподатковується за ставкою 15%</field>
+            <field name="description">Дохід за ставкою 15%</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">sale</field>
+        </record>
+        <!-- Purchase taxes -->
+        <record id="simple_tax_purchase_product" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">40</field>
+            <field name="name">Витрати від продажу товарів</field>
+            <field name="description">Витрати від продажу товарів</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+        </record>
+        <record id="simple_tax_purchase_salary" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">41</field>
+            <field name="name">Витрати на оплату праці найманих працівників</field>
+            <field name="description">Витрати на оплату праці найманих працівників</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+        </record>
+        <record id="simple_tax_purchase_esv" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">42</field>
+            <field name="name">Витрати на ЄСВ</field>
+            <field name="description">Витрати на ЄСВ</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+        </record>
+        <record id="simple_tax_purchase_other" model="account.tax.template">
+            <field name="chart_template_id" ref="l10n_ua_ias_chart_template"/>
+            <field name="sequence">43</field>
+            <field name="name">Витрати інші</field>
+            <field name="description">Витрати інші</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+        </record>
+    </data>
+</odoo>
+
+```
+
+## File: static\description\icon.svg
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 106 106">
+  <defs>
+    <mask id="a" x="0" y="0" width="106" height="106" maskUnits="userSpaceOnUse">
+      <path d="M6.06,0H98.43C104.49,0,106,1.51,106,7.57V98.43c0,6.06-1.51,7.57-7.57,7.57H6.06C1.51,106,0,104.49,0,98.43V7.57C0,1.51,1.51,0,6.06,0Z" style="fill: #fff;fill-rule: evenodd"/>
+    </mask>
+    <mask id="b" x="4.8" y="6.07" width="50.4" height="33.8" maskUnits="userSpaceOnUse">
+      <rect x="6.29" y="7.65" width="48.45" height="31.57" rx="1" style="fill: #fff"/>
+    </mask>
+    <symbol id="c" data-name="account icon" viewBox="0 0 106 106">
+      <g style="mask: url(#a)">
+        <g>
+          <path d="M0,0H106V106H0Z" style="fill: #5a5a64;fill-rule: evenodd"/>
+          <path d="M6.06,1.51H98.43q6.06,0,7.57,3V0H0V4.54Q1.52,1.51,6.06,1.51Z" style="fill: #fff;fill-opacity: 0.382999986410141;fill-rule: evenodd"/>
+          <path d="M6.06,104.49H98.43q6.06,0,7.57-4.55V106H0V99.94Q1.52,104.49,6.06,104.49Z" style="fill-opacity: 0.382999986410141;fill-rule: evenodd"/>
+          <g>
+            <path d="M70.38,104.49H6.06C3,104.49,0,103,0,98.43V61.28L28.77,19.69H59.06a77.33,77.33,0,0,0,21.2,13.87c.07,11.31.07,4.86,0,16.17h3.12l.21,36.82Z" style="fill: #393939;fill-rule: evenodd;opacity: 0.324000000953674;isolation: isolate"/>
+            <g style="opacity: 0.30000000000000004">
+              <g>
+                <path d="M68.77,58.54H76c.76,0,1,.12,1,.46v2.45c0,.31-.24.43-.93.43H61.44c-.66,0-.92-.12-.92-.42,0-.83,0-1.67,0-2.51,0-.29.26-.4.92-.41Z"/>
+                <path d="M64.33,77.42c.42.39.76.66,1,1a.89.89,0,0,1,0,1.31.92.92,0,0,1-1.32,0,4.25,4.25,0,0,1-.48-.47c-.14-.15-.26-.31-.49-.6-.32.37-.54.66-.79.91-.53.53-1.08.58-1.5.15s-.36-.94.15-1.45c.26-.26.54-.5.91-.83-.38-.34-.72-.61-1-.91a.9.9,0,0,1,0-1.36.91.91,0,0,1,1.36,0c.29.28.54.6.93,1A12.1,12.1,0,0,1,64,75.18a.91.91,0,0,1,1.36,0,.87.87,0,0,1,0,1.31C65.07,76.79,64.73,77.06,64.33,77.42Z"/>
+                <path d="M62.13,66.9c0-.47,0-.88,0-1.28a.92.92,0,0,1,.92-1,.91.91,0,0,1,1,1c0,.41,0,.81,0,1.3h1.14a1.16,1.16,0,0,1,1.22,1c0,.55-.42.85-1.18.86H64.12c0,.49,0,.91,0,1.34a.94.94,0,1,1-1.88,0c0-.41,0-.81,0-1.3H60.92a.94.94,0,1,1,0-1.88C61.3,66.89,61.68,66.9,62.13,66.9Z"/>
+                <path d="M74.31,76H72.23c-.67,0-1-.34-1-.93a.89.89,0,0,1,1-1q2.18,0,4.35,0a1,1,0,1,1,0,1.91c-.74,0-1.47,0-2.21,0Z"/>
+                <path d="M74.28,68.61c-.71,0-1.43,0-2.14,0a.86.86,0,0,1-1-.9.85.85,0,0,1,.92-1c1.5,0,3,0,4.48,0a.93.93,0,0,1,1,1,.91.91,0,0,1-1,.91c-.75,0-1.51,0-2.27,0Z"/>
+                <path d="M74.36,78.09c.72,0,1.44,0,2.15,0a1,1,0,0,1,1,1c0,.57-.38.93-1,.94H72.28c-.75,0-1.09-.32-1.09-.94s.37-1,1.09-1,1.39,0,2.08,0Z"/>
+                <path d="M81.29,90.55H56.14a4,4,0,0,1-4-4V53.73a4,4,0,0,1,4-4H81.29a4,4,0,0,1,4,4V86.55A4,4,0,0,1,81.29,90.55ZM56.14,53.73V86.55H81.29V53.73Z"/>
+              </g>
+              <path d="M43.49,83.26H31.8V25.71H56v10.6q0,4.55,4.54,4.55H75.71v5.78h4.55V34.8c-4.55-3-16.66-12.11-19.69-13.63H30.29a2.68,2.68,0,0,0-3,3V84.77a2.68,2.68,0,0,0,3,3H48.45V83.26ZM60.57,25.71l15.14,10.6H60.57Z"/>
+            </g>
+            <path d="M60.57,18.68H30.29a2.68,2.68,0,0,0-3,3V82.28a2.68,2.68,0,0,0,3,3H48.45V80.77H31.8V23.22H56v10.6q0,4.55,4.54,4.55H75.71v5.78h4.55V32.31C75.71,29.28,63.6,20.2,60.57,18.68Zm0,15.14V23.22l15.14,10.6Z" style="fill: #a8a9ab"/>
+            <g>
+              <path d="M68.77,55.78H76c.76,0,1,.13,1,.53v2.85c0,.37-.24.5-.93.5q-7.3,0-14.61,0c-.66,0-.92-.14-.92-.48,0-1,0-2,0-2.93,0-.34.26-.47.92-.47Z" style="fill: #a8a9ab"/>
+              <path d="M64.33,76.53c.42.38.76.65,1,1a.89.89,0,0,1,0,1.31.92.92,0,0,1-1.32,0,5.44,5.44,0,0,1-.48-.48c-.14-.14-.26-.31-.49-.59-.32.36-.54.65-.79.91-.53.53-1.08.57-1.5.14s-.36-.94.15-1.45c.26-.26.54-.49.91-.82-.38-.35-.72-.61-1-.92a.9.9,0,0,1,0-1.36.92.92,0,0,1,1.36,0c.29.28.54.61.93,1A13.78,13.78,0,0,1,64,74.28a.91.91,0,0,1,1.36,0,.88.88,0,0,1,0,1.32C65.07,75.89,64.73,76.16,64.33,76.53Z" style="fill: #a8a9ab"/>
+              <path d="M62.13,65.88c0-.48,0-.88,0-1.29a1,1,0,1,1,1.91,0c0,.4,0,.81,0,1.3h1.14a1.15,1.15,0,0,1,1.22,1c0,.54-.42.85-1.18.85H64.12c0,.49,0,.92,0,1.34a.94.94,0,1,1-1.88,0c0-.4,0-.81,0-1.3H60.92a.94.94,0,1,1,0-1.88Z" style="fill: #a8a9ab"/>
+              <path d="M74.31,75.11c-.69,0-1.38,0-2.08,0s-1-.35-1-.94a.89.89,0,0,1,1-1q2.18,0,4.35,0a.91.91,0,0,1,1,1,.93.93,0,0,1-1,1c-.74,0-1.47,0-2.21,0Z" style="fill: #a8a9ab"/>
+              <path d="M74.28,67.76H72.14a.87.87,0,0,1-1-.9.84.84,0,0,1,.92-1c1.5,0,3,0,4.48,0a.94.94,0,0,1,1,1,.91.91,0,0,1-1,.91H74.28Z" style="fill: #a8a9ab"/>
+              <path d="M74.36,77.2c.72,0,1.44,0,2.15,0a1,1,0,0,1,1,1c0,.56-.38.93-1,.93q-2.12,0-4.23,0c-.75,0-1.09-.32-1.09-.94s.37-.94,1.09-1,1.39,0,2.08,0Z" style="fill: #a8a9ab"/>
+              <path d="M81.29,88.06H56.14a4,4,0,0,1-4-4V51.24a4,4,0,0,1,4-4H81.29a4,4,0,0,1,4,4V84.06A4,4,0,0,1,81.29,88.06ZM56.14,51.24V84.06H81.29V51.24Z" style="fill: #a8a9ab"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </symbol>
+  </defs>
+  <g>
+    <use width="106" height="106" transform="translate(-0.07 0)" xlink:href="#c"/>
+    <rect x="6.2" y="10.57" width="48.45" height="31.57" rx="1" style="fill: #393939;opacity: 0.44;isolation: isolate"/>
+    <g style="mask: url(#b)">
+      <image width="1200" height="800" transform="translate(4.8 6.07) scale(0.04 0.04)" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABLAAAAMlCAYAAABjLQqxAAAACXBIWXMAAQeYAAEHmAEWNs1oAAAWMUlEQVR4Xu3asQ3DMBAEwZfhKtWt4B7UDl0CQ24wE18Fi7vm/q0BAAAAgKjPbgAAAAAAJwlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKRd6521GwEAAADAKR5YAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkCVgAAAAApAlYAAAAAKQJWAAAAACkfWfm2Y0AAAAA4JQ/3xwL/LN/vP0AAAAASUVORK5CYII="/>
+    </g>
+  </g>
+</svg>
+
+```
+
